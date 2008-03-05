@@ -31,8 +31,8 @@ package as3classes.util {
 		/**
 			Calls a external URL using navigateToURL method.
 			
-			@param $url URL
-			@param $target Target. Default "_self"
+			@param $url PAge URL.
+			@param $target Page target. Default "_self"
 		 */
         public static function call($url:String, $target:String = "_self") {
 			_arrURLQueue.push( { url: $url, target: $target } );
@@ -99,7 +99,7 @@ package as3classes.util {
 		}
 		
 		private static function _start():void {
-			setTimeout(_run, _arrURLQueue.length300);
+			setTimeout(_run, _arrURLQueue.length * 300);
 		}
     }
 }
