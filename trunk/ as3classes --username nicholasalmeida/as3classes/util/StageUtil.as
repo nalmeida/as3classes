@@ -5,23 +5,29 @@ package as3classes.util {
     import flash.display.StageScaleMode;
     import flash.events.Event;
 
-    public class StageUtil extends Sprite {
+    /**
+		StageUtil class. Init main stage class, sets the align type and creates a handler event for resize.
+		
+		@author Nicholas Almeida nicholasalmeida.com
+		@version 4/3/2008 17:57
+		@usage
+				<code>
+					StageUtil.init(this);
+					StageUtil.onResize = function(w, h) {
+						trace(w + " x " + h);
+					}
+				</code>
+	 */
+	public class StageUtil extends Sprite {
 		
 		private static var _documentClass:Sprite;
 		public static var onResize:Function;
 		
 		/**
-		 * Inits the StageUtil class
-		 * @version	4/3/2008 17:57
-		 * @param	$documentClass:Sprite - Document Class
-		 * @param	$aling:String - Same values of flash.display.StageAlign class. Default "TOP_LEFT"
-		 * @see
-		 * <code>
-			StageUtil.init(this);
-			StageUtil.onResize = function(w, h) {
-				trace(w + " x " + h);
-			}
-		 * </code>
+			Inits the StageUtil class
+			
+			@param $documentClass Document Class.
+			@param $aling Same values of flash.display.StageAlign class. Default "TOP_LEFT"
 		 */
         public static function init($documentClass:Sprite, $aling:String = "TOP_LEFT") {
 			
@@ -37,8 +43,9 @@ package as3classes.util {
         }
 		
 		/**
-		 * Returns the Document Class root property.
-		 * @return 	_documentClass:Sprite
+			Returns the Document Class root property.
+			
+			@return _documentClass
 		 */
 		public static function getStage():Sprite {
 			return _documentClass;
@@ -53,8 +60,9 @@ package as3classes.util {
         }
 		
 		/**
-		 * Fires the onResize method passing the new stage Width and Height.
-		 * @return 	none;
+			Fires the onResize method passing the new stage Width and Height.
+			
+			@return none;
 		 */
 		private static function _onResize():void {
 			if (onResize != null ) onResize(getStage().stage.stageWidth, getStage().stage.stageHeight);
