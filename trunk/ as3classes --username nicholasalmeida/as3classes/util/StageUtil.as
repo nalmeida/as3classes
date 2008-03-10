@@ -1,5 +1,7 @@
 package as3classes.util {
 	
+	import flash.display.DisplayObject;
+	import flash.display.MovieClip;
     import flash.display.Sprite;
     import flash.display.StageAlign;
     import flash.display.StageScaleMode;
@@ -20,7 +22,7 @@ package as3classes.util {
 	 */
 	public class StageUtil extends Sprite {
 		
-		private static var _documentClass:Sprite;
+		private static var _documentClass:DisplayObject;
 		public static var onResize:Function;
 		
 		/**
@@ -29,7 +31,7 @@ package as3classes.util {
 			@param $documentClass Document Class.
 			@param $aling Same values of flash.display.StageAlign class. Default "TOP_LEFT"
 		 */
-        public static function init($documentClass:Sprite, $aling:String = "TOP_LEFT") {
+        public static function init($documentClass:DisplayObject, $aling:String = "TOP_LEFT"):void {
 			
 			_documentClass = $documentClass;
             
@@ -42,22 +44,36 @@ package as3classes.util {
 			_onResize();
         }
 		
+		public static function setDocumentClass($documentClass:*):void {
+			_documentClass = $documentClass;
+			_onResize();
+		}
+		
 		/**
 			Returns the Document Class root property.
 			
 			@return _documentClass
 		 */
-		public static function getStage():Sprite {
+		public static function getStage():DisplayObject {
 			return _documentClass;
 		}
 
         private static function _activateHandler(event:Event):void {
-            _onResize();
+            //_onResize();
         }
 
+		
         private static function _resizeHandler(event:Event):void {
             _onResize();
         }
+		
+		public static function getWidth():Number {
+			return getStage().stage.stageWidth;
+		}
+		
+		public static function getHeight():Number {
+			return getStage().stage.stageHeight;
+		}		
 		
 		/**
 			Fires the onResize method passing the new stage Width and Height.
@@ -65,7 +81,7 @@ package as3classes.util {
 			@return none;
 		 */
 		private static function _onResize():void {
-			if (onResize != null ) onResize(getStage().stage.stageWidth, getStage().stage.stageHeight);
+			if (onResize != null ) onResize(getWidth(), getHeight());
 		}
     }
 }
