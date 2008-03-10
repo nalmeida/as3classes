@@ -1,7 +1,7 @@
 package as3classes.util {
 	
 	import flash.display.Sprite;
-	import com.adobe.serialization.json.JSON;
+	import com.adobe.serialization.json.*;
 	
 	/**
 		Root class. Create a global class to access the main root sprite.
@@ -41,7 +41,7 @@ package as3classes.util {
 			
 			@param $varName Variable got from flashvars.
 			@param $defaultValue Default value if $varName is null.
-			@return	returnValue The object using strong type JSON notation. If is running on Flash IDE returns $defaultValue else $varName.
+			@return	returnValue The Flashvars variable. If is running on Flash IDE returns $defaultValue else $varName value.
 		 */
 		public static function getFlashvar($varName:String, $defaultValue:String):* {
 			var returnValue:String;
@@ -51,7 +51,7 @@ package as3classes.util {
 			} catch (e:Error) {
 				returnValue = $defaultValue;
 			}
-			return JSON.decode(returnValue);
+			return returnValue;
 		}
 	}
 }
