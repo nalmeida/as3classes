@@ -55,8 +55,12 @@ package as3classes.util {
 				trace("* ERROR: SendAndLoad.send $URL undefined.");
 				return;
 			}
-			if ($data == null || $data == "") {
+			if ($data == null) {
 				trace("* ERROR: SendAndLoad.send $data undefined.");
+				return;
+			}
+			if (sending) {
+				trace("* ERROR: SendAndLoad.send is already sending data.");
 				return;
 			}
 			
@@ -89,7 +93,12 @@ package as3classes.util {
 			_trace("! Sending to: " + url);
 			_trace("! Sending data: " + _request.data);
 			
-			_loader.load(_request);
+			try {
+				_loader.load(_request);				
+			} catch (e:Error) {
+				trace("* ERROR: " + e.message);
+			}
+
 		}
 		
 		private function _onComplete(evt:Event):void {
