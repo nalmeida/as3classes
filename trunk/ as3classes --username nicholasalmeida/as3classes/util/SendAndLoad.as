@@ -36,6 +36,7 @@ package as3classes.util {
 		public var type:String = "";
 		public var verbose:Boolean = false;
 		public var sending:Boolean = false;
+		public var preventCache:Boolean;
 		
 		private var _variablesToSend:URLVariables;
 		private var _request:URLRequest;
@@ -47,7 +48,7 @@ package as3classes.util {
 			_loader = new URLLoader();
 		}
 		
-		public function send($URL:String, $data:*):* {
+		public function send($URL:String, $data:*, $preventCache:Boolean = false ):* {
 			/**
 			 * Basic verification and feedback
 			 */
@@ -60,12 +61,23 @@ package as3classes.util {
 				return;
 			}
 			if (sending) {
-				trace("* ERROR: SendAndLoad.send is already sending data.");
+				dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.ERROR, "* ERROR: SendAndLoad.send is already sending data.", "error"));
 				return;
 			}
 			
-			
+			preventCache = $preventCache;
 			url = $URL as String;
+			
+			if (preventCache) {
+				var d:Date = new Date();
+                var cacheString:String = "SendAndLoad=" + String(Math.round(Math.random()  * 100 * d.getTime()));
+                if(url.indexOf("?") == -1){
+                    url += "?" + cacheString;
+                }else{
+                    url += "&" + cacheString;
+                }
+            }
+			
 			if (typeof $data) {
 				type = "xml";
 			}
@@ -96,26 +108,26 @@ package as3classes.util {
 			try {
 				_loader.load(_request);				
 			} catch (e:Error) {
-				trace("* ERROR: " + e.message);
+				trace("* ERROR #2 : " + e.message);
 			}
 
 		}
 		
 		private function _onComplete(evt:Event):void {
-			if(type == "xml" ){
+			if (type == "xml" ) {
 				try {
 					var success:XML = new XML(unescape(evt.target.data));
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.COMPLETE, success, type));
 				} catch (e:Error) {
-					trace("* ERROR: " + e.message);
-					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.ERROR, "* ERROR: " + e.message, "error"));
+					trace("* ERROR # "+e.errorID+" : " + e.message);
+					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.ERROR, "* ERROR #1 : " + e.message, "error"));
 				}
 			}
 			sending = false;
 		}
 		
 		private function _onIOError(evt:IOErrorEvent):void {
-			dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.ERROR, "* ERROR: Unable to load data from: " + url, "error"));
+			dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.ERROR, "* ERROR #404 : Unable to load data from: " + url, "error"));
 			sending = false;
 		}
 		
