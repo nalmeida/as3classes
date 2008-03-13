@@ -90,7 +90,7 @@ package as3classes.util {
 			
 			if (type == "xml") {	
 				_request.data = $data.toXMLString();
-				//_request.contentType = "text/xml"; // TODO: Ver por que não estã pegando pelo log post.
+				//_request.contentType = "text/xml"; // TODO: Ver por que não funciona o contentType de XML
 			}
 			
 			/**
