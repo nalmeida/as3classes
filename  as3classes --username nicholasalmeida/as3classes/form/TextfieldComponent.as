@@ -6,6 +6,8 @@ package as3classes.form {
 	import flash.text.TextField;
 	import com.adobe.utils.ArrayUtil;
 	import as3classes.util.TextfieldUtil;
+	
+	import caurina.transitions.Tweener;
 
 	public class TextfieldComponent {
 		
@@ -33,7 +35,7 @@ package as3classes.form {
 		//
 		
 		private const _avaliableProperties:Array = ["title", "type", "tabIndex", "required", "restrict", "maxChars", "minChars", "text", "initText", "align", "equal", "customErrorMessage", "padding"];
-		public const _type:String = "textfield";
+		public const TYPE:String = "textfield";
 		private var objSize:Object = { };
 		
 		function TextfieldComponent($mc:*, $initObj:Object = null) {
@@ -73,9 +75,34 @@ package as3classes.form {
 			applyRestrictions();
 		}
 		
+		public function disable():void {
+			TextfieldUtil.aplyRestriction(fld_text, "all");
+			fld_text.selectable = false;
+			Tweener.addTween(mc, {alpha: .7, time: .3, transition: "linear" } );
+		}
+		
+		public function enable():void {
+			applyRestrictions();
+			fld_text.selectable = true;
+			Tweener.addTween(mc, {alpha: 1, time: .3, transition: "linear" } );
+		}
+		
 		public function applyRestrictions():void {
 			TextfieldUtil.aplyRestriction(fld_text, restrict);
 			fld_text.maxChars = maxChars;
+		}
+		
+		public function reset():void {
+			var v:String;
+			if (initText != null) {
+				v = initText;
+			} else if (text != null) {
+				v = text;
+			} else {
+				v = "";
+			}
+			fld_text.text = v;
+			applyRestrictions();
 		}
 		
 		public function resetSize():void {
