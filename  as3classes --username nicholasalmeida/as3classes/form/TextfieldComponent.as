@@ -36,14 +36,15 @@ package as3classes.form {
 		public const _type:String = "textfield";
 		private var objSize:Object = { };
 		
-		function TextfieldComponent($mc:*, $initObj:* = null) {
+		function TextfieldComponent($mc:*, $initObj:Object = null) {
 			
-			mc = $mc;
-			fld_text = mc.getChildByName("fld_text");
-			mcBg = mc.getChildByName("mcBg");
+			mc = $mc as Sprite;
+			
+				fld_text = mc.getChildByName("fld_text") as TextField;
+				mcBg = mc.getChildByName("mcBg") as Sprite;
 			
 			if ($initObj != null) {
-				init($initObj);
+				init($initObj as Object);
 			}
 		}
 		
@@ -83,6 +84,10 @@ package as3classes.form {
 			
 			mc.scaleX = 1;
 			mc.scaleY = 1;
+			
+			if ((padding.right == undefined || padding.right == 0) && padding.left > 0) { // If right is 0, gets the left value
+				padding.right = padding.left; 
+			}
 			
 			fld_text.x = padding.left;
 			fld_text.y = padding.top;
