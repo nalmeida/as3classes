@@ -61,7 +61,7 @@ package as3classes.form {
 					this[name] = $initObj[name];
 				}
 			}
-			if (title == "") trace("* WARNING: TextfieldComponent: " + mc + " parameter \"title\" undefined.");
+			if (title == "" && required) trace("* WARNING: TextfieldComponent: " + mc + " parameter \"title\" undefined.");
 			
 			/**
 			 * Sets the label value
