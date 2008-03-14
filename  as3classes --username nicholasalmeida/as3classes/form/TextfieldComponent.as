@@ -1,6 +1,7 @@
 package as3classes.form {
 	
 	import flash.display.DisplayObject;
+	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.text.TextField;
@@ -11,7 +12,7 @@ package as3classes.form {
 
 	public class TextfieldComponent {
 		
-		public var mc:*;
+		public var mc:DisplayObjectContainer;
 		public var mcBg:*;
 		public var fld_text:TextField;
 		
