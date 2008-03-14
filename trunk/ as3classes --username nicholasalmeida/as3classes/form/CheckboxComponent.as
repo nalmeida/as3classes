@@ -1,5 +1,6 @@
 package as3classes.form {
 	
+	import flash.display.DisplayObjectContainer;
 	import flash.events.MouseEvent;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
@@ -11,7 +12,7 @@ package as3classes.form {
 
 	public class CheckboxComponent {
 		
-		public var mc:*
+		public var mc:DisplayObjectContainer;
 		public var mcBg:*;
 		public var mcCheckBoxState:*;
 		public var fld_text:TextField;
@@ -43,6 +44,7 @@ package as3classes.form {
 			
 			mc.addEventListener(MouseEvent.CLICK, _onClick, false, 0, true);
 			mc.tabEnabled = true;
+			mc.mouseEnabled = true;
 				
 			if ($initObj != null) {
 				init($initObj as Object);
