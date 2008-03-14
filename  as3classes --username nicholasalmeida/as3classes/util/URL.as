@@ -6,6 +6,7 @@ package as3classes.util {
 	import flash.utils.setTimeout;
 	import flash.external.ExternalInterface;
 	import com.adobe.serialization.json.JSON;
+	import as3classes.util.RootUtil;
 	
 	import as3classes.util.LocationUtil;
 	
@@ -34,7 +35,7 @@ package as3classes.util {
 			@param $url PAge URL.
 			@param $target Page target. Default "_self"
 		 */
-        public static function call($url:String, $target:String = "_self") {
+        public static function call($url:String, $target:String = "_self"):void {
 			_arrURLQueue.push( { url: $url, target: $target } );
 			_start();
         }
@@ -56,8 +57,8 @@ package as3classes.util {
 			
 			@param $analyticsString Arguments to "urchinTracker".
 		 */
-		public static function analytics($analyticsString:String):void {
-			_arrURLQueue.push( { js: "urchinTracker", args: $analyticsString } );
+		public static function analytics($analyticsString:String, $trackFunction:String = "pageTracker._trackPageview"):void {
+			_arrURLQueue.push( { js: $trackFunction, args: $analyticsString } );
 			_start();
 		}
 		
@@ -69,7 +70,7 @@ package as3classes.util {
 			var u:String = _arrURLQueue[0].url;
 			var t:String = _arrURLQueue[0].target;
 			
-			if (!LocationUtil.isIde() && !LocationUtil.isStandAlone()) {
+			if (LocationUtil.isWeb(RootUtil.getRoot())) {
 				if (j) { // Javascript request
 					if (ExternalInterface.available) {
 						ExternalInterface.call(j, a);
@@ -85,7 +86,7 @@ package as3classes.util {
 				}
 			} else {
 				if (j) {
-					if (j === "urchinTracker") a = "\"" + a + "\"";
+					if (j === "pageTracker._trackPageview") a = "\"" + a + "\"";
 					_trace("! URL.javascript() 	running LOCAL. " + j + "(" + a + ")");
 				} else {
 					_trace("! URL.call() 		running LOCAL. URL: \"" + u + "\" TARGET: \"" + t + "\"");					
