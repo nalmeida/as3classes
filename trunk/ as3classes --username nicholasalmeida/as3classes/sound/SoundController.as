@@ -25,7 +25,6 @@ package as3classes.sound {
 		
 		public function addSound($sound:Sound, $autoplay:Boolean = false, $loop:Boolean = false ):void {
 			sound = $sound as Sound;
-			//channel = sound.play();
 			
 			loop = $loop;
 			
@@ -39,14 +38,14 @@ package as3classes.sound {
 					stop();
 				}
 			} catch (e:Error) {
-				trace("* ERROR: " + e.message);
+				trace("* ERROR: addSound method " + e.message);
 				dispatchEvent(new SoundControllerEvent(SoundControllerEvent.ERROR));
 				clear();
 			}
 		}
 		
 		public function stop():void {
-			if (sound != null && channel != null) {
+			try {
 				_stopCheckProgress();
 				
 				isPlaying = false;
@@ -54,8 +53,8 @@ package as3classes.sound {
 				channel.stop();
 				
 				_trace("! SoundController.stop called.");
-			} else {
-				_trace("* ERROR: SoundController sound and/or channel is undefined: " + sound);
+			} catch(e:Error) {
+				_trace("* ERROR: stop method " + e.message);
 			}
 			
 		}
@@ -65,15 +64,15 @@ package as3classes.sound {
 			_stopCheckProgress();
 			
 			isPlaying = false;
-			position = channel.position;
+			position = getPosition();
 			channel.stop();
-			_trace("! SoundController.pause called at: " + getPosition());
+			_trace("! SoundController.pause called at: " + position);
 		}
 		
 		public function play():void {
 			if(!isPlaying){
 				
-				if (position == getTotal()) {
+				if (position >= getTotal()) {
 					position = 0;
 				}
 				
@@ -82,7 +81,7 @@ package as3classes.sound {
 				
 				_startCheckProgress();
 				
-				_trace("! SoundController.play called at: " + getPosition());
+				_trace("! SoundController.play called at: " + position);
 			}
 		}
 		
@@ -94,12 +93,20 @@ package as3classes.sound {
 			}
 		}
 		
-		public function getPosition():int {
-			return channel.position;
+		public function getPosition():* {
+			try {
+				return channel.position;
+			} catch (e:Error) {
+				trace("* ERROR: channel object " + e.message);
+			}
 		}
 		
-		public function getTotal():int {
-			return sound.length;
+		public function getTotal():* {
+			try {
+				return sound.length;
+			} catch (e:Error) {
+				trace("* ERROR: sound object " + e.message);
+			}
 		}
 		
 		public function clear():void {
@@ -126,7 +133,7 @@ package as3classes.sound {
 			
 			clearInterval(_interval);
 			_interval = NaN;
-			_interval = setInterval(_checkProgress, 100);
+			_interval = setInterval(_checkProgress, 10);
 			
 			if (!channel.hasEventListener(Event.SOUND_COMPLETE)) {
 				channel.addEventListener(Event.SOUND_COMPLETE, _onComplete, false, 0, true);
