@@ -1,4 +1,4 @@
-package as3classes.form {
+ï»¿package as3classes.form {
 	
 	import flash.events.EventDispatcher;
 	import as3classes.form.FormValidatorEvent;
@@ -81,6 +81,8 @@ package as3classes.form {
 				var fld:* = arrToValidate[i];
 				var t:String = fld.TYPE;
 				var tmp:*;
+				
+				trace(123);
 				
 				if (t === "textfield") {
 					
@@ -184,7 +186,7 @@ package as3classes.form {
 					if(language == "en")
 						return {fld:fld, message:"The field \"" + fld.title + "\" must have at least  " + fld.minChars + " characters."};
 					else
-						return {fld:fld, message:"O campo \"" + fld.title + "\" deve conter no mínimo " + fld.minChars + " caracteres."};
+						return {fld:fld, message:"O campo \"" + fld.title + "\" deve conter no mÃ­nimo " + fld.minChars + " caracteres."};
 			}
 			return true;
 		}
@@ -198,7 +200,7 @@ package as3classes.form {
 					if(language == "en")
 						return {fld:fld, message:"The field \"" + fld.title + "\" must have al maximum " + fld.maxChars + " characters."};
 					else
-						return {fld:fld, message:"O campo \"" + fld.title + "\" deve conter no máximo " + fld.maxChars + " caracteres."};
+						return {fld:fld, message:"O campo \"" + fld.title + "\" deve conter no mÃ¡ximo " + fld.maxChars + " caracteres."};
 			}
 			return true;
 		}
@@ -215,7 +217,7 @@ package as3classes.form {
 					if(language == "en")
 						return {fld:fld, message: "\"" + fld.getText() + "\" isn't a valid e-mail for \"" + fld.title + "\" field."};
 					else
-						return {fld:fld, message: "\"" + fld.getText() + "\" não é considerado um endereço válido para o campo \"" + fld.title + "\"."};
+						return {fld:fld, message: "\"" + fld.getText() + "\" nÃ£o Ã© considerado um endereÃ§o vÃ¡lido para o campo \"" + fld.title + "\"."};
 			}
 			return true;
 		}
