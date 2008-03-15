@@ -4,6 +4,7 @@ package as3classes.sound {
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
 	import flash.events.Event;
+	import flash.media.SoundTransform;
 	import flash.utils.*;
 	import caurina.transitions.Tweener;
 	
@@ -14,9 +15,11 @@ package as3classes.sound {
 		public var sound:Sound;
 		public var loop:Boolean;
 		public var channel:SoundChannel;
+		public var transform:SoundTransform;
 		public var position:int;
 		public var isPlaying:Boolean;
 		public var verbose:Boolean = false;
+		public var volume:Number = 1;
 		
 		private var _interval:uint = 0;
 		
@@ -77,6 +80,8 @@ package as3classes.sound {
 				}
 				
 				channel = sound.play(position);
+				transform = new SoundTransform();
+				
 				isPlaying = true;
 				
 				_startCheckProgress();
@@ -107,6 +112,32 @@ package as3classes.sound {
 			} catch (e:Error) {
 				trace("* ERROR: sound object " + e.message);
 			}
+		}
+		
+		public function setVolume($volume:Number, _changeVolumeValue:Boolean = true):void {
+			try {
+				if (_changeVolumeValue) {
+					volume = $volume;
+					transform.volume = volume;
+				} else { // Avoid volume change. Used on mute and unMute methods.
+					transform.volume = $volume;
+				}
+				channel.soundTransform = transform;
+			} catch (e:Error) {
+				trace("* ERROR: SoundTransform object " + e.message);
+			}
+		}
+		
+		public function getVolume():Number {
+			return volume;
+		}
+		
+		public function mute():void {
+			setVolume(0, false);
+		}
+		
+		public function unMute():void {
+			setVolume(volume, false);
 		}
 		
 		public function clear():void {
