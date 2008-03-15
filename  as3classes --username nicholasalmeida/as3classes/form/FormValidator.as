@@ -113,7 +113,9 @@
 				}
 				// ELSES
 			}
+			
 			_onComplete();
+			
 		}
 		
 		public function setLanguage($language:String = "br"):void{

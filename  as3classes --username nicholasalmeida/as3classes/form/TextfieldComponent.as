@@ -106,6 +106,10 @@ package as3classes.form {
 			applyRestrictions();
 		}
 		
+		public function setRequired($required:Boolean):void {
+			required = $required;
+		}
+		
 		public function resetSize():void {
 			objSize.w = mc.width;
 			objSize.h = mc.height;
