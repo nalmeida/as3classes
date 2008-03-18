@@ -54,7 +54,7 @@
 		
 		private var arrToValidate:Array;
 		private var arrButtons:Array;
-		private static var language:String = "br";
+		private static var _language:String = "br";
 		public static const EMAIL_REGEX:RegExp = /^[A-Z0-9._%+-]+@(?:[A-Z0-9-]+\.)+[A-Z]{2,4}$/i;
 		
 		public function FormValidator() {
@@ -91,13 +91,13 @@
 					}
 					
 					/* ---------------------------------------------------------------------- Min */
-					if(fld.getText() != ""){
+					if(fld.text != ""){
 						tmp = _checkMinChars(fld);
 						if(tmp !== true) return _onError(tmp);
 					}
 					
 					/* ---------------------------------------------------------------------- Max */
-					if(fld.getText() != ""){
+					if(fld.text != ""){
 						tmp = _checkMaxChars(fld);
 						if(tmp !== true) return _onError(tmp);
 					}
@@ -118,8 +118,11 @@
 			
 		}
 		
-		public function setLanguage($language:String = "br"):void{
-			language = $language;
+		public function get language():String {
+			return _language
+		}
+		public function set language($language:String):void{
+			_language = $language;
 		}
 		
 		public function enable():void {
@@ -165,7 +168,7 @@
 		/* ---------------------------------------------------------------------- Required */
 		private function _checkRequired(fld:*):*{
 			
-			if (fld.getText().length === 0) {
+			if (fld.text.length === 0) {
 				if(fld.customErrorMessage != null) 
 					return {fld:fld, message:fld.customErrorMessage};
 				else 
@@ -179,7 +182,7 @@
 		
 		/* ---------------------------------------------------------------------- Min */
 		public function _checkMinChars(fld:*):*{
-			if(fld.getText().length < fld.minChars) {
+			if(fld.text.length < fld.minChars) {
 				if(fld.customErrorMessage)
 					return {fld:fld, message:fld.customErrorMessage};
 				else
@@ -193,7 +196,7 @@
 		
 		/* ---------------------------------------------------------------------- Max */
 		public function _checkMaxChars(fld:*):*{
-			if(fld.getText().length > fld.maxChars) {
+			if(fld.text.length > fld.maxChars) {
 				if(fld.customErrorMessage)
 					return {fld:fld, message:fld.customErrorMessage};
 				else
@@ -208,16 +211,16 @@
 		/* ---------------------------------------------------------------------- Email */
 		public function _checkEmail(fld:*):*{
 			
-			var validEmail:Boolean = Boolean(fld.getText().match(EMAIL_REGEX));
+			var validEmail:Boolean = Boolean(fld.text.match(EMAIL_REGEX));
 			
 			if(!validEmail) {
 				if(fld.customErrorMessage)
 					return {fld:fld, message:fld.customErrorMessage};
 				else
 					if(language == "en")
-						return {fld:fld, message: "\"" + fld.getText() + "\" isn't a valid e-mail for \"" + fld.title + "\" field."};
+						return {fld:fld, message: "\"" + fld.text + "\" isn't a valid e-mail for \"" + fld.title + "\" field."};
 					else
-						return {fld:fld, message: "\"" + fld.getText() + "\" não é considerado um endereço válido para o campo \"" + fld.title + "\"."};
+						return {fld:fld, message: "\"" + fld.text + "\" não é considerado um endereço válido para o campo \"" + fld.title + "\"."};
 			}
 			return true;
 		}

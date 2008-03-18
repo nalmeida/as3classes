@@ -21,7 +21,7 @@ package as3classes.sound {
 			} else {
 				position = $position;
 				total = $total;
-				percentPlayed = Math.ceil((Math.ceil(position / 100)) / (Math.ceil(total / 100)) * 100);
+				percentPlayed = Math.ceil((Math.ceil(position / 100)) / (Math.ceil(total / 100)) * 100) / 100;
 			}
 			
 			super(type);

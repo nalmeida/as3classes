@@ -7,12 +7,11 @@ package as3classes.form {
 	import flash.display.Sprite;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
-	import com.adobe.utils.ArrayUtil;
 	import as3classes.util.TextfieldUtil;
 
 	public class CheckboxComponent {
 		
-		public var mc:DisplayObjectContainer;
+		public var mc:Sprite;
 		public var mcBg:*;
 		public var mcCheckBoxState:*;
 		public var fld_text:TextField;
@@ -20,7 +19,7 @@ package as3classes.form {
 		// Commom
 		public var title:String = "";
 		public var tabIndex:Number = 0;
-		public var required:Boolean = false;
+		public var _required:Boolean = false;
 		public var customErrorMessage:String;
 		//
 		
@@ -28,10 +27,10 @@ package as3classes.form {
 		public var type:String = "input";
 		public var label:String = "";
 		public var align:String = "left";
-		public var selected:Boolean = false;
+		public var _selected:Boolean = false;
 		//
 		
-		private const _avaliableProperties:Array = ["title", "type", "tabIndex", "required", "selected", "label", "align", "customErrorMessage"];
+		private const VALID_PROPS:Array = ["title", "type", "tabIndex", "required", "selected", "label", "align", "customErrorMessage"];
 		public const _type:String = "checkbox";
 		private var objSize:Object = { };
 		
@@ -43,8 +42,12 @@ package as3classes.form {
 				//mcBg = mc.getChildByName("mcBg") as Sprite;
 			
 			mc.addEventListener(MouseEvent.CLICK, _onClick, false, 0, true);
+			
 			mc.tabEnabled = true;
 			mc.mouseEnabled = true;
+			mc.mouseChildren = false;
+			mc.buttonMode = true;
+			
 				
 			if ($initObj != null) {
 				init($initObj as Object);
@@ -52,29 +55,29 @@ package as3classes.form {
 		}
 		
 		public function init($initObj:Object):void {
-			
 			/**
 			 * Setting values for avaliable properties
 			 */
-			for (var name:String in $initObj) {
-				if (!ArrayUtil.arrayContainsValue(_avaliableProperties, name)) {
-					trace("* ERROR: " + mc + " Unavaliable property: " + name);
-				} else { // Avaliable properties
-					this[name] = $initObj[name];
+			if($initObj != null){
+				for (var i:String in $initObj) {
+					if (VALID_PROPS.indexOf(i, 0) == -1) {
+						throw new Error("* ERROR: " + mc + " Unavaliable property: " + i, 0);
+					}else {
+						this[i] = $initObj[i];
+					}
 				}
 			}
-			if (title == "" && required) trace("* WARNING: TextfieldComponent: " + mc + " parameter \"title\" undefined.");
+			if (title == "" && required) trace("* WARNING: CheckboxComponent: " + mc + " parameter \"title\" undefined.");
 			
 			/**
 			 * Sets the label value
 			 */
 			_setLabel();
 			
-			/**
-			 * Sets the checkbox to selected or not.
-			 */
-			setSelected(selected);
+			mcCheckBoxState.stop();
 			
+			_selected = selected;
+
 			/**
 			 * Adjusts the size and aply padding definitions
 			 */
@@ -89,13 +92,21 @@ package as3classes.form {
 			mc.scaleY = 1;
 		}
 		
-		public function getValue():Boolean{
-			return selected;
+		public function get required():Boolean {
+			return _required;
 		}
 		
-		public function setSelected($selected:Boolean):void {
-			selected = !$selected;
-			_onClick(null);
+		public function set required($required:Boolean):void {
+			_required = $required;
+		}
+		
+		public function get selected():Boolean{
+			return _selected;
+		}
+		
+		public function set selected($selected:Boolean):void {
+			_selected = $selected;
+			//_onClick(null);
 		}
 		
 		/**
