@@ -108,7 +108,7 @@ package as3classes.util {
 			try {
 				_loader.load(_request);				
 			} catch (e:Error) {
-				trace("* ERROR #2 : " + e.message);
+				throw new Error("* ERROR [SendAndLoad] send method: " + e.message);
 			}
 
 		}
@@ -119,7 +119,7 @@ package as3classes.util {
 					var success:XML = new XML(unescape(evt.target.data));
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.COMPLETE, success, type));
 				} catch (e:Error) {
-					trace("* ERROR # "+e.errorID+" : " + e.message);
+					throw new Error("* ERROR [SendAndLoad] _onComplete method: " + e.message);
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.ERROR, "* ERROR #1 : " + e.message, "error"));
 				}
 			}

@@ -19,7 +19,8 @@ package as3classes.sound {
 		public var position:int;
 		public var isPlaying:Boolean;
 		public var verbose:Boolean = false;
-		public var volume:Number = 1;
+		public var _volume:Number = 1;
+		public var _beforeMuteolume:Number = 1;
 		
 		private var _interval:uint = 0;
 		
@@ -41,9 +42,9 @@ package as3classes.sound {
 					stop();
 				}
 			} catch (e:Error) {
-				trace("* ERROR: addSound method " + e.message);
+				throw new Error("* ERROR [SoundController] addSound method : " + e.message);
 				dispatchEvent(new SoundControllerEvent(SoundControllerEvent.ERROR));
-				clear();
+				destroy();
 			}
 		}
 		
@@ -57,7 +58,7 @@ package as3classes.sound {
 				
 				_trace("! SoundController.stop called.");
 			} catch(e:Error) {
-				_trace("* ERROR: stop method " + e.message);
+				trace("* ERROR [SoundController] stop method : " + e.message);
 			}
 			
 		}
@@ -102,7 +103,7 @@ package as3classes.sound {
 			try {
 				return channel.position;
 			} catch (e:Error) {
-				trace("* ERROR: channel object " + e.message);
+				throw new Error("* ERROR [SoundController] channel object : " + e.message);
 			}
 		}
 		
@@ -110,37 +111,34 @@ package as3classes.sound {
 			try {
 				return sound.length;
 			} catch (e:Error) {
-				trace("* ERROR: sound object " + e.message);
+				throw new Error("* ERROR [SoundController] sound object : " + e.message);
 			}
 		}
 		
-		public function setVolume($volume:Number, _changeVolumeValue:Boolean = true):void {
+		public function set volume($volume:Number):void {
 			try {
-				if (_changeVolumeValue) {
-					volume = $volume;
-					transform.volume = volume;
-				} else { // Avoid volume change. Used on mute and unMute methods.
-					transform.volume = $volume;
-				}
+				_volume = $volume;
+				transform.volume = _volume;
 				channel.soundTransform = transform;
 			} catch (e:Error) {
-				trace("* ERROR: SoundTransform object " + e.message);
+				trace("* ERROR [SoundController] SoundTransform object : " + e.message);
 			}
 		}
 		
-		public function getVolume():Number {
-			return volume;
+		public function get volume():Number {
+			return _volume;
 		}
 		
 		public function mute():void {
-			setVolume(0, false);
+			_beforeMuteolume = volume;
+			volume = 0;
 		}
 		
 		public function unMute():void {
-			setVolume(volume, false);
+			volume = _beforeMuteolume;
 		}
 		
-		public function clear():void {
+		public function destroy():void {
 			stop();
 			sound = null;
 			channel = null;
@@ -164,7 +162,7 @@ package as3classes.sound {
 			
 			clearInterval(_interval);
 			_interval = NaN;
-			_interval = setInterval(_checkProgress, 10);
+			_interval = setInterval(_checkProgress, 300);
 			
 			if (!channel.hasEventListener(Event.SOUND_COMPLETE)) {
 				channel.addEventListener(Event.SOUND_COMPLETE, _onComplete, false, 0, true);

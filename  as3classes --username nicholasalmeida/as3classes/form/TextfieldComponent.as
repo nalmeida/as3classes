@@ -5,7 +5,6 @@ package as3classes.form {
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.text.TextField;
-	import com.adobe.utils.ArrayUtil;
 	import as3classes.util.TextfieldUtil;
 	
 	import caurina.transitions.Tweener;
@@ -19,7 +18,8 @@ package as3classes.form {
 		// Commom
 		public var title:String = "";
 		public var tabIndex:Number = 0;
-		public var required:Boolean = false;
+		public var _required:Boolean = false;
+		public var _text:String = "";
 		public var customErrorMessage:String;
 		//
 		
@@ -28,14 +28,13 @@ package as3classes.form {
 		public var restrict:String = "none";
 		public var maxChars:Number = 0;
 		public var minChars:Number; // used on form validation only.
-		public var text:String
 		public var initText:String;
 		public var align:String = "left";
 		public var equal:TextfieldComponent;
 		public var padding:Object = {top: 0, left: 0, right: 0};
 		//
 		
-		private const _avaliableProperties:Array = ["title", "type", "tabIndex", "required", "restrict", "maxChars", "minChars", "text", "initText", "align", "equal", "customErrorMessage", "padding"];
+		private const VALID_PROPS:Array = ["title", "type", "tabIndex", "required", "restrict", "maxChars", "minChars", "text", "initText", "align", "equal", "customErrorMessage", "padding"];
 		public const TYPE:String = "textfield";
 		private var objSize:Object = { };
 		
@@ -56,11 +55,13 @@ package as3classes.form {
 			/**
 			 * Setting values for avaliable properties
 			 */
-			for (var name:String in $initObj) {
-				if (!ArrayUtil.arrayContainsValue(_avaliableProperties, name)) {
-					trace("* ERROR: " + mc + " Unavaliable property: " + name);
-				} else { // Avaliable properties
-					this[name] = $initObj[name];
+			if($initObj != null){
+				for (var i:String in $initObj) {
+					if (VALID_PROPS.indexOf(i, 0) == -1) {
+						throw new Error("* ERROR: " + mc + " Unavaliable property: " + i, 0);
+					}else {
+						this[i] = $initObj[i];
+					}
 				}
 			}
 			if (title == "") trace("* WARNING: TextfieldComponent: " + mc + " parameter \"title\" undefined.");
@@ -106,8 +107,12 @@ package as3classes.form {
 			applyRestrictions();
 		}
 		
-		public function setRequired($required:Boolean):void {
-			required = $required;
+		public function get required():Boolean {
+			return _required;
+		}
+		
+		public function set required($required:Boolean):void {
+			_required = $required;
 		}
 		
 		public function resetSize():void {
@@ -128,10 +133,14 @@ package as3classes.form {
 			fld_text.width = objSize.w - padding.left - padding.right;
 		}
 	
-		public function getText():String{
-			var value:String = fld_text.text;
-			if(value === "" || value === initText) value = "";
-			return value;
+		public function set text($text:String):void {
+			_text = fld_text.text = $text;
+		}
+		
+		public function get text():String{
+			_text = fld_text.text;
+			if(_text === "" || _text === initText) _text = "";
+			return _text;
 		}
 	}
 }
