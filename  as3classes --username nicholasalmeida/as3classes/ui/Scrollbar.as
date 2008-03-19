@@ -1,3 +1,6 @@
+
+
+
 package as3classes.ui {
 	
 	import flash.display.DisplayObjectContainer;
@@ -9,6 +12,21 @@ package as3classes.ui {
 	import redneck.ui.Slider;
 	import redneck.ui.Drag;
 
+	
+	/**
+	 @see
+	 <code>
+		scroll = new Scrollbar(mcScroll);
+		scroll.addEventListener(Scrollbar.EVENT_CHANGE, _onScroll, false, 0, true);
+		
+		.......
+		
+		private function _onScroll(evt:Event ):void {
+			trace(scroll.percent);
+		}
+	 </code>
+	 */
+	
 	public class Scrollbar extends EventDispatcher {
 		
 		public static const EVENT_CHANGE:String = Event.CHANGE;
@@ -38,7 +56,8 @@ package as3classes.ui {
 			/**
 			 * Slider
 			 */
-			slider = new Slider(mcSlider, mcTrack);
+			slider = new Slider(mcSlider, mcTrack, 0, true, true);
+			slider.allowTrackChildDistortion = true;
 			slider.addEventListener(Slider.EVENT_CHANGE, _onScrollChange, false, 0, true);
 			
 			/**
@@ -115,11 +134,11 @@ package as3classes.ui {
 		}
 		
 		private function _prev(evt:Event):void {
-			slider.prev(3);
+			slider.move(-3);
 		}
 		
 		private function _next(evt:Event):void {
-			slider.next(3);
+			slider.move(3);
 		}
 		
 		private function _onScrollChange(evt:Event):void {
@@ -128,30 +147,3 @@ package as3classes.ui {
 
 	}
 }
-
-
-
-
-/*
-import redneck.ui.Slider;
-import redneck.ui.Drag;
-
-var slider:Slider = new Slider(slider1.bt,slider1.bar,.5,true);
-slider.addEventListener(Slider.EVENT_CHANGE, show, false, 0,true);
-slider.addEventListener(Slider.EVENT_PRESS, show, false, 0,true);
-slider.addEventListener(Slider.EVENT_RELEASE, show, false, 0,true);
-
-
-var slider2:Slider = new Slider(bt2,bar2,0,true);
-slider2.addEventListener(Slider.EVENT_CHANGE, show, false, 0,true);
-slider2.addEventListener(Slider.EVENT_PRESS, show, false, 0,true);
-slider2.addEventListener(Slider.EVENT_RELEASE, show, false, 0,true);
-
-function show(e:Event):void{
-	result2.text = slider2.percent + "%" 
-	result.text = slider.percent + "%" 
-}
-
-show(null);
-
-*/
