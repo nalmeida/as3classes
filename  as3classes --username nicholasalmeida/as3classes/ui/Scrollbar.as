@@ -36,7 +36,6 @@ package as3classes.ui {
 			public var mcDown:Sprite;
 			public var mcHolder:DisplayObjectContainer;
 				public var mcTrack:Sprite;
-					public var mcTrackSprite:Sprite;
 				public var mcSlider:Sprite;
 		
 		public var slider:Slider;
@@ -48,7 +47,6 @@ package as3classes.ui {
 				mcDown = mc.getChildByName("mcDown") as Sprite;
 				mcHolder = mc.getChildByName("mcHolder") as Sprite;
 					mcTrack = mcHolder.getChildByName("mcTrack") as Sprite;
-						mcTrackSprite = mcTrack.getChildByName("mcTrackSprite") as Sprite;
 					mcSlider = mcHolder.getChildByName("mcSlider") as Sprite;
 			
 			adjustSizes();
@@ -57,7 +55,6 @@ package as3classes.ui {
 			 * Slider
 			 */
 			slider = new Slider(mcSlider, mcTrack, 0, true, true);
-			slider.allowTrackChildDistortion = true;
 			slider.addEventListener(Slider.EVENT_CHANGE, _onScrollChange, false, 0, true);
 			
 			/**
@@ -69,14 +66,12 @@ package as3classes.ui {
 			mcUp.stage.addEventListener(MouseEvent.MOUSE_UP, _stopEnterframe, false, 0, true);
 			mcDown.stage.addEventListener(MouseEvent.MOUSE_UP, _stopEnterframe, false, 0, true);
 			
-			mcUp.buttonMode = true;
-			mcDown.buttonMode = true;
 		}
 		
 		public function adjustSizes():void {
 			
 			var objSize:Object = { };
-				objSize.w = mcTrack.width;
+				objSize.w = mc.width - mcUp.width - mcDown.width;
 				objSize.h = mc.height - mcUp.height - mcDown.height;
 		
 			mc.scaleX = 1;
@@ -84,11 +79,26 @@ package as3classes.ui {
 			
 			if (!_horizontal) {
 				mcHolder.y = mcUp.y + mcUp.height;
-				mcTrackSprite.height = objSize.h;
+				mcTrack.height = objSize.h;
 				mcDown.y = mcHolder.y + mcHolder.height;
 			} else {
-				
+				//TODO: Horizontal Scrollbar?
+				//mcHolder.x = mcUp.x + mcUp.width;
+				//mcTrack.width = objSize.w;
+				//mcDown.x = mcHolder.x + mcHolder.width;
 			}
+		}
+		
+		public function disable():void {
+			slider.disable();
+			mc.mouseEnabled = 
+			mc.mouseChildren = false;
+		}
+		
+		public function enable():void {
+			slider.enable();
+			mc.mouseEnabled = 
+			mc.mouseChildren = true;
 		}
 		
 		public function destroy():void {
