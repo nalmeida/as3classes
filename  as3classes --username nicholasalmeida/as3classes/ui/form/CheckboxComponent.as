@@ -18,7 +18,7 @@ package as3classes.ui.form {
 		
 		// Commom
 		public var title:String = "";
-		public var tabIndex:Number = 0;
+		public var tabIndex:int = -1;
 		public var _required:Boolean = false;
 		public var customErrorMessage:String;
 		//
@@ -41,14 +41,6 @@ package as3classes.ui.form {
 				mcCheckBoxState = mc.getChildByName("mcCheckBoxState") as MovieClip;
 				//mcBg = mc.getChildByName("mcBg") as Sprite;
 			
-			mc.addEventListener(MouseEvent.CLICK, _onClick, false, 0, true);
-			
-			mc.tabEnabled = true;
-			mc.mouseEnabled = true;
-			mc.mouseChildren = false;
-			mc.buttonMode = true;
-			
-				
 			if ($initObj != null) {
 				init($initObj as Object);
 			}
@@ -73,15 +65,35 @@ package as3classes.ui.form {
 			 * Sets the label value
 			 */
 			_setLabel();
-			
 			mcCheckBoxState.stop();
+			if ($initObj[selected] == undefined) selected = false;
+			else selected = true;
 			
-			_selected = selected;
-
 			/**
 			 * Adjusts the size and aply padding definitions
 			 */
 			resetSize();
+			
+			/**
+			 * Listeners
+			 */
+			mc.addEventListener(MouseEvent.CLICK, _onClick, false, 0, true);
+			
+			/**
+			 * TabIndex
+			 */
+			mc.tabEnabled = true;
+			mc.mouseEnabled = true;
+			mc.mouseChildren = false;
+			mc.buttonMode = true;
+			if(tabIndex > -1) mc.tabIndex = tabIndex;
+		}
+		
+		public function destroy():void {
+			mc.removeEventListener(MouseEvent.CLICK, _onClick);
+			mc = null;
+			fld_text = null;
+			mcCheckBoxState = null;
 		}
 		
 		public function resetSize():void {
