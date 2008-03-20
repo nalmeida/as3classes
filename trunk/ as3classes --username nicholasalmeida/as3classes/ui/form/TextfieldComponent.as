@@ -5,8 +5,9 @@ package as3classes.ui.form {
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.text.TextField;
-	import as3classes.util.TextfieldUtil;
+	import flash.events.FocusEvent;
 	
+	import as3classes.util.TextfieldUtil;
 	import caurina.transitions.Tweener;
 
 	public class TextfieldComponent {
@@ -17,7 +18,7 @@ package as3classes.ui.form {
 		
 		// Commom
 		public var title:String = "";
-		public var tabIndex:Number = 0;
+		public var tabIndex:int = -1;
 		public var _required:Boolean = false;
 		public var _text:String = "";
 		public var customErrorMessage:String;
@@ -26,9 +27,9 @@ package as3classes.ui.form {
 		// Textfield only
 		public var type:String = "input";
 		public var restrict:String = "none";
+		public var _initText:String;
 		public var maxChars:Number = 0;
 		public var minChars:Number; // used on form validation only.
-		public var initText:String;
 		public var align:String = "left";
 		public var equal:TextfieldComponent;
 		public var padding:Object = {top: 0, left: 0, right: 0};
@@ -75,6 +76,29 @@ package as3classes.ui.form {
 			 * Applies characters restrictions min and max chars
 			 */
 			applyRestrictions();
+			
+			/**
+			 * Listeners
+			 */
+			fld_text.addEventListener(FocusEvent.FOCUS_IN, clearInitText, false, 0, true);
+			fld_text.addEventListener(FocusEvent.FOCUS_OUT, checkInitText, false, 0, true);
+			
+			/**
+			 * TabIndex
+			 */
+			mc.tabEnabled = false;
+			mc.tabChildren = true;
+			fld_text.tabEnabled = true;
+			if(tabIndex > -1) fld_text.tabIndex = tabIndex;
+		}
+		
+		public function destroy():void {
+			fld_text.removeEventListener(FocusEvent.FOCUS_IN, clearInitText);
+			fld_text.removeEventListener(FocusEvent.FOCUS_OUT, checkInitText);
+			
+			mc = null;
+			fld_text = null;
+			mcBg = null;
 		}
 		
 		public function disable():void {
@@ -92,6 +116,9 @@ package as3classes.ui.form {
 		public function applyRestrictions():void {
 			TextfieldUtil.aplyRestriction(fld_text, restrict);
 			fld_text.maxChars = maxChars;
+			if (type == "password" && !initText) {
+				fld_text.displayAsPassword = true;
+			}
 		}
 		
 		public function reset():void {
@@ -113,6 +140,28 @@ package as3classes.ui.form {
 		
 		public function set required($required:Boolean):void {
 			_required = $required;
+		}
+		
+		public function set initText($initText:String):void {
+			_initText = fld_text.text = $initText;
+		}
+	
+		public function get initText():String {
+			return _initText;
+		}
+		
+		public function clearInitText(evt:FocusEvent):void {
+			if (initText == fld_text.text) text = "";
+			if (type == "password") fld_text.displayAsPassword = true;
+			
+		}
+		public function checkInitText(evt:FocusEvent):void {
+			if (fld_text.text == initText || fld_text.text.length == 0) text = initText;
+			if (type == "password" && text.length>0) {
+				fld_text.displayAsPassword = true;
+			} else {
+				fld_text.displayAsPassword = false;
+			}
 		}
 		
 		public function resetSize():void {

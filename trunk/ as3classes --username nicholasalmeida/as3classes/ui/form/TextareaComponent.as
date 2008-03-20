@@ -1,16 +1,31 @@
 package as3classes.ui.form {
 	
+	import flash.events.MouseEvent;
 	import flash.events.Event;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.text.TextField;
+	import flash.text.TextFieldType;
 	import as3classes.util.TextfieldUtil;
 	import as3classes.ui.Scrollbar;
+	import flash.events.FocusEvent;
 	
 	import caurina.transitions.Tweener;
-
+	
+	/**
+	 @see
+	 <code>
+			textarea = new TextareaComponent(mcTextarea);
+			
+			textarea.init( { 
+				title: "Mensagem",
+				padding: { top:6, left:6 },
+				initText: "escreva aqui!"
+			} );
+	 </code>
+	 */
 	public class TextareaComponent {
 		
 		public var mc:DisplayObjectContainer;
@@ -19,7 +34,7 @@ package as3classes.ui.form {
 		
 		// Commom
 		public var title:String = "";
-		public var tabIndex:Number = 0;
+		public var tabIndex:int = -1;
 		public var _required:Boolean = false;
 		public var _text:String = "";
 		public var customErrorMessage:String;
@@ -29,17 +44,18 @@ package as3classes.ui.form {
 		public var mcScroll:DisplayObjectContainer;
 		public var type:String = "textarea";
 		public var restrict:String = "none";
+		public var htmlText:Boolean = false;
 		public var maxChars:Number = 0;
 		public var minChars:Number; // used on form validation only.
-		public var initText:String;
+		public var _initText:String;
 		public var align:String = "left";
-		public var equal:TextfieldComponent;
+		public var equal:TextareaComponent;
 		public var padding:Object = {top: 0, left: 0, right: 0, bottom: 0};
 		public var scroll:Scrollbar;
 		//
 		
-		private const VALID_PROPS:Array = ["title", "type", "tabIndex", "required", "restrict", "maxChars", "minChars", "text", "initText", "align", "equal", "customErrorMessage", "padding"];
-		public const TYPE:String = "textfield";
+		private const VALID_PROPS:Array = ["title", "type", "tabIndex", "required", "restrict", "maxChars", "minChars", "text", "initText", "align", "equal", "customErrorMessage", "padding", "htmlText"];
+		public const TYPE:String = "textarea";
 		private var objSize:Object = { };
 		
 		function TextareaComponent($mc:*, $initObj:Object = null) {
@@ -82,37 +98,76 @@ package as3classes.ui.form {
 			 */
 			applyRestrictions();
 			
+			/**
+			 * Listeners
+			 */
 			scroll = new Scrollbar(mcScroll);
 			scroll.addEventListener(Scrollbar.EVENT_CHANGE, _onScroll, false, 0, true);
 			
 			fld_text.addEventListener(Event.CHANGE, _onChange, false, 0, true);
+			fld_text.addEventListener(MouseEvent.MOUSE_WHEEL, _onChange, false, 0, true);
+			fld_text.addEventListener(FocusEvent.FOCUS_IN, clearInitText, false, 0, true);
+			fld_text.addEventListener(FocusEvent.FOCUS_OUT, checkInitText, false, 0, true);
 			
-			//_onChange(null);
+			_onChange(null);
+			
+			/**
+			 * TabIndex
+			 */
+			mc.tabEnabled = false;
+			mc.tabChildren = true;
+			fld_text.tabEnabled = true;
+			if (tabIndex > -1) fld_text.tabIndex = tabIndex;
 		}
 		
 		public function destroy():void {
 			scroll.removeEventListener(Scrollbar.EVENT_CHANGE, _onScroll);
 			fld_text.removeEventListener(Event.CHANGE, _onChange);
+			fld_text.removeEventListener(MouseEvent.MOUSE_WHEEL, _onChange);
+			fld_text.removeEventListener(FocusEvent.FOCUS_IN, clearInitText);
+			fld_text.removeEventListener(FocusEvent.FOCUS_OUT, checkInitText);
 			
 			scroll.destroy();
 			scroll = null;
+			
+			mc = null;
+			fld_text = null;
+			mcBg = null;
+			mcScroll = null;;
 		}
 		
+		/**
+		 * Enable and Disable Methods
+		 */
 		public function disable():void {
 			TextfieldUtil.aplyRestriction(fld_text, "all");
 			fld_text.selectable = false;
-			Tweener.addTween(mc, {alpha: .7, time: .3, transition: "linear" } );
+			Tweener.addTween(mc, { alpha: .7, time: .3, transition: "linear" } );
+			disableScroll(false);
+		}
+		
+		public function disableScroll($changeScrollAlpha:Boolean = true):void {
+			scroll.disable();
+			if($changeScrollAlpha) Tweener.addTween(mcScroll, {alpha: .7, time: .3, transition: "linear" } );
 		}
 		
 		public function enable():void {
 			applyRestrictions();
 			fld_text.selectable = true;
-			Tweener.addTween(mc, {alpha: 1, time: .3, transition: "linear" } );
+			Tweener.addTween(mc, { alpha: 1, time: .3, transition: "linear" } );
+			enableScroll(false);
 		}
+		
+		public function enableScroll($changeScrollAlpha:Boolean = true):void {
+			scroll.enable();
+			if($changeScrollAlpha) Tweener.addTween(mcScroll, {alpha: 1, time: .3, transition: "linear" } );
+		}
+		//
 		
 		public function applyRestrictions():void {
 			TextfieldUtil.aplyRestriction(fld_text, restrict);
 			fld_text.maxChars = maxChars;
+			if (type == "dynamic") fld_text.type = TextFieldType.DYNAMIC;
 		}
 		
 		public function reset():void {
@@ -134,6 +189,22 @@ package as3classes.ui.form {
 		
 		public function set required($required:Boolean):void {
 			_required = $required;
+		}
+		
+		public function clearInitText(evt:FocusEvent):void {
+			if (htmlText) {
+				trace("* ERROR TextareaComponent.clearInitText: if htmlText is true, can't use initText property");
+			} else {
+				if (initText == fld_text.text) text = "";
+			}
+			
+		}
+		public function checkInitText(evt:FocusEvent):void {
+			if (htmlText) {
+				trace("* ERROR TextareaComponent.checkInitText: if htmlText is true, can't use initText property");
+			} else {
+				if(fld_text.text == initText || fld_text.text.length == 0) text = initText;
+			}
 		}
 		
 		public function adjustSizes():void {
@@ -162,9 +233,26 @@ package as3classes.ui.form {
 			
 			mcScroll.height = mcBg.height;
 		}
+		
+		public function set initText($initText:String):void {
+			if (htmlText) {
+				_initText = fld_text.htmlText = $initText;
+			} else {
+				_initText = fld_text.text = $initText;
+			}
+		}
 	
+		public function get initText():String {
+			return _initText;
+		}
+		
 		public function set text($text:String):void {
-			_text = fld_text.text = $text;
+			if (htmlText) {
+				_text = fld_text.htmlText = $text;
+			} else {
+				_text = fld_text.text = $text;
+			}
+			_onChange(null);			
 		}
 		
 		public function get text():String{
@@ -173,19 +261,10 @@ package as3classes.ui.form {
 			return _text;
 		}
 
-		public function enableScroll():void {
-			scroll.enable();
-		}
-		
-		public function disableScroll():void {
-			scroll.disable();
-		}
-		
 		private function _onChange(evt:*):void {
-			if (fld_text.textHeight > fld_text.height) {
+			if (fld_text.maxScrollV > 1) {
 				enableScroll();
-				var nPos:Number = fld_text.scrollV / fld_text.maxScrollV;
-				scroll.percent = (nPos < .2) ? 0 : nPos;
+				scroll.percent = (fld_text.scrollV - 1) / (fld_text.maxScrollV - 1);
 			} else {
 				scroll.percent = 0;
 				disableScroll();
@@ -193,7 +272,7 @@ package as3classes.ui.form {
 		}
 		
 		private function _onScroll(evt:Event ):void {
-			fld_text.scrollV = Math.round(scroll.percent);
+			fld_text.scrollV = ((fld_text.maxScrollV - 1) * scroll.percent) + 1;
 		}
 	}
 }
