@@ -8,9 +8,10 @@ package as3classes.ui.form {
 	import flash.display.Sprite;
 	import flash.text.TextField;
 	import flash.text.TextFieldType;
-	import as3classes.util.TextfieldUtil;
-	import as3classes.ui.Scrollbar;
 	import flash.events.FocusEvent;
+	
+	import as3classes.util.TextfieldUtil;
+	import as3classes.ui.ScrollbarComponent;
 	
 	import caurina.transitions.Tweener;
 	
@@ -51,7 +52,7 @@ package as3classes.ui.form {
 		public var align:String = "left";
 		public var equal:TextareaComponent;
 		public var padding:Object = {top: 0, left: 0, right: 0, bottom: 0};
-		public var scroll:Scrollbar;
+		public var scroll:ScrollbarComponent;
 		//
 		
 		private const VALID_PROPS:Array = ["title", "type", "tabIndex", "required", "restrict", "maxChars", "minChars", "text", "initText", "align", "equal", "customErrorMessage", "padding", "htmlText"];
@@ -101,8 +102,8 @@ package as3classes.ui.form {
 			/**
 			 * Listeners
 			 */
-			scroll = new Scrollbar(mcScroll);
-			scroll.addEventListener(Scrollbar.EVENT_CHANGE, _onScroll, false, 0, true);
+			scroll = new ScrollbarComponent(mcScroll);
+			scroll.addEventListener(ScrollbarComponent.EVENT_CHANGE, _onScroll, false, 0, true);
 			
 			fld_text.addEventListener(Event.CHANGE, _onChange, false, 0, true);
 			fld_text.addEventListener(MouseEvent.MOUSE_WHEEL, _onChange, false, 0, true);
@@ -121,7 +122,7 @@ package as3classes.ui.form {
 		}
 		
 		public function destroy():void {
-			scroll.removeEventListener(Scrollbar.EVENT_CHANGE, _onScroll);
+			scroll.removeEventListener(ScrollbarComponent.EVENT_CHANGE, _onScroll);
 			fld_text.removeEventListener(Event.CHANGE, _onChange);
 			fld_text.removeEventListener(MouseEvent.MOUSE_WHEEL, _onChange);
 			fld_text.removeEventListener(FocusEvent.FOCUS_IN, clearInitText);
