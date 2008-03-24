@@ -9,11 +9,11 @@ package as3classes.ui.form {
 	import flash.text.TextFieldAutoSize;
 	import as3classes.util.TextfieldUtil;
 
-	public class CheckboxComponent {
+	public class RadiobuttonComponent {
 		
 		public var mc:Sprite;
 		public var background:*;
-		public var checkboxState:*;
+		public var radiobuttonState:*;
 		public var fld_text:TextField;
 		
 		// Commom
@@ -30,14 +30,14 @@ package as3classes.ui.form {
 		//
 		
 		private const VALID_PROPS:Array = ["title", "type", "tabIndex", "required", "selected", "label", "align", "customErrorMessage"];
-		public const TYPE:String = "checkbox";
+		public const TYPE:String = "radiobutton";
 		private var objSize:Object = { };
 		
-		function CheckboxComponent($mc:*, $initObj:Object = null) {
+		function RadiobuttonComponent($mc:*, $initObj:Object = null) {
 			
 			mc = $mc as Sprite;
 				fld_text = mc.getChildByName("fld_text") as TextField;
-				checkboxState = mc.getChildByName("mcCheckBoxState") as MovieClip;
+				radiobuttonState = mc.getChildByName("mcRadiobuttonState") as MovieClip;
 				background = mc.getChildByName("mcBg") as Sprite;
 			
 			if ($initObj != null) {
@@ -58,13 +58,13 @@ package as3classes.ui.form {
 					}
 				}
 			}
-			if (title == "" && required) trace("* WARNING: CheckboxComponent: " + mc + " parameter \"title\" undefined.");
+			if (title == "" && required) trace("* WARNING: RadiobuttonComponent: " + mc + " parameter \"title\" undefined.");
 			
 			/**
 			 * Sets the label value
 			 */
 			_setLabel();
-			checkboxState.stop();
+			radiobuttonState.stop();
 			if ($initObj[selected] == undefined) selected = false;
 			else selected = true;
 			
@@ -92,7 +92,7 @@ package as3classes.ui.form {
 			mc.removeEventListener(MouseEvent.CLICK, _onClick);
 			mc = null;
 			fld_text = null;
-			checkboxState = null;
+			radiobuttonState = null;
 		}
 		
 		public function resetSize():void {
@@ -131,10 +131,10 @@ package as3classes.ui.form {
 		private function _onClick(evt:*):void {
 			if (selected) {
 				selected = false;
-				checkboxState.gotoAndStop(1);
+				radiobuttonState.gotoAndStop(1);
 			} else {
 				selected = true;
-				checkboxState.gotoAndStop("selected");
+				radiobuttonState.gotoAndStop("selected");
 			}
 		}
 	}
