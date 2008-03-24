@@ -1,15 +1,15 @@
 package as3classes.ui.form {
 	
 	import flash.display.DisplayObjectContainer;
+	import flash.events.EventDispatcher;
 	import flash.events.MouseEvent;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
-	import as3classes.util.TextfieldUtil;
-
-	public class RadiobuttonComponent {
+	
+	public class RadiobuttonComponent extends EventDispatcher{
 		
 		public var mc:Sprite;
 		public var background:*;
@@ -23,13 +23,16 @@ package as3classes.ui.form {
 		public var customErrorMessage:String;
 		//
 		
-		// Checkbox only
+		// Radiobutton only
 		public var label:String = "";
+		public var value:String;
 		public var align:String = "left";
 		public var _selected:Boolean = false;
+		public var group:String;
+		private static var arrGroups:Array = [];
 		//
 		
-		private const VALID_PROPS:Array = ["title", "type", "tabIndex", "required", "selected", "label", "align", "customErrorMessage"];
+		private const VALID_PROPS:Array = ["title", "tabIndex", "required", "selected", "value", "label", "align", "group", "customErrorMessage"];
 		public const TYPE:String = "radiobutton";
 		private var objSize:Object = { };
 		
@@ -60,13 +63,24 @@ package as3classes.ui.form {
 			}
 			if (title == "" && required) trace("* WARNING: RadiobuttonComponent: " + mc + " parameter \"title\" undefined.");
 			
+			if(group == null){
+				throw new Error("* ERROR: RadiobuttonComponent group not defined.");
+			}
+			if(value == null){
+				throw new Error("* ERROR: RadiobuttonComponent value not defined.");
+			}
+			arrGroups.push( { radio:this, group:group } );
+			
 			/**
 			 * Sets the label value
 			 */
 			_setLabel();
 			radiobuttonState.stop();
-			if ($initObj[selected] == undefined) selected = false;
-			else selected = true;
+			
+			if ($initObj.selected == undefined || $initObj.selected === false) _selected = false;
+			else _selected = true;
+			
+			_changeState();
 			
 			/**
 			 * Adjusts the size and aply padding definitions
@@ -86,6 +100,7 @@ package as3classes.ui.form {
 			mc.mouseChildren = false;
 			mc.buttonMode = true;
 			if(tabIndex > -1) mc.tabIndex = tabIndex;
+			
 		}
 		
 		public function destroy():void {
@@ -116,8 +131,36 @@ package as3classes.ui.form {
 		}
 		
 		public function set selected($selected:Boolean):void {
+			resetOthers(this);
 			_selected = $selected;
-			//_onClick(null);
+			_changeState();
+		}
+		
+		public function resetGroup():void {
+			for (var i:int = 0; i < arrGroups.length; i++) {
+				if (arrGroups[i].group == group) {
+					arrGroups[i].radio._selected = false;
+					arrGroups[i].radio._changeState();
+				}
+			}
+		}
+		
+		public function resetOthers(me:RadiobuttonComponent):void {
+			for (var i:int = 0; i < arrGroups.length; i++) {
+				if (arrGroups[i].group == group && arrGroups[i].radio != me) {
+					arrGroups[i].radio._selected = false;
+					arrGroups[i].radio._changeState();
+				}
+			}
+		}
+		
+		public static function getSelectedAtGroup($group:String):Object {
+			for (var i:int = 0; i < arrGroups.length; i++) {
+				if (arrGroups[i].group == $group && arrGroups[i].radio.selected === true) {
+					return {radio: arrGroups[i].radio, value: arrGroups[i].radio.value};
+				}
+			}
+			return {radio: null, value: null};
 		}
 		
 		/**
@@ -128,14 +171,23 @@ package as3classes.ui.form {
 			fld_text.autoSize = TextFieldAutoSize.LEFT;
 		}
 		
+		private function _changeState():void {
+			if (!selected) {
+				radiobuttonState.gotoAndStop(1);
+			} else {
+				radiobuttonState.gotoAndStop("selected");
+			}
+		}
+		
 		private function _onClick(evt:*):void {
 			if (selected) {
 				selected = false;
-				radiobuttonState.gotoAndStop(1);
 			} else {
 				selected = true;
-				radiobuttonState.gotoAndStop("selected");
 			}
+			_changeState();
+			
+			dispatchEvent(new MouseEvent(MouseEvent.CLICK));
 		}
 	}
 }
