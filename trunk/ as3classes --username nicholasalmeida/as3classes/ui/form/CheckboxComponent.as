@@ -1,15 +1,15 @@
 package as3classes.ui.form {
 	
 	import flash.display.DisplayObjectContainer;
+	import flash.events.EventDispatcher;
 	import flash.events.MouseEvent;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
-	import as3classes.util.TextfieldUtil;
 
-	public class CheckboxComponent {
+	public class CheckboxComponent extends EventDispatcher{
 		
 		public var mc:Sprite;
 		public var background:*;
@@ -29,7 +29,7 @@ package as3classes.ui.form {
 		public var _selected:Boolean = false;
 		//
 		
-		private const VALID_PROPS:Array = ["title", "type", "tabIndex", "required", "selected", "label", "align", "customErrorMessage"];
+		private const VALID_PROPS:Array = ["title", "tabIndex", "required", "selected", "label", "align", "customErrorMessage"];
 		public const TYPE:String = "checkbox";
 		private var objSize:Object = { };
 		
@@ -65,7 +65,7 @@ package as3classes.ui.form {
 			 */
 			_setLabel();
 			checkboxState.stop();
-			if ($initObj[selected] == undefined) selected = false;
+			if ($initObj.selected == undefined || $initObj.selected === false) selected = false;
 			else selected = true;
 			
 			/**
@@ -117,7 +117,7 @@ package as3classes.ui.form {
 		
 		public function set selected($selected:Boolean):void {
 			_selected = $selected;
-			//_onClick(null);
+			_changeState();
 		}
 		
 		/**
@@ -128,14 +128,23 @@ package as3classes.ui.form {
 			fld_text.autoSize = TextFieldAutoSize.LEFT;
 		}
 		
+		private function _changeState():void {
+			if (!selected) {
+				checkboxState.gotoAndStop(1);
+			} else {
+				checkboxState.gotoAndStop("selected");
+			}
+		}
+		
 		private function _onClick(evt:*):void {
 			if (selected) {
 				selected = false;
-				checkboxState.gotoAndStop(1);
 			} else {
 				selected = true;
-				checkboxState.gotoAndStop("selected");
 			}
+			_changeState();
+			
+			dispatchEvent(new MouseEvent(MouseEvent.CLICK));
 		}
 	}
 }

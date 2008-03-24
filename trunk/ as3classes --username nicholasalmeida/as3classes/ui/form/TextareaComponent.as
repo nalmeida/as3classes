@@ -227,10 +227,11 @@ package as3classes.ui.form {
 			fld_text.x = padding.left;
 			fld_text.y = padding.top;
 			
-			background.width = objSize.w - mcScroll.width;
+			background.width = objSize.w - (mcScroll.width * 2);
+			mcScroll.x = background.width;
 			background.height = objSize.h;
-			fld_text.width = objSize.w - padding.left - padding.right - mcScroll.width;
-			fld_text.height = objSize.h - padding.top - padding.bottom;
+			fld_text.width = background.width - padding.left - padding.right;
+			fld_text.height = background.height - padding.bottom;
 			
 			mcScroll.height = background.height;
 		}
