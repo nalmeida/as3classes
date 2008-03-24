@@ -13,7 +13,7 @@ package as3classes.ui.form {
 	public class TextfieldComponent {
 		
 		public var mc:DisplayObjectContainer;
-		public var mcBg:*;
+		public var background:*;
 		public var fld_text:TextField;
 		
 		// Commom
@@ -44,7 +44,7 @@ package as3classes.ui.form {
 			mc = $mc as Sprite;
 			
 				fld_text = mc.getChildByName("fld_text") as TextField;
-				mcBg = mc.getChildByName("mcBg") as Sprite;
+				background = mc.getChildByName("mcBg") as Sprite;
 			
 			if ($initObj != null) {
 				init($initObj as Object);
@@ -98,7 +98,7 @@ package as3classes.ui.form {
 			
 			mc = null;
 			fld_text = null;
-			mcBg = null;
+			background = null;
 		}
 		
 		public function disable():void {
@@ -178,7 +178,7 @@ package as3classes.ui.form {
 			fld_text.x = padding.left;
 			fld_text.y = padding.top;
 			
-			mcBg.width = objSize.w;
+			background.width = objSize.w;
 			fld_text.width = objSize.w - padding.left - padding.right;
 		}
 	

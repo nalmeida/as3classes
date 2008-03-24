@@ -12,8 +12,8 @@ package as3classes.ui.form {
 	public class CheckboxComponent {
 		
 		public var mc:Sprite;
-		public var mcBg:*;
-		public var mcCheckBoxState:*;
+		public var background:*;
+		public var checkboxState:*;
 		public var fld_text:TextField;
 		
 		// Commom
@@ -24,22 +24,21 @@ package as3classes.ui.form {
 		//
 		
 		// Checkbox only
-		public var type:String = "input";
 		public var label:String = "";
 		public var align:String = "left";
 		public var _selected:Boolean = false;
 		//
 		
 		private const VALID_PROPS:Array = ["title", "type", "tabIndex", "required", "selected", "label", "align", "customErrorMessage"];
-		public const _type:String = "checkbox";
+		public const TYPE:String = "checkbox";
 		private var objSize:Object = { };
 		
 		function CheckboxComponent($mc:*, $initObj:Object = null) {
 			
 			mc = $mc as Sprite;
 				fld_text = mc.getChildByName("fld_text") as TextField;
-				mcCheckBoxState = mc.getChildByName("mcCheckBoxState") as MovieClip;
-				//mcBg = mc.getChildByName("mcBg") as Sprite;
+				checkboxState = mc.getChildByName("mcCheckBoxState") as MovieClip;
+				//background = mc.getChildByName("mcBg") as Sprite;
 			
 			if ($initObj != null) {
 				init($initObj as Object);
@@ -65,7 +64,7 @@ package as3classes.ui.form {
 			 * Sets the label value
 			 */
 			_setLabel();
-			mcCheckBoxState.stop();
+			checkboxState.stop();
 			if ($initObj[selected] == undefined) selected = false;
 			else selected = true;
 			
@@ -93,7 +92,7 @@ package as3classes.ui.form {
 			mc.removeEventListener(MouseEvent.CLICK, _onClick);
 			mc = null;
 			fld_text = null;
-			mcCheckBoxState = null;
+			checkboxState = null;
 		}
 		
 		public function resetSize():void {
@@ -132,10 +131,10 @@ package as3classes.ui.form {
 		private function _onClick(evt:*):void {
 			if (selected) {
 				selected = false;
-				mcCheckBoxState.gotoAndStop(1);
+				checkboxState.gotoAndStop(1);
 			} else {
 				selected = true;
-				mcCheckBoxState.gotoAndStop("selected");
+				checkboxState.gotoAndStop("selected");
 			}
 		}
 	}

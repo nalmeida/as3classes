@@ -30,7 +30,7 @@ package as3classes.ui.form {
 	public class TextareaComponent {
 		
 		public var mc:DisplayObjectContainer;
-		public var mcBg:*;
+		public var background:*;
 		public var fld_text:TextField;
 		
 		// Commom
@@ -41,9 +41,9 @@ package as3classes.ui.form {
 		public var customErrorMessage:String;
 		//
 		
-		// Textfield only
+		// TextareaComponent only
 		public var mcScroll:DisplayObjectContainer;
-		public var type:String = "textarea";
+		public var type:String = "input";
 		public var restrict:String = "none";
 		public var htmlText:Boolean = false;
 		public var maxChars:Number = 0;
@@ -64,7 +64,7 @@ package as3classes.ui.form {
 			mc = $mc as Sprite;
 			
 				fld_text = mc.getChildByName("fld_text") as TextField;
-				mcBg = mc.getChildByName("mcBg") as Sprite;
+				background = mc.getChildByName("mcBg") as Sprite;
 				mcScroll = mc.getChildByName("mcScroll") as Sprite;
 			
 			if ($initObj != null) {
@@ -133,7 +133,7 @@ package as3classes.ui.form {
 			
 			mc = null;
 			fld_text = null;
-			mcBg = null;
+			background = null;
 			mcScroll = null;;
 		}
 		
@@ -227,12 +227,12 @@ package as3classes.ui.form {
 			fld_text.x = padding.left;
 			fld_text.y = padding.top;
 			
-			mcBg.width = objSize.w - mcScroll.width;
-			mcBg.height = objSize.h;
+			background.width = objSize.w - mcScroll.width;
+			background.height = objSize.h;
 			fld_text.width = objSize.w - padding.left - padding.right - mcScroll.width;
 			fld_text.height = objSize.h - padding.top - padding.bottom;
 			
-			mcScroll.height = mcBg.height;
+			mcScroll.height = background.height;
 		}
 		
 		public function set initText($initText:String):void {
