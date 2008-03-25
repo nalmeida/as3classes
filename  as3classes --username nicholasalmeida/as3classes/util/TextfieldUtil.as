@@ -69,7 +69,7 @@ package as3classes.util {
 				
 				disable
 				all
-					any character allowed
+					NONE character allowed
 				
 				none
 					all character allowed
