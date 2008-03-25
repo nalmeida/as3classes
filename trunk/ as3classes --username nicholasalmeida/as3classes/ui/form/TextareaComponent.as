@@ -209,6 +209,10 @@ package as3classes.ui.form {
 		}
 		
 		public function adjustSizes():void {
+			
+			if (padding.left == undefined) padding.left = 0;
+			if (padding.top == undefined) padding.top = 0;
+			
 			objSize.w = mc.width;
 			objSize.h = mc.height;
 			objSize.scaleY = mc.scaleY;
