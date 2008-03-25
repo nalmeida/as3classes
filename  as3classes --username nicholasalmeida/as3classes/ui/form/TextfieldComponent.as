@@ -70,7 +70,7 @@ package as3classes.ui.form {
 			/**
 			 * Adjusts the size and aply padding definitions
 			 */
-			resetSize();
+			adjustSizes();
 			
 			/**
 			 * Applies characters restrictions min and max chars
@@ -164,7 +164,10 @@ package as3classes.ui.form {
 			}
 		}
 		
-		public function resetSize():void {
+		public function adjustSizes():void {
+			if (padding.left == undefined) padding.left = 0;
+			if (padding.top == undefined) padding.top = 0;
+			
 			objSize.w = mc.width;
 			objSize.h = mc.height;
 			
@@ -180,6 +183,7 @@ package as3classes.ui.form {
 			
 			background.width = objSize.w;
 			fld_text.width = objSize.w - padding.left - padding.right;
+
 		}
 	
 		public function set text($text:String):void {
