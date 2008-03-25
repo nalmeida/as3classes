@@ -27,7 +27,7 @@ package as3classes.ui.form {
 		// Textfield only
 		public var type:String = "input";
 		public var restrict:String = "none";
-		public var _initText:String;
+		public var _initText:String = "";
 		public var maxChars:Number = 0;
 		public var minChars:Number; // used on form validation only.
 		public var align:String = "left";
@@ -156,7 +156,9 @@ package as3classes.ui.form {
 			
 		}
 		public function checkInitText(evt:FocusEvent):void {
-			if (fld_text.text == initText || fld_text.text.length == 0) text = initText;
+			
+			if ((fld_text.text == initText || fld_text.text.length == 0) && initText.length > 0) text = initText;
+			
 			if (type == "password" && text.length>0) {
 				fld_text.displayAsPassword = true;
 			} else {
