@@ -1,5 +1,6 @@
 package as3classes.ui.form {
 	
+	import flash.events.EventDispatcher;
 	import flash.events.MouseEvent;
 	import flash.events.Event;
 	import flash.display.DisplayObject;
@@ -12,60 +13,47 @@ package as3classes.ui.form {
 	
 	import as3classes.util.TextfieldUtil;
 	import as3classes.ui.ScrollbarComponent;
+	import as3classes.util.DisplayobjectUtil;
 	
 	import caurina.transitions.Tweener;
 	
-	/**
-	 @see
-	 <code>
-			textarea = new TextareaComponent(mcTextarea);
-			
-			textarea.init( { 
-				title: "Mensagem",
-				padding: { top:6, left:6 },
-				initText: "escreva aqui!"
-			} );
-	 </code>
-	 */
-	public class TextareaComponent {
+	public class ComboboxComponent extends EventDispatcher{
 		
 		public var mc:DisplayObjectContainer;
 		public var background:*;
 		public var fld_text:TextField;
+		public var openButton:Sprite;
+		private var _itemMaster:Sprite;
 		
 		// Commom
 		public var title:String = "";
 		public var tabIndex:int = -1;
 		public var _required:Boolean = false;
-		public var _text:String = "";
 		public var customErrorMessage:String;
 		//
 		
 		// TextareaComponent only
+		public var rows:Number;
+		public var data:Array;
 		public var mcScroll:DisplayObjectContainer;
-		public var type:String = "input"; // input or dynamic
-		public var restrict:String = "none";
-		public var htmlText:Boolean = false;
-		public var maxChars:Number = 0;
-		public var minChars:Number; // used on form validation only.
-		public var _initText:String = "";
-		public var align:String = "left";
-		public var equal:TextareaComponent;
 		public var padding:Object = {top: 0, left: 0, right: 0, bottom: 0};
 		public var scroll:ScrollbarComponent;
+		public var _arrItens:Array = [];
 		//
 		
-		private const VALID_PROPS:Array = ["title", "type", "tabIndex", "required", "restrict", "maxChars", "minChars", "text", "initText", "align", "equal", "customErrorMessage", "padding", "htmlText"];
+		private const VALID_PROPS:Array = ["title", "tabIndex", "required", "restrict", "customErrorMessage", "padding", "rows", "data"];
 		public const TYPE:String = "textarea";
 		private var objSize:Object = { };
 		
-		function TextareaComponent($mc:*, $initObj:Object = null) {
+		function ComboboxComponent($mc:*, $initObj:Object = null) {
 			
 			mc = $mc as Sprite;
 			
 				fld_text = mc.getChildByName("fld_text") as TextField;
 				background = mc.getChildByName("mcBg") as Sprite;
+				openButton = mc.getChildByName("btOpen") as Sprite;
 				mcScroll = mc.getChildByName("mcScroll") as Sprite;
+				_itemMaster = mc.getChildByName("mcItem") as Sprite;
 			
 			if ($initObj != null) {
 				init($initObj as Object);
@@ -87,7 +75,9 @@ package as3classes.ui.form {
 					}
 				}
 			}
-			if (title == "") trace("* WARNING: TextareaComponent: " + mc + " parameter \"title\" undefined.");
+			if (isNaN(rows)) throw new Error("* EROOR ComboboxComponent: parameter \"rows\" undefined.");
+			if (data == null) throw new Error("* EROOR ComboboxComponent: parameter \"data\" undefined.");
+			if (title == "") trace("* WARNING ComboboxComponent: " + mc + " parameter \"title\" undefined.");
 			
 			/**
 			 * Adjusts the size and aply padding definitions
@@ -95,9 +85,9 @@ package as3classes.ui.form {
 			adjustSizes();
 			
 			/**
-			 * Applies characters restrictions min and max chars
+			 * Create Itens
 			 */
-			applyRestrictions();
+			_addItens();
 			
 			/**
 			 * Listeners
@@ -107,8 +97,6 @@ package as3classes.ui.form {
 			
 			fld_text.addEventListener(Event.CHANGE, _onChange, false, 0, true);
 			fld_text.addEventListener(MouseEvent.MOUSE_WHEEL, _onChange, false, 0, true);
-			fld_text.addEventListener(FocusEvent.FOCUS_IN, clearInitText, false, 0, true);
-			fld_text.addEventListener(FocusEvent.FOCUS_OUT, checkInitText, false, 0, true);
 			
 			_onChange(null);
 			
@@ -119,14 +107,17 @@ package as3classes.ui.form {
 			mc.tabChildren = true;
 			fld_text.tabEnabled = true;
 			if (tabIndex > -1) fld_text.tabIndex = tabIndex;
+			
+			/**
+			 * 
+			 */
+			//close();
 		}
 		
 		public function destroy():void {
 			scroll.removeEventListener(ScrollbarComponent.EVENT_CHANGE, _onScroll);
 			fld_text.removeEventListener(Event.CHANGE, _onChange);
 			fld_text.removeEventListener(MouseEvent.MOUSE_WHEEL, _onChange);
-			fld_text.removeEventListener(FocusEvent.FOCUS_IN, clearInitText);
-			fld_text.removeEventListener(FocusEvent.FOCUS_OUT, checkInitText);
 			
 			scroll.destroy();
 			scroll = null;
@@ -141,8 +132,6 @@ package as3classes.ui.form {
 		 * Enable and Disable Methods
 		 */
 		public function disable():void {
-			TextfieldUtil.aplyRestriction(fld_text, "all");
-			fld_text.selectable = false;
 			Tweener.addTween(mc, { alpha: .7, time: .3, transition: "linear" } );
 			disableScroll(false);
 		}
@@ -153,8 +142,6 @@ package as3classes.ui.form {
 		}
 		
 		public function enable():void {
-			applyRestrictions();
-			fld_text.selectable = true;
 			Tweener.addTween(mc, { alpha: 1, time: .3, transition: "linear" } );
 			enableScroll(false);
 		}
@@ -165,23 +152,18 @@ package as3classes.ui.form {
 		}
 		//
 		
-		public function applyRestrictions():void {
-			TextfieldUtil.aplyRestriction(fld_text, restrict);
-			fld_text.maxChars = maxChars;
-			if (type == "dynamic") fld_text.type = TextFieldType.DYNAMIC;
+		public function open():void {
+			scroll.enable();
+			mcScroll.visible = true;
+		}
+		
+		public function close():void {
+			scroll.disable();
+			mcScroll.visible = false;
 		}
 		
 		public function reset():void {
-			var v:String;
-			if (initText != null) {
-				v = initText;
-			} else if (text != null) {
-				v = text;
-			} else {
-				v = "";
-			}
-			fld_text.text = v;
-			applyRestrictions();
+		
 		}
 		
 		public function get required():Boolean {
@@ -190,22 +172,6 @@ package as3classes.ui.form {
 		
 		public function set required($required:Boolean):void {
 			_required = $required;
-		}
-		
-		public function clearInitText(evt:FocusEvent):void {
-			if (htmlText) {
-				trace("* ERROR TextareaComponent.clearInitText: if htmlText is true, can't use initText property");
-			} else {
-				if (initText == fld_text.text) text = "";
-			}
-			
-		}
-		public function checkInitText(evt:FocusEvent):void {
-			if (htmlText) {
-				trace("* ERROR TextareaComponent.checkInitText: if htmlText is true, can't use initText property");
-			} else {
-				if ((fld_text.text == initText || fld_text.text.length == 0) && initText.length > 0) text = initText;
-			}
 		}
 		
 		public function adjustSizes():void {
@@ -220,6 +186,9 @@ package as3classes.ui.form {
 			mc.scaleX = 1;
 			mc.scaleY = 1;
 			
+			mcScroll.scaleX = 1;
+			mcScroll.scaleY = 1;
+			
 			if ((padding.right == undefined || padding.right == 0) && padding.left > 0) { // If right is 0, gets the left value
 				padding.right = padding.left;
 			}
@@ -231,42 +200,31 @@ package as3classes.ui.form {
 			fld_text.x = padding.left;
 			fld_text.y = padding.top;
 			
-			background.width = objSize.w - (mcScroll.width * 2);
-			mcScroll.x = background.width;
-			background.height = objSize.h;
+			background.width = objSize.w - openButton.width;
+			
+			openButton.x = background.width;
+			
+			mcScroll.x = objSize.w - mcScroll.width;
+			mcScroll.y = background.height;
+			
+			_itemMaster.width = objSize.w - mcScroll.width;
+			
 			fld_text.width = background.width - padding.left - padding.right;
 			fld_text.height = background.height - padding.bottom;
+		}
+		
+		private function _addItens():void {
+			for (var j:int = 0; j < data.length; j++) {
+				var newItem:Sprite = DisplayobjectUtil.duplicate(_itemMaster, true);
+				newItem.y = (_itemMaster.height * j) + _itemMaster.y;
+				_arrItens.push(newItem);
+			}
+			mc.removeChild(_itemMaster);
+			_itemMaster = null;
 			
-			mcScroll.height = background.height;
+			//TODO: Criar a classe ComboItem
 		}
 		
-		public function set initText($initText:String):void {
-			if (htmlText) {
-				_initText = fld_text.htmlText = $initText;
-			} else {
-				_initText = fld_text.text = $initText;
-			}
-		}
-	
-		public function get initText():String {
-			return _initText;
-		}
-		
-		public function set text($text:String):void {
-			if (htmlText) {
-				_text = fld_text.htmlText = $text;
-			} else {
-				_text = fld_text.text = $text;
-			}
-			_onChange(null);			
-		}
-		
-		public function get text():String{
-			_text = fld_text.text;
-			if(_text === "" || _text === initText) _text = "";
-			return _text;
-		}
-
 		private function _onChange(evt:*):void {
 			if (fld_text.maxScrollV > 1) {
 				enableScroll();
