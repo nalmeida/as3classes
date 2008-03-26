@@ -138,10 +138,16 @@ package as3classes.sound {
 			volume = _beforeMuteolume;
 		}
 		
+		public function hasSoundAndChannel():Boolean {
+			return (sound == null || channel == null) ? false : true;
+		}
+		
 		public function destroy():void {
 			stop();
-			sound = null;
-			channel = null;
+			if(hasSoundAndChannel()){
+				sound = null;
+				channel = null;
+			}
 		}
 		
 		private function _onComplete(evt:Event):void {
