@@ -99,6 +99,7 @@ package as3classes.ui.form {
 			mc.mouseEnabled = true;
 			mc.mouseChildren = false;
 			mc.buttonMode = true;
+			mc.useHandCursor = false;
 			if(tabIndex > -1) mc.tabIndex = tabIndex;
 			
 		}
