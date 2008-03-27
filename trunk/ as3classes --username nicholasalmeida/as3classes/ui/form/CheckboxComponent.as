@@ -38,11 +38,12 @@ package as3classes.ui.form {
 			mc = $mc as Sprite;
 				fld_text = mc.getChildByName("fld_text") as TextField;
 				checkboxState = mc.getChildByName("mcCheckBoxState") as MovieClip;
-				background = mc.getChildByName("mcBg") as Sprite;
+				//background = mc.getChildByName("mcBg") as Sprite;
 			
 			if ($initObj != null) {
 				init($initObj as Object);
 			}
+			
 		}
 		
 		public function init($initObj:Object):void {
@@ -85,6 +86,7 @@ package as3classes.ui.form {
 			mc.mouseEnabled = true;
 			mc.mouseChildren = false;
 			mc.buttonMode = true;
+			mc.useHandCursor = false;
 			if(tabIndex > -1) mc.tabIndex = tabIndex;
 		}
 		
