@@ -24,7 +24,7 @@ package as3classes.video {
 			video = new Video(320, 240);
 			addChild(video);
 			
-			control = new VideoController(FLV_FILE, video, 7);
+			control = new VideoController();
 			
 			control.addEventListener(VideoControllerEvent.LOAD_START, _onLoadInit);
 			control.addEventListener(VideoControllerEvent.LOAD_PROGRESS, _onLoadProgress);
@@ -35,6 +35,9 @@ package as3classes.video {
 			control.addEventListener(VideoControllerEvent.VIDEO_PROGRESS, _onProgress);
 			control.addEventListener(VideoControllerEvent.VIDEO_COMPLETE, _onComplete);
 			control.addEventListener(VideoControllerEvent.VIDEO_ERROR, _onError);
+			
+			
+			control.start(FLV_FILE, video, 7, true, true);
 			
 			stage.addEventListener(MouseEvent.CLICK, _playPause );
 		}
