@@ -1,7 +1,6 @@
 package as3classes.video {
 	
 	import flash.events.Event
-	import br.com.stimuli.loading.BulkProgressEvent;
 	
 	public class VideoControllerEvent extends Event{
 		
@@ -23,16 +22,8 @@ package as3classes.video {
 		public function VideoControllerEvent(type:String, videoController:VideoController, message:String = "") {
 			
 			switch (type) {
-				case VIDEO_PROGRESS : 
-					if (videoController.avaliable) {
-						percentPlayed = videoController.percentPlayed;
-					} else {
-						percentPlayed = 0;
-					}
-					break;
-					
 				case LOAD_PROGRESS : 
-					if (videoController.avaliable) {
+					if (videoController._percentLoaded > 0) {
 						percentLoaded = videoController._percentLoaded;
 					} else {
 						percentLoaded = 0;
@@ -42,7 +33,19 @@ package as3classes.video {
 				case LOAD_ERROR : 
 					errorFile = videoController.flv;
 					break;
+					
+					
+					
+				case VIDEO_PROGRESS : 
+					if (videoController.avaliable) {
+						percentPlayed = videoController.percentPlayed;
+					} else {
+						percentPlayed = 0;
+					}
+					break;
+					
 				case VIDEO_ERROR : 
+					errorFile = videoController.flv;
 					errorMessage = message;
 					break;
 			}

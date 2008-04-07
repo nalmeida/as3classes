@@ -7,6 +7,7 @@ package as3classes.video {
 	import flash.events.NetStatusEvent;
 	import flash.events.Event;
 	import flash.media.Video;
+	import flash.media.SoundTransform;
 	
 	import br.com.stimuli.loading.BulkLoader;
 	import br.com.stimuli.loading.BulkErrorEvent;
@@ -148,6 +149,15 @@ package as3classes.video {
 			return (_netStream != null) ? _netStream : null;
 		}
 		
+		public function set volume(amount:Number):void {
+			amount = (amount > 1) ? 1 : (amount < 0) ? 0 : amount;
+			netStream.soundTransform = new SoundTransform(amount);
+		}
+		
+		public function get volume():Number {
+			return Number(netStream.soundTransform.volume);
+		}
+		
 		public function get percentPlayed():Number {
 			return time / _duration;
 		}
@@ -223,7 +233,7 @@ package as3classes.video {
 		
 		private function _load():void {
 			loader = new BulkLoader(BulkLoader.getUniqueName());
-			loader.add(flv , {pausedAtStart: true});
+			loader.add(flv , {type: BulkLoader.TYPE_VIDEO, pausedAtStart: true});
 			
 			loader.addEventListener(BulkProgressEvent.PROGRESS, _onLoadProgress, false, 0, true);
 			loader.addEventListener(BulkProgressEvent.COMPLETE, _onLoadComplete, false, 0, true);
