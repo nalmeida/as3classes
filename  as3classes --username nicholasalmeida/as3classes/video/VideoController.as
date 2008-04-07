@@ -91,8 +91,11 @@ package as3classes.video {
 		public var _percentLoaded:Number = 0;
 		
 		
-		public function VideoController($flv:String, $video:Video, $duration:Number, $autoplay:Boolean = false, $loop:Boolean = false):void {
-			
+		public function VideoController($flv:String = "", $video:Video = null, $duration:Number = NaN, $autoplay:Boolean = false, $loop:Boolean = false):void {
+			if($flv != "") start($flv, $video, $duration, $autoplay, $loop);
+		}
+		
+		public function start($flv:String, $video:Video, $duration:Number, $autoplay:Boolean = false, $loop:Boolean = false):void {
 			try{
 				flv = $flv;
 			} catch (e:Error) {

@@ -4,19 +4,32 @@ package as3classes.video {
 	import flash.events.Event
 	import flash.display.Loader;
 	import flash.display.LoaderInfo;
+	import flash.system.LoaderContext;
 	
 	import flash.events.EventDispatcher;
 	
+	
+	/**
+	 * 
+	 <code>
+	 var yt:YouTubeDecoder = new YouTubeDecoder();
+	 yt.decodeURL("http://br.youtube.com/watch?v=ek8iWRA6jzA");
+	 yt.addEventListener(Event.COMPLETE, function():void { trace("URL = " + yt.flvPath); } );
+	 </code>
+	 
+	 */
 	public class YouTubeDecoder extends EventDispatcher{
 		
 		private var loader:Loader;
 		private var abortId:uint;
+		private const YOUTUBE_APP:String = "http://www.youtube.com/v/";
 		
 		public var v:String;
-		public var url:String;
+		private var url:String;
 		public var id:String;
 		public var t:String;
 		public var iurl:String;
+		public var flvPath:String = "http://www.youtube.com/get_video.php?";
 		
 		public function decodeURL(youTubeUrl:String):void {
 			var urlVars:URLVariables = new URLVariables ();
@@ -38,19 +51,14 @@ package as3classes.video {
 		
 		private function _decode():void {
 			
-			url = "http://www.youtube.com/v/" + v;
+			url = YOUTUBE_APP + v;
 			
 			loader = new Loader();
-			loader.contentLoaderInfo.addEventListener(Event.INIT, _onInit, false, 0, true);
+			loader.contentLoaderInfo.addEventListener(Event.INIT, _onInit);
 			loader.load(new URLRequest (url));
-			
-			_trace ("Loading YouTube URL..");
 		}
             
 		private function _onInit (event:Event):void{
-			//http://www.youtube.com/watch?v=IpVWZePn1Y8
-			
-			_trace ("Loaded, processing: " + loader.contentLoaderInfo.url);
 			var urlVars:URLVariables = new URLVariables ();
 				urlVars.decode (loader.contentLoaderInfo.url.split("?")[1]);
 			
@@ -58,29 +66,11 @@ package as3classes.video {
 			t = urlVars.t;
 			iurl = urlVars.iurl
 			
-			_trace ("\t\t video_id:" + id);
-			_trace ("\t\t t param:" + t);
-			_trace ("\t\t thumbnail-url:" + iurl);
-			
-			var flvURL:String = _constructFLVURL (id, t);
-			
-			_trace ("YouTube FLV URL: " + flvURL);
-			_trace ("Started Playing Video...");
-			
+			flvPath += "video_id=" + id + "&t=" + t;
+			dispatchEvent(new Event(Event.COMPLETE));
+				
 			destroy();
 		}
 		
-		private function _constructFLVURL(video_id:String, t:String):String{
-			var str:String = "http://www.youtube.com/get_video.php?";
-				str += "video_id=" + video_id;
-				str += "&t=" + t;
-			return str;
-		}
-		
-		private function _trace (message:String):void {
-			//outputText.text += message + "\n";
-			trace (message);
-		}
-			
 	}
 }
