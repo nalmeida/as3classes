@@ -109,11 +109,9 @@ package as3classes.ui.video{
 			
 			fld_time.addEventListener(MouseEvent.CLICK, changeTimeMode, false, 0, true);
 			
-			volumeBt.addEventListener(MouseEvent.CLICK, _openVolume, false, 0, true);
+			volumeBt.addEventListener(MouseEvent.MOUSE_OVER, _openVolume, false, 0, true);
 			volumeBt.addEventListener(MouseEvent.ROLL_OVER, _overBt, false, 0, true);
 			volumeBt.addEventListener(MouseEvent.ROLL_OUT, _closeVolume, false, 0, true);
-			
-			_ytdecoder = new YouTubeDecoder();
 			
 			control = new VideoController();
 				control.addEventListener(VideoControllerEvent.LOAD_START, _onLoadInit, false, 0, true);
@@ -176,7 +174,7 @@ package as3classes.ui.video{
 			video = new Video(videoWidth, videoHeight);
 			holder.addChild(video);
 			
-			changeVideo(flv);
+			_changeVideo();
 		}
 		
 		public function destroy():void {
@@ -193,13 +191,15 @@ package as3classes.ui.video{
 			
 			fld_time.removeEventListener(MouseEvent.CLICK, changeTimeMode);
 			
-			volumeBt.removeEventListener(MouseEvent.CLICK, _openVolume);
+			volumeBt.removeEventListener(MouseEvent.MOUSE_OVER, _openVolume);
 			volumeBt.removeEventListener(MouseEvent.ROLL_OVER, _overBt);
 			volumeBt.removeEventListener(MouseEvent.ROLL_OUT, _closeVolume);
 			
-			_ytdecoder.removeEventListener(Event.COMPLETE, _onDecodeYoutubeVideo);
-			_ytdecoder.destroy();
-			_ytdecoder = null;
+			if(_ytdecoder != null){
+				_ytdecoder.removeEventListener(Event.COMPLETE, _onDecodeYoutubeVideo);
+				_ytdecoder.destroy();
+				_ytdecoder = null;
+			}
 			
 			control.removeEventListener(VideoControllerEvent.LOAD_START, _onLoadInit);
 			control.removeEventListener(VideoControllerEvent.LOAD_PROGRESS, _onLoadProgress);
@@ -214,6 +214,9 @@ package as3classes.ui.video{
 			control.removeEventListener(VideoControllerEvent.VIDEO_PLAY, _onVideoPlay);
 			control.removeEventListener(VideoControllerEvent.VIDEO_PAUSE, _onVideoPause);
 			control.removeEventListener(VideoControllerEvent.VIDEO_STOP, _onVideoStop);
+			
+			control.destroy();
+			
 			control = null;
 			
 			//_sliderControl.removeEventListener(Slider.EVENT_PRESS, pause);
@@ -235,14 +238,31 @@ package as3classes.ui.video{
 			fld_time = null;
 		}
 		
-		public function changeVideo($flv:String):void {
+		public function changeVideo($flv:String, $duration:Number):void {
+			flv = $flv;
+			duration = $duration;
+			
+			// External Call of change Video
+			if (control.avaliable) {
+				rewind(null);
+			}
+			video.clear();
+			control.close();
+			holder.visible = false;
+			
+			_changeVideo();
+		}
+		
+		private function _changeVideo():void {
 			if (youtube) {
+				_ytdecoder = new YouTubeDecoder();
 				_ytdecoder.decodeURL(flv);
 				_ytdecoder.addEventListener(Event.COMPLETE, _onDecodeYoutubeVideo);
 				_trace("[VideoComponent] Requesting YouTube video: " + flv);
 			} else {
 				_startVideoLoading();
 			}
+			
 			disableControls();
 			fld_time.text = (timeRegressive ? "-" : "" ) + "00:00";
 			track.scaleX = 0;
@@ -288,7 +308,7 @@ package as3classes.ui.video{
 		}
 		
 		public function enable():void {
-			
+			enableControls();
 		}
 		
 		public function disableControls():void {
@@ -318,7 +338,7 @@ package as3classes.ui.video{
 		}
 		
 		public function disable():void {
-			
+			disableControls();
 		}
 		
 		public function changeTimeMode(evt:*):void {
@@ -370,7 +390,6 @@ package as3classes.ui.video{
 		}
 		 
 		private function _startVideoLoading():void {
-			
 			control.verbose = verbose;
 			control.playAfterLoad = playAfterLoad;
 			control.init(flv, video, duration, autoPlay, loop);
@@ -379,6 +398,10 @@ package as3classes.ui.video{
 		
 		private function _onDecodeYoutubeVideo(evt:*):void {
 			flv = _ytdecoder.flvPath;
+			
+			_ytdecoder.removeEventListener(Event.COMPLETE, _onDecodeYoutubeVideo);
+			_ytdecoder = null;
+			
 			_startVideoLoading();
 			_trace("[VideoComponent] YouTube video decoded. Flv: " + flv);
 		}
@@ -390,6 +413,7 @@ package as3classes.ui.video{
 		
 		private function _onLoadInit(evt:VideoControllerEvent):void {
 			_trace("[VideoComponent] Video loader started. Flv: " + flv);
+			holder.visible = true;
 		}
 		
 		private function _onLoadProgress(evt:VideoControllerEvent):void {

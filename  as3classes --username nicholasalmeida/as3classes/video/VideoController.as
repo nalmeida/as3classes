@@ -77,6 +77,7 @@ package as3classes.video {
 	public class VideoController extends Sprite{
 		
 		public var flv:String;
+		public var flvId:String;
 		public var video:Video;
 		public var _netStream:NetStream;
 		public var isPlaying:Boolean;
@@ -92,10 +93,12 @@ package as3classes.video {
 		public var avaliable:Boolean = false;
 		
 		public var _percentLoaded:Number = 0;
+		public var _volume:Number = 1;
 		
 		
 		public function VideoController($flv:String = "", $video:Video = null, $duration:Number = NaN, $autoplay:Boolean = false, $loop:Boolean = false):void {
-			if($flv != "") init($flv, $video, $duration, $autoplay, $loop);
+			if ($flv != "") init($flv, $video, $duration, $autoplay, $loop);
+			loader = new BulkLoader(BulkLoader.getUniqueName());
 		}
 		
 		public function init($flv:String, $video:Video, $duration:Number, $autoplay:Boolean = false, $loop:Boolean = false):void {
@@ -120,13 +123,13 @@ package as3classes.video {
 			autoPlay = $autoplay;
 			loop = $loop;
 			isPlaying = false;
-			
+			flvId = "video_" + String(uint(Math.random() * new Date().getTime()));
 			_load();
 		}
 		
 		public function destroy():void {
 			
-			loader.remove(flv);
+			loader.remove(flvId);
 			loader.removeFailedItems();
 			
 			loader.removeEventListener(BulkProgressEvent.PROGRESS, _onLoadProgress);
@@ -136,6 +139,7 @@ package as3classes.video {
 			removeEventListener(Event.ENTER_FRAME, _onEnterFrame);
 			
 			stop();
+			netStream.close();
 			_netStream.removeEventListener(NetStatusEvent.NET_STATUS, _onNetStatus);
 			
 			netStream = null;
@@ -157,6 +161,7 @@ package as3classes.video {
 		
 		public function set volume(amount:Number):void {
 			amount = (amount > 1) ? 1 : (amount < 0) ? 0 : amount;
+			_volume = amount;
 			netStream.soundTransform = new SoundTransform(amount);
 		}
 		
@@ -195,7 +200,6 @@ package as3classes.video {
 					seek(0);
 				} 
 				netStream.resume();
-				
 				isPlaying = true;
 				_trace("! VideoController.play called at: " + time);
 				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_PLAY, this));
@@ -220,27 +224,13 @@ package as3classes.video {
 		
 		public function rewind():void {
 			stop();
-			play();
+			pause();
 		}
 		
 		public function seek($amount:Number):void {
-			//var calc:Number;
-			//
-			//if ($amount > time ) {
-				//trace("direita");
-				//calc = $amount - time;
-			//} else {
-				//trace("esquerda");
-				//calc = time - $amount;
-			//}
-			
-			//trace("calc = " + calc + " time = " + time + " de " + duration +  " == " + (time + $amount));
-			
 			if ($amount > duration) $amount = duration;
 			else if ($amount < 0) $amount = 0;
-			
-			//trace("ir para = " + $amount);
-			
+			_trace("! VideoController.seek : " + $amount);
 			netStream.seek($amount);
 		}
 		
@@ -256,13 +246,26 @@ package as3classes.video {
 			}
 		}
 		
+		public function close():void {
+			
+			loader.pause(flvId);
+			loader.removePausedItems();
+			if(netStream != null){
+				netStream.close();
+				_netStream.removeEventListener(NetStatusEvent.NET_STATUS, _onNetStatus);
+			}
+			_netStream = null;
+			avaliable = false;
+			isPlaying = false;
+		}
+		
 		/**
 		 * Private
 		 */
 		
 		private function _load():void {
-			loader = new BulkLoader(BulkLoader.getUniqueName());
-			loader.add(flv , {type: BulkLoader.TYPE_VIDEO, pausedAtStart: true});
+			
+			loader.add(flv , {id: flvId, type: BulkLoader.TYPE_VIDEO, pausedAtStart: true});
 			
 			loader.addEventListener(BulkProgressEvent.PROGRESS, _onLoadProgress, false, 0, true);
 			loader.addEventListener(BulkProgressEvent.COMPLETE, _onLoadComplete, false, 0, true);
@@ -293,11 +296,13 @@ package as3classes.video {
 			_percentLoaded = evt.percentLoaded;
 			
 			if (_percentLoaded > playAfterLoad && !avaliable) {
-				netStream = loader.getNetStream(flv);
+				netStream = loader.getNetStream(flvId);
 				video.attachNetStream(netStream);
 				avaliable = true;
 				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_START, this));
 				addEventListener(Event.ENTER_FRAME, _onEnterFrame, false, 0, true);
+				
+				volume = _volume; // restoring the volume
 			}
 			
 			dispatchEvent(new VideoControllerEvent(VideoControllerEvent.LOAD_PROGRESS, this));
@@ -307,7 +312,6 @@ package as3classes.video {
 			if (isPlaying) {
 				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_PROGRESS, this));
 			}
-			//trace(time);
 		}
 		 
 		private function _connect():void {
