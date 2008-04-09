@@ -8,11 +8,30 @@ package as3classes.ui.video{
 	import flash.display.MovieClip;
 	import flash.text.TextField;
 	
+	import caurina.transitions.Tweener;
 	import as3classes.video.YouTubeDecoder;
 	import as3classes.video.VideoController;
 	import as3classes.video.VideoControllerEvent;
 	import redneck.ui.Slider;
 	
+	
+	/**
+	 <code>
+			videoControl = new VideoComponent(video);
+			videoControl.verbose = false;
+			videoControl.init( {
+				flv:"http://br.youtube.com/watch?v=Eu-SCI9Ks_Y",
+				// LONG VIDEO // flv:"http://br.youtube.com/watch?v=W1nhljdqf0E&feature=bz303",
+				youtube: true,
+				duration: 11.712,
+				playAfterLoad: .25,
+				autoPlay: true,
+				timeRegressive: false
+			} );
+	 </code>
+	 */
+	//TODO: Slider do vídeo
+	//TODO: full screen? 
 	public class VideoComponent extends Sprite {
 		
 		public var flv:String;
@@ -39,12 +58,18 @@ package as3classes.ui.video{
 					public var track:Sprite;
 					public var slider:Sprite;
 					public var sliderBackground:Sprite;
+					
+					public var volumeBt:Sprite;
+						public var volumeTrackSlider:Sprite;
+							public var volumeSlider:Sprite;
+							public var volumeTrack:Sprite;
 				
 			public var holder:Sprite;
 			
 		public var _ytdecoder:YouTubeDecoder;
 		public var control:VideoController;
-		public var sliderControl:Slider;
+		private var _sliderControl:Slider;
+		private var _sliderVolume:Slider;
 		private var _trackSize:Number = 0;
 		
 		
@@ -63,6 +88,10 @@ package as3classes.ui.video{
 						slider = trackSlider.getChildByName("slider") as Sprite;
 						sliderBackground = trackSlider.getChildByName("background") as Sprite;
 					
+					volumeBt = playerControl.getChildByName("volumeBt") as Sprite;
+						volumeTrackSlider = volumeBt.getChildByName("volumeTrackSlider") as Sprite;
+							volumeTrack = volumeTrackSlider.getChildByName("track") as Sprite;
+							volumeSlider = volumeTrackSlider.getChildByName("slider") as Sprite;
 					
 				holder = mc.getChildByName("holder") as Sprite;
 			
@@ -79,6 +108,10 @@ package as3classes.ui.video{
 			rewindBt.addEventListener(MouseEvent.MOUSE_OUT, _outBt, false, 0, true);
 			
 			fld_time.addEventListener(MouseEvent.CLICK, changeTimeMode, false, 0, true);
+			
+			volumeBt.addEventListener(MouseEvent.CLICK, _openVolume, false, 0, true);
+			volumeBt.addEventListener(MouseEvent.ROLL_OVER, _overBt, false, 0, true);
+			volumeBt.addEventListener(MouseEvent.ROLL_OUT, _closeVolume, false, 0, true);
 			
 			_ytdecoder = new YouTubeDecoder();
 			
@@ -97,10 +130,15 @@ package as3classes.ui.video{
 				control.addEventListener(VideoControllerEvent.VIDEO_PAUSE, _onVideoPause, false, 0, true);
 				control.addEventListener(VideoControllerEvent.VIDEO_STOP, _onVideoStop, false, 0, true);
 			
-			sliderControl = new Slider(slider, track, 0, true);
-				//sliderControl.addEventListener(Slider.EVENT_PRESS, pause, false, 0, true);
-				sliderControl.addEventListener(Slider.EVENT_RELEASE, _onReleaseSlider, false, 0, true);
-				//sliderControl.addEventListener(Slider.EVENT_CHANGE, _onReleaseSlider, false, 0, true);
+			//_sliderControl = new Slider(slider, track, 0, true);
+				//_sliderControl.addEventListener(Slider.EVENT_PRESS, pause, false, 0, true);
+				//_sliderControl.addEventListener(Slider.EVENT_RELEASE, _onReleaseSlider, false, 0, true);
+				//_sliderControl.addEventListener(Slider.EVENT_CHANGE, _onReleaseSlider, false, 0, true);
+				
+			_sliderVolume = new Slider(volumeSlider, volumeTrack, 0, true, true);
+				_sliderVolume.addEventListener(Slider.EVENT_CHANGE, _onVolumeChange, false, 0, true);
+				
+			volumeTrackSlider.visible = false;
 			
 			_trackSize = sliderBackground.width - slider.width;
 				
@@ -155,6 +193,10 @@ package as3classes.ui.video{
 			
 			fld_time.removeEventListener(MouseEvent.CLICK, changeTimeMode);
 			
+			volumeBt.removeEventListener(MouseEvent.CLICK, _openVolume);
+			volumeBt.removeEventListener(MouseEvent.ROLL_OVER, _overBt);
+			volumeBt.removeEventListener(MouseEvent.ROLL_OUT, _closeVolume);
+			
 			_ytdecoder.removeEventListener(Event.COMPLETE, _onDecodeYoutubeVideo);
 			_ytdecoder.destroy();
 			_ytdecoder = null;
@@ -174,12 +216,17 @@ package as3classes.ui.video{
 			control.removeEventListener(VideoControllerEvent.VIDEO_STOP, _onVideoStop);
 			control = null;
 			
-			//sliderControl.removeEventListener(Slider.EVENT_PRESS, pause);
-			sliderControl.removeEventListener(Slider.EVENT_RELEASE, _onReleaseSlider);
-			//sliderControl.removeEventListener(Slider.EVENT_CHANGE, _onReleaseSlider);
+			//_sliderControl.removeEventListener(Slider.EVENT_PRESS, pause);
+			//_sliderControl.removeEventListener(Slider.EVENT_RELEASE, _onReleaseSlider);
+			//_sliderControl.removeEventListener(Slider.EVENT_CHANGE, _onReleaseSlider);
 			
-			sliderControl.destroy();
-			sliderControl = null;
+			//_sliderControl.destroy();
+			//_sliderControl = null;
+			
+			_sliderVolume.removeEventListener(Slider.EVENT_CHANGE, _onVolumeChange);
+			
+			_sliderVolume.destroy();
+			_sliderVolume = null;
 			
 			slider = null;
 			track = null;
@@ -203,6 +250,7 @@ package as3classes.ui.video{
 		
 		public function rewind(evt:MouseEvent):void {
 			control.rewind();
+			slider.x = 0;
 		}
 		
 		public function play(evt:*):void {
@@ -218,6 +266,10 @@ package as3classes.ui.video{
 		}
 		
 		public function enableControls():void {
+			volumeBt.buttonMode = 
+			volumeBt.mouseEnabled = 
+			volumeBt.useHandCursor = 
+			
 			fld_time.mouseEnabled = 
 			
 			rewindBt.buttonMode = 
@@ -240,6 +292,10 @@ package as3classes.ui.video{
 		}
 		
 		public function disableControls():void {
+			volumeBt.buttonMode = 
+			volumeBt.mouseEnabled = 
+			volumeBt.useHandCursor = 
+			
 			fld_time.mouseEnabled = 
 			
 			rewindBt.buttonMode = 
@@ -256,6 +312,7 @@ package as3classes.ui.video{
 			
 			trackSlider.mouseChildren = false;
 			
+			volumeBt.alpha = 
 			rewindBt.alpha = 
 			playPauseBt.alpha = .5;
 		}
@@ -286,6 +343,20 @@ package as3classes.ui.video{
 		 * Private Handlers
 		 */
 		
+		private function _closeVolume(evt:MouseEvent):void {
+			volumeBt.alpha = .5;
+			Tweener.addTween(volumeTrackSlider, { alpha:0, time: .3, transition: "linear", onComplete: function():void { volumeTrackSlider.visible = false; } } );
+		}
+		
+		private function _openVolume(evt:MouseEvent):void {
+			volumeTrackSlider.alpha = 1;
+			volumeTrackSlider.visible = true;
+		}
+		
+		private function _onVolumeChange(evt:Event):void {
+			control.volume = (1-_sliderVolume.percent);
+		}
+		 
 		private function _onReleaseSlider(evt:Event):void {
 			
 			if (slider.x > track.width) {
@@ -293,11 +364,9 @@ package as3classes.ui.video{
 			}
 			
 			var calc:Number = ((duration * slider.x ) / _trackSize);
-				calc = (int(calc * 1000) / 1000) / 10;
-				//calc = (int((calc - control.time) * 1000) / 1000);
+				calc = (int(calc * 1000) / 1000);
 			
 			control.seek(calc);
-			//play(null);
 		}
 		 
 		private function _startVideoLoading():void {
