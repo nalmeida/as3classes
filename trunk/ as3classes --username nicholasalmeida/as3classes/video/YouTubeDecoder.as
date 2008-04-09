@@ -5,9 +5,9 @@ package as3classes.video {
 	import flash.display.Loader;
 	import flash.display.LoaderInfo;
 	import flash.system.LoaderContext;
-	
+	import flash.events.IOErrorEvent;
 	import flash.events.EventDispatcher;
-	
+	import flash.system.Security;
 	
 	/**
 	 * 
@@ -18,6 +18,8 @@ package as3classes.video {
 	 </code>
 	 
 	 */
+	 
+	//TODO: Fazer pegando os dados do Youtube http://code.google.com/support/bin/answer.py?answer=92715&useful=1&show_useful=1
 	public class YouTubeDecoder extends EventDispatcher{
 		
 		private var loader:Loader;
@@ -31,14 +33,21 @@ package as3classes.video {
 		public var iurl:String;
 		public var flvPath:String = "http://www.youtube.com/get_video.php?";
 		
+		private var _decodeURLvar:URLVariables;
+		private var _onInitvar:URLVariables;
+		
+		public function YouTubeDecoder():void {
+			Security.allowDomain(YOUTUBE_APP);
+		}
+		
 		public function decodeURL(youTubeUrl:String):void {
-			var urlVars:URLVariables = new URLVariables ();
+			_decodeURLvar = new URLVariables ();
 			try {
-				urlVars.decode(youTubeUrl.split("?")[1]);
+				_decodeURLvar.decode(youTubeUrl.split("?")[1]);
 			} catch (e:Error) {
 				throw new Error("* ERROR [YouTubeDecoder] YouTubeDecoder.decodeURL. Unable to decode youTubeUrl.");
 			}
-			v = urlVars.v;
+			v = _decodeURLvar.v;
 			_decode();
 		}
 		
@@ -48,9 +57,15 @@ package as3classes.video {
 		}
 		
 		public function destroy():void {
-			loader.contentLoaderInfo.removeEventListener(Event.INIT, _onInit);
-			loader.unload(); 
-			loader = null;
+			if(loader != null) {
+				loader.contentLoaderInfo.removeEventListener(Event.INIT, _onInit); // TODO: YouTubeDecoder. Adicionar weak reference.
+				loader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, _ioErrorHandler);
+				loader.unload(); 
+				loader = null;
+			}
+			
+			_decodeURLvar = null;
+			_onInitvar = null;
 		}
 		
 		private function _decode():void {
@@ -58,23 +73,29 @@ package as3classes.video {
 			url = YOUTUBE_APP + v;
 			
 			loader = new Loader();
-			loader.contentLoaderInfo.addEventListener(Event.INIT, _onInit);
+			loader.contentLoaderInfo.addEventListener(Event.INIT, _onInit, false, 0, true);
+			loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, _ioErrorHandler, false, 0, true);
 			loader.load(new URLRequest (url));
 		}
             
 		private function _onInit (event:Event):void{
-			var urlVars:URLVariables = new URLVariables ();
-				urlVars.decode (loader.contentLoaderInfo.url.split("?")[1]);
+			_onInitvar = new URLVariables ();
+				_onInitvar.decode (loader.contentLoaderInfo.url.split("?")[1]);
 			
-			id = urlVars.video_id;
-			t = urlVars.t;
-			iurl = urlVars.iurl
+			id = _onInitvar.video_id;
+			t = _onInitvar.t;
+			iurl = _onInitvar.iurl
 			
 			flvPath += "video_id=" + id + "&t=" + t;
 			dispatchEvent(new Event(Event.COMPLETE));
 				
 			destroy();
 		}
+		
+	  
+      private function _ioErrorHandler(event:IOErrorEvent):void {
+          trace("====> ioErrorHandler: " + event);
+      } 
 		
 	}
 }
