@@ -49,6 +49,7 @@ package as3classes.ui.video{
 		
 		public var mc:Sprite;
 			public var background:Sprite;
+			public var controlerBackground:Sprite;
 			public var playerControl:Sprite;
 				public var playPauseBt:MovieClip;
 				public var rewindBt:Sprite;
@@ -61,6 +62,7 @@ package as3classes.ui.video{
 					
 					public var volumeBt:Sprite;
 						public var volumeTrackSlider:Sprite;
+							public var volumeBackground:Sprite;
 							public var volumeSlider:Sprite;
 							public var volumeTrack:Sprite;
 				
@@ -80,6 +82,7 @@ package as3classes.ui.video{
 			mc = $mc as Sprite;
 				background = mc.getChildByName("background") as Sprite;
 				playerControl = mc.getChildByName("playerControl") as Sprite;
+					controlerBackground = playerControl.getChildByName("background") as MovieClip;
 					playPauseBt = playerControl.getChildByName("playPause") as MovieClip;
 					rewindBt = playerControl.getChildByName("rewind") as Sprite;
 					fld_time = playerControl.getChildByName("fld_time") as TextField;
@@ -90,6 +93,7 @@ package as3classes.ui.video{
 					
 					volumeBt = playerControl.getChildByName("volumeBt") as Sprite;
 						volumeTrackSlider = volumeBt.getChildByName("volumeTrackSlider") as Sprite;
+							volumeBackground = volumeTrackSlider.getChildByName("background") as Sprite;
 							volumeTrack = volumeTrackSlider.getChildByName("track") as Sprite;
 							volumeSlider = volumeTrackSlider.getChildByName("slider") as Sprite;
 					
@@ -109,6 +113,7 @@ package as3classes.ui.video{
 			
 			fld_time.addEventListener(MouseEvent.CLICK, changeTimeMode, false, 0, true);
 			
+			volumeBt.addEventListener(MouseEvent.CLICK, _openVolume, false, 0, true);
 			volumeBt.addEventListener(MouseEvent.MOUSE_OVER, _openVolume, false, 0, true);
 			volumeBt.addEventListener(MouseEvent.ROLL_OVER, _overBt, false, 0, true);
 			volumeBt.addEventListener(MouseEvent.ROLL_OUT, _closeVolume, false, 0, true);
@@ -144,6 +149,8 @@ package as3classes.ui.video{
 				init($initObj as Object);
 			}
 			
+			disableControls();
+			track.scaleX = 0;
 		}
 		
 		public function init($initObj:Object):void {
@@ -191,6 +198,7 @@ package as3classes.ui.video{
 			
 			fld_time.removeEventListener(MouseEvent.CLICK, changeTimeMode);
 			
+			volumeBt.removeEventListener(MouseEvent.CLICK, _openVolume);
 			volumeBt.removeEventListener(MouseEvent.MOUSE_OVER, _openVolume);
 			volumeBt.removeEventListener(MouseEvent.ROLL_OVER, _overBt);
 			volumeBt.removeEventListener(MouseEvent.ROLL_OUT, _closeVolume);
@@ -201,23 +209,25 @@ package as3classes.ui.video{
 				_ytdecoder = null;
 			}
 			
-			control.removeEventListener(VideoControllerEvent.LOAD_START, _onLoadInit);
-			control.removeEventListener(VideoControllerEvent.LOAD_PROGRESS, _onLoadProgress);
-			control.removeEventListener(VideoControllerEvent.LOAD_COMPLETE, _onLoadComplete);
-			control.removeEventListener(VideoControllerEvent.LOAD_ERROR, _onLoadError);
-			
-			control.removeEventListener(VideoControllerEvent.VIDEO_START, _onVideoStart);
-			control.removeEventListener(VideoControllerEvent.VIDEO_PROGRESS, _onVideoProgress);
-			control.removeEventListener(VideoControllerEvent.VIDEO_COMPLETE, _onVideoComplete);
-			control.removeEventListener(VideoControllerEvent.VIDEO_ERROR, _onVideoError);
-			
-			control.removeEventListener(VideoControllerEvent.VIDEO_PLAY, _onVideoPlay);
-			control.removeEventListener(VideoControllerEvent.VIDEO_PAUSE, _onVideoPause);
-			control.removeEventListener(VideoControllerEvent.VIDEO_STOP, _onVideoStop);
-			
-			control.destroy();
-			
-			control = null;
+			if(control != null){
+				control.removeEventListener(VideoControllerEvent.LOAD_START, _onLoadInit);
+				control.removeEventListener(VideoControllerEvent.LOAD_PROGRESS, _onLoadProgress);
+				control.removeEventListener(VideoControllerEvent.LOAD_COMPLETE, _onLoadComplete);
+				control.removeEventListener(VideoControllerEvent.LOAD_ERROR, _onLoadError);
+				
+				control.removeEventListener(VideoControllerEvent.VIDEO_START, _onVideoStart);
+				control.removeEventListener(VideoControllerEvent.VIDEO_PROGRESS, _onVideoProgress);
+				control.removeEventListener(VideoControllerEvent.VIDEO_COMPLETE, _onVideoComplete);
+				control.removeEventListener(VideoControllerEvent.VIDEO_ERROR, _onVideoError);
+				
+				control.removeEventListener(VideoControllerEvent.VIDEO_PLAY, _onVideoPlay);
+				control.removeEventListener(VideoControllerEvent.VIDEO_PAUSE, _onVideoPause);
+				control.removeEventListener(VideoControllerEvent.VIDEO_STOP, _onVideoStop);
+				
+				control.destroy();
+				
+				control = null;
+			}
 			
 			//_sliderControl.removeEventListener(Slider.EVENT_PRESS, pause);
 			//_sliderControl.removeEventListener(Slider.EVENT_RELEASE, _onReleaseSlider);
@@ -226,10 +236,11 @@ package as3classes.ui.video{
 			//_sliderControl.destroy();
 			//_sliderControl = null;
 			
-			_sliderVolume.removeEventListener(Slider.EVENT_CHANGE, _onVolumeChange);
-			
-			_sliderVolume.destroy();
-			_sliderVolume = null;
+			if(_sliderVolume != null){
+				_sliderVolume.removeEventListener(Slider.EVENT_CHANGE, _onVolumeChange);
+				_sliderVolume.destroy();
+				_sliderVolume = null;
+			}
 			
 			slider = null;
 			track = null;
@@ -444,9 +455,8 @@ package as3classes.ui.video{
 				/**
 				 * Slider
 				 */
-				slider.x = (evt.percentPlayed * _trackSize);
+				slider.x = ((Math.ceil(evt.percentPlayed * 1000)/1000) * _trackSize);
 				slider.x = slider.x < 0 ? 0 : slider.x;
-				
 				_trace("[VideoComponent] Video played: " + evt.percentPlayed + "\ttime: " + control.time);
 			}
 			

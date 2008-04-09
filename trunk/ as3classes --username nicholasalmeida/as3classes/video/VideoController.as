@@ -135,16 +135,17 @@ package as3classes.video {
 			loader.removeEventListener(BulkProgressEvent.PROGRESS, _onLoadProgress);
 			loader.removeEventListener(BulkProgressEvent.COMPLETE, _onLoadComplete);
 			loader.removeEventListener(BulkErrorEvent.ERROR, _onLoadError);
+			loader = null;
 			
 			removeEventListener(Event.ENTER_FRAME, _onEnterFrame);
 			
-			stop();
-			netStream.close();
-			_netStream.removeEventListener(NetStatusEvent.NET_STATUS, _onNetStatus);
-			
-			netStream = null;
-			loader = null;
-			video = null;
+			if(avaliable){
+				stop();
+				netStream.close();
+				_netStream.removeEventListener(NetStatusEvent.NET_STATUS, _onNetStatus);
+				netStream = null;
+				video = null;
+			}
 		}
 		
 		public function set netStream($netStream:NetStream):void {
