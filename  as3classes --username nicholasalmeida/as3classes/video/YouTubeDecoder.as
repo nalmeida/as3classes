@@ -33,7 +33,11 @@ package as3classes.video {
 		
 		public function decodeURL(youTubeUrl:String):void {
 			var urlVars:URLVariables = new URLVariables ();
+			try {
 				urlVars.decode(youTubeUrl.split("?")[1]);
+			} catch (e:Error) {
+				throw new Error("* ERROR [YouTubeDecoder] YouTubeDecoder.decodeURL. Unable to decode youTubeUrl.");
+			}
 			v = urlVars.v;
 			_decode();
 		}
