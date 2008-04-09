@@ -97,13 +97,13 @@ package as3classes.util {
 			 * Creating URLLoader object.
 			 */
 			_loader.dataFormat = URLLoaderDataFormat.VARIABLES;
-			_loader.addEventListener(Event.COMPLETE, _onComplete);
-			_loader.addEventListener(IOErrorEvent.IO_ERROR, _onIOError);
+			_loader.addEventListener(Event.COMPLETE, _onComplete, false, 0, true);
+			_loader.addEventListener(IOErrorEvent.IO_ERROR, _onIOError, false, 0, true);
 			
 			sending = true;
 			
-			_trace("! Sending to: " + url);
-			_trace("! Sending data: " + _request.data);
+			_trace("[SendAndLoad]  Sending to: " + url);
+			_trace("[SendAndLoad]  Sending data: " + _request.data);
 			
 			try {
 				_loader.load(_request);				
@@ -117,17 +117,30 @@ package as3classes.util {
 			if (type == "xml" ) {
 				try {
 					var success:XML = new XML(unescape(evt.target.data));
+					_trace("[SendAndLoad] Received data: " + success);
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.COMPLETE, success, type));
 				} catch (e:Error) {
 					throw new Error("* ERROR [SendAndLoad] _onComplete method: " + e.message);
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.ERROR, "* ERROR #1 : " + e.message, "error"));
 				}
 			}
-			sending = false;
+			destroy();
 		}
 		
 		private function _onIOError(evt:IOErrorEvent):void {
 			dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.ERROR, "* ERROR #404 : Unable to load data from: " + url, "error"));
+			destroy();
+		}
+		
+		private function destroy():void {
+			if (_loader) {
+				_loader.removeEventListener(Event.COMPLETE, _onComplete);
+				_loader.addEventListener(IOErrorEvent.IO_ERROR, _onIOError);
+				_loader = null;
+				_variablesToSend = null;
+				_request = null;
+			}
+			
 			sending = false;
 		}
 		
