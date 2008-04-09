@@ -14,6 +14,10 @@ package as3classes.video {
 		public static const VIDEO_COMPLETE:String = "video_complete";
 		public static const VIDEO_ERROR:String = "video_error";
 		
+		public static const VIDEO_PLAY:String = "video_play";
+		public static const VIDEO_PAUSE:String = "video_pause";
+		public static const VIDEO_STOP:String = "video_stop";
+		
 		public var percentLoaded:Number = 0;
 		public var percentPlayed:Number = 0;
 		public var errorMessage:String;

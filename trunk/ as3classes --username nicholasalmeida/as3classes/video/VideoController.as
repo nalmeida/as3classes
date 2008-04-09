@@ -14,7 +14,6 @@ package as3classes.video {
 	import br.com.stimuli.loading.BulkProgressEvent;
 	
 	import as3classes.video.VideoControllerEvent;
-
 	
 	/**
 	 * 
@@ -37,7 +36,7 @@ package as3classes.video {
 			control.addEventListener(VideoControllerEvent.VIDEO_ERROR, _onError);
 			
 			
-			control.start(FLV_FILE, video, 7, true, true);
+			control.init(FLV_FILE, video, 7, true, true);
 			
 			stage.addEventListener(MouseEvent.CLICK, _playPause );
 		}
@@ -81,8 +80,9 @@ package as3classes.video {
 		public var video:Video;
 		public var _netStream:NetStream;
 		public var isPlaying:Boolean;
-		public var verbose:Boolean = true;
+		public var verbose:Boolean = false;
 		public var _duration:Number;
+		public var position:Number = 0;
 		
 		public var autoPlay:Boolean;
 		public var loop:Boolean;
@@ -95,10 +95,10 @@ package as3classes.video {
 		
 		
 		public function VideoController($flv:String = "", $video:Video = null, $duration:Number = NaN, $autoplay:Boolean = false, $loop:Boolean = false):void {
-			if($flv != "") start($flv, $video, $duration, $autoplay, $loop);
+			if($flv != "") init($flv, $video, $duration, $autoplay, $loop);
 		}
 		
-		public function start($flv:String, $video:Video, $duration:Number, $autoplay:Boolean = false, $loop:Boolean = false):void {
+		public function init($flv:String, $video:Video, $duration:Number, $autoplay:Boolean = false, $loop:Boolean = false):void {
 			try{
 				flv = $flv;
 			} catch (e:Error) {
@@ -192,14 +192,13 @@ package as3classes.video {
 		public function play():void {
 			try {
 				if (time >= duration) {
-					netStream.seek(0);
-					netStream.resume();
-				} else {
-					netStream.resume();
-				}
+					seek(0);
+				} 
+				netStream.resume();
+				
 				isPlaying = true;
 				_trace("! VideoController.play called at: " + time);
-				
+				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_PLAY, this));
 			} catch (e:Error) {
 				//throw new Error("* ERROR [VideoController] play method : " + e.message);
 				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_ERROR, this, "* ERROR [VideoController] play method : netStream not avaliable."));
@@ -208,9 +207,11 @@ package as3classes.video {
 		
 		public function pause():void {
 			try {
+				position = netStream.time;
 				netStream.pause();
 				isPlaying = false;
 				_trace("! VideoController.pause called at: " + time);
+				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_PAUSE, this));
 			} catch (e:Error) {
 				//throw new Error("* ERROR [VideoController] pause method : " + e.message);
 				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_ERROR, this, "* ERROR [VideoController] pause method : netStream not avaliable."));
@@ -222,11 +223,33 @@ package as3classes.video {
 			play();
 		}
 		
+		public function seek($amount:Number):void {
+			//var calc:Number;
+			//
+			//if ($amount > time ) {
+				//trace("direita");
+				//calc = $amount - time;
+			//} else {
+				//trace("esquerda");
+				//calc = time - $amount;
+			//}
+			
+			//trace("calc = " + calc + " time = " + time + " de " + duration +  " == " + (time + $amount));
+			
+			if ($amount > duration) $amount = duration;
+			else if ($amount < 0) $amount = 0;
+			
+			//trace("ir para = " + $amount);
+			
+			netStream.seek($amount);
+		}
+		
 		public function stop():void {
 			try {
 				netStream.pause();
-				netStream.seek(0);
+				seek(0);
 				_trace("! VideoController.stop called at: " + netStream.time);
+				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_STOP, this));
 			} catch (e:Error) {
 				throw new Error("* ERROR [VideoController] stop method : " + e.message);
 				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_ERROR, this, "* ERROR [VideoController] stop method : netStream not avaliable."));
@@ -284,6 +307,7 @@ package as3classes.video {
 			if (isPlaying) {
 				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_PROGRESS, this));
 			}
+			//trace(time);
 		}
 		 
 		private function _connect():void {
@@ -295,7 +319,7 @@ package as3classes.video {
 		}
 		 
 		private function _onNetStatus(event:Object):void {
-			
+			//trace(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + event.info.code);
 			switch (event.info.code) {
 				//case "NetConnection.Connect.Success":
 					//_connect();
@@ -305,8 +329,11 @@ package as3classes.video {
 					//_connect();
 					//_trace("! VideoController status: " + event.info.code);
 					//break;
+				case "NetStream.Seek.Notify":
+					//trace("Foi para " + netStream.time);
+					break;
 				case "NetStream.Play.StreamNotFound":
-					_trace("* ERROR VideoController Stream not found.");
+					trace("* ERROR VideoController Stream not found.");
 					dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_ERROR, this, "* ERROR [VideoController] play method : netStream not avaliable."));
 					break;
 				case "NetStream.Play.Stop":
