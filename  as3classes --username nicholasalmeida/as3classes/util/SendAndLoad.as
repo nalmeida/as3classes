@@ -2,7 +2,6 @@ package as3classes.util {
 	import flash.events.DataEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
-	import flash.net.URLVariables;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLLoaderDataFormat;
 	import flash.events.IOErrorEvent;
@@ -38,12 +37,10 @@ package as3classes.util {
 		public var sending:Boolean = false;
 		public var preventCache:Boolean;
 		
-		private var _variablesToSend:URLVariables;
 		private var _request:URLRequest;
 		private var _loader:URLLoader;
 		
 		function SendAndLoad() {
-			_variablesToSend = new URLVariables();
 			_request = new URLRequest();
 			_loader = new URLLoader();
 		}
@@ -85,6 +82,9 @@ package as3classes.util {
 			/**
 			 * Creating URLRequest object.
 			 */
+			
+			 trace("URL ???? " + url);
+			 
 			_request.url = url;
 			_request.method = URLRequestMethod.POST;
 			
@@ -116,6 +116,7 @@ package as3classes.util {
 		private function _onComplete(evt:Event):void {
 			if (type == "xml" ) {
 				try {
+					//TODO: Ver pq não funciona quando recebe um XML sem  o XML declaration.
 					var success:XML = new XML(unescape(evt.target.data));
 					_trace("[SendAndLoad] Received data: " + success);
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.COMPLETE, success, type));
@@ -137,7 +138,6 @@ package as3classes.util {
 				_loader.removeEventListener(Event.COMPLETE, _onComplete);
 				_loader.addEventListener(IOErrorEvent.IO_ERROR, _onIOError);
 				_loader = null;
-				_variablesToSend = null;
 				_request = null;
 			}
 			
