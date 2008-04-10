@@ -14,7 +14,7 @@ package as3classes.ui {
 	 @see
 	 <code>
 		scroll = new ScrollbarComponent(mcScroll);
-		scroll.addEventListener(Scrollbar.EVENT_CHANGE, _onScroll, false, 0, true);
+		scroll.addEventListener(ScrollbarComponent.EVENT_CHANGE, _onScroll, false, 0, true);
 		
 		.......
 		

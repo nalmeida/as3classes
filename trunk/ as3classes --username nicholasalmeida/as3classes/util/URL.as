@@ -28,6 +28,7 @@ package as3classes.util {
 		private static var _hasStarted:Boolean = false;
 		
 		public static var verbose:Boolean = true;
+		public static var trackerFunction:String = "pageTracker._trackPageview";
 		
 		/**
 			Calls a external URL using navigateToURL method.
@@ -57,8 +58,8 @@ package as3classes.util {
 			
 			@param $analyticsString Arguments to "urchinTracker".
 		 */
-		public static function analytics($analyticsString:String, $trackFunction:String = "pageTracker._trackPageview"):void {
-			_arrURLQueue.push( { js: $trackFunction, args: $analyticsString } );
+		public static function analytics($analyticsString:String):void {
+			_arrURLQueue.push( { js: trackerFunction, args: $analyticsString } );
 			_start();
 		}
 		
@@ -86,7 +87,7 @@ package as3classes.util {
 				}
 			} else {
 				if (j) {
-					if (j === "pageTracker._trackPageview") a = "\"" + a + "\"";
+					if (j === trackerFunction) a = "\"" + a + "\"";
 					_trace("! URL.javascript() 	running LOCAL. " + j + "(" + a + ")");
 				} else {
 					_trace("! URL.call() 		running LOCAL. URL: \"" + u + "\" TARGET: \"" + t + "\"");					
