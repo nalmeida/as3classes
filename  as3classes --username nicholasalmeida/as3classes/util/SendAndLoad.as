@@ -82,9 +82,6 @@ package as3classes.util {
 			/**
 			 * Creating URLRequest object.
 			 */
-			
-			 trace("URL ???? " + url);
-			 
 			_request.url = url;
 			_request.method = URLRequestMethod.POST;
 			
