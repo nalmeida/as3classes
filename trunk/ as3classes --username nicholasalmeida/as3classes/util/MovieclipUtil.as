@@ -39,6 +39,39 @@ package as3classes.util {
 		}
 		
 		/**
+			Returns the smallest proportion based on a min width and min height
+			
+			@param element Element.
+			@param maxWidth Maximum width allowed.
+			@param maxHeight Maximum height allowed.
+			@return scale Minimum proportion of element without distortion. 
+			
+			@author Nicholas Almeida nicholasalmeida.com
+			@version 14/4/2008 17:40
+			@usage
+					<code>
+						trace(MovieclipUtil.getSmallestProportion(theBitmap, 500, 355));
+					</code>
+		 */
+		public static function getSmallestProportion(element:*, maxWidth:Number, maxHeight:Number):Number {
+			var scale:Number = 1;
+			var scaleW:Number = 1;
+			var scaleH:Number = 1;
+			
+			if (element.width >= maxWidth) {
+				scaleW = maxWidth / element.width;
+			}
+		
+			if (element.height >= maxHeight) {
+				scaleH = maxHeight / element.height;
+			}
+			
+			scale = scaleH < scaleW ? scaleH : scaleW; // seting the smallest size
+			
+			return scale;
+		}
+		
+		/**
 		 * Private function to trace if verbose is true.
 		 * @param	str
 		 */
