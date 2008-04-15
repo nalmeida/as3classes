@@ -176,6 +176,7 @@ package as3classes.ui.video{
 				throw new Error("* ERROR [VideoComponent]: you MUST define duration time.");
 			} else {
 				duration = Math.round(int(duration * 1000)) / 1000;
+				duration = duration / 1000;
 			}
 			
 			video = new Video(videoWidth, videoHeight);
@@ -249,6 +250,11 @@ package as3classes.ui.video{
 			fld_time = null;
 		}
 		
+		/**
+		 * 
+		 * @param	$flv FLV file path
+		 * @param	$duration time in MILLISECONDS. Ex.: 52 sec = 52000 milliseconds
+		 */
 		public function changeVideo($flv:String, $duration:Number):void {
 			flv = $flv;
 			duration = $duration;
@@ -465,13 +471,16 @@ package as3classes.ui.video{
 			 */
 			var baseTime:Number;
 			if (!timeRegressive) {
-				baseTime = control.time;
+				baseTime = control.time * 1000;
 			} else {
-				baseTime = control.remainingTime;
+				baseTime = control.remainingTime * 1000;
 			}
 			
-			var min:uint = Math.abs(baseTime / 60);
-			var sec:uint = Math.abs(baseTime * 1000) / 1000;
+			var hours:uint 	= baseTime / (1000 * 60 * 60);
+			var min:uint 	= (baseTime % (1000 * 60 * 60)) / (1000 * 60);
+			var sec:uint 	= ((baseTime % (1000 * 60 * 60)) % (1000 * 60)) / 1000;
+			
+			
 			if (min > 59) min = min % 60;
 			if (sec > 59) sec = sec % 60;
 			

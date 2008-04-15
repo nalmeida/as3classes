@@ -118,8 +118,8 @@ package as3classes.util {
 					_trace("[SendAndLoad] Received data: " + success);
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.COMPLETE, success, type));
 				} catch (e:Error) {
-					throw new Error("* ERROR [SendAndLoad] _onComplete method: " + e.message);
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.ERROR, "* ERROR #1 : " + e.message, "error"));
+					throw new Error("* ERROR [SendAndLoad] _onComplete method: " + e.message);
 				}
 			}
 			destroy();
