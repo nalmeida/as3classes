@@ -5,6 +5,7 @@ package as3classes.util {
 	import flash.net.URLRequestMethod;
 	import flash.net.URLLoaderDataFormat;
 	import flash.events.IOErrorEvent;
+	import flash.system.System;
 	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -45,7 +46,18 @@ package as3classes.util {
 			_loader = new URLLoader();
 		}
 		
-		public function send($URL:String, $data:*, $preventCache:Boolean = false ):* {
+		/**
+		 * Sends the request to server
+		 * @param	$URL Path to server side page.
+		 * @param	$data data to send.
+		 * @param	$preventCache If true, add a querystring at the end of url name with ? (or &) and a random number. Default false.
+		 * @param	$useCodePage If you want to use System.useCodePage. Default true.
+		 * @return
+		 */
+		public function send($URL:String, $data:*, $preventCache:Boolean = false , $useCodePage:Boolean = true):* {
+			
+			System.useCodePage = $useCodePage;
+			
 			/**
 			 * Basic verification and feedback
 			 */
