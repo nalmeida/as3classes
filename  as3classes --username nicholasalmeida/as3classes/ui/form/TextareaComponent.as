@@ -67,10 +67,11 @@ package as3classes.ui.form {
 				background = mc.getChildByName("mcBg") as Sprite;
 				mcScroll = mc.getChildByName("mcScroll") as Sprite;
 			
+			text = "";
+			
 			if ($initObj != null) {
 				init($initObj as Object);
 			}
-		
 		}
 		
 		public function init($initObj:Object):void {
@@ -104,7 +105,7 @@ package as3classes.ui.form {
 			 */
 			scroll = new ScrollbarComponent(mcScroll);
 			scroll.addEventListener(ScrollbarComponent.EVENT_CHANGE, _onScroll, false, 0, true);
-			
+
 			fld_text.addEventListener(Event.CHANGE, _onChange, false, 0, true);
 			fld_text.addEventListener(MouseEvent.MOUSE_WHEEL, _onChange, false, 0, true);
 			fld_text.addEventListener(FocusEvent.FOCUS_IN, clearInitText, false, 0, true);
@@ -268,13 +269,15 @@ package as3classes.ui.form {
 		}
 
 		private function _onChange(evt:*):void {
-			if (fld_text.maxScrollV > 1) {
-				enableScroll();
-				scroll.percent = (fld_text.scrollV - 1) / (fld_text.maxScrollV - 1);
-			} else {
-				scroll.percent = 0;
-				disableScroll();
-			}
+			try{
+				if (fld_text.maxScrollV > 1) {
+					enableScroll();
+					scroll.percent = (fld_text.scrollV - 1) / (fld_text.maxScrollV - 1);
+				} else {
+					disableScroll();
+					scroll.percent = 0;
+				}
+			}catch (e:Error) { };
 		}
 		
 		private function _onScroll(evt:Event ):void {

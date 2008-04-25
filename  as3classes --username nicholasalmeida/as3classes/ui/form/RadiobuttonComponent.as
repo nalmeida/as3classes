@@ -9,6 +9,8 @@ package as3classes.ui.form {
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	
+	import caurina.transitions.Tweener;
+	
 	public class RadiobuttonComponent extends EventDispatcher{
 		
 		public var mc:Sprite;
@@ -137,6 +139,10 @@ package as3classes.ui.form {
 			_changeState();
 		}
 		
+		public function reset():void {
+			_selected = false;
+			_changeState();
+		}
 		public function resetGroup():void {
 			for (var i:int = 0; i < arrGroups.length; i++) {
 				if (arrGroups[i].group == group) {
@@ -162,6 +168,16 @@ package as3classes.ui.form {
 				}
 			}
 			return {radio: null, value: null};
+		}
+		
+		
+		public function disable():void {
+			mc.mouseEnabled = false;
+			Tweener.addTween(mc, {alpha: .7, time: .3, transition: "linear" } );
+		}
+		public function enable():void {
+			mc.mouseEnabled = true;
+			Tweener.addTween(mc, {alpha: 1, time: .3, transition: "linear" } );
 		}
 		
 		/**

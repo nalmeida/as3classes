@@ -9,6 +9,8 @@ package as3classes.ui.form {
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 
+	import caurina.transitions.Tweener;
+
 	public class CheckboxComponent extends EventDispatcher{
 		
 		public var mc:Sprite;
@@ -121,7 +123,20 @@ package as3classes.ui.form {
 			_selected = $selected;
 			_changeState();
 		}
-		
+
+		public function reset():void {
+			_selected = false;
+			_changeState();
+		}
+		public function disable():void {
+			mc.mouseEnabled = false;
+			Tweener.addTween(mc, {alpha: .7, time: .3, transition: "linear" } );
+		}
+		public function enable():void {
+			mc.mouseEnabled = true;
+			Tweener.addTween(mc, {alpha: 1, time: .3, transition: "linear" } );
+		}
+
 		/**
 		 * Private methods
 		 */
