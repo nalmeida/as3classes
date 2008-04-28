@@ -13,7 +13,7 @@ package as3classes.video {
 	 * 
 	 <code>
 	 var yt:YouTubeDecoder = new YouTubeDecoder();
-	 yt.decodeURL("http://br.youtube.com/watch?v=ek8iWRA6jzA");
+	 yt.decodeURL("http://br.youtube.com/watch?v=Eu-SCI9Ks_Y");
 	 yt.addEventListener(Event.COMPLETE, function():void { trace("URL = " + yt.flvPath); } );
 	 </code>
 	 

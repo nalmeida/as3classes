@@ -121,7 +121,7 @@ package as3classes.sound {
 				transform.volume = _volume;
 				channel.soundTransform = transform;
 			} catch (e:Error) {
-				trace("* ERROR [SoundController] SoundTransform object : " + e.message);
+				trace("* ERROR [SoundController] SoundTransform object (volume method): " + e.message);
 			}
 		}
 		
