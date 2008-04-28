@@ -18,12 +18,14 @@ package as3classes.video {
 		public static const VIDEO_PAUSE:String = "video_pause";
 		public static const VIDEO_STOP:String = "video_stop";
 		
+		public static const YOUTUBE_PLAYER_LOADED:String = "youtube_player_loaded";
+		
 		public var percentLoaded:Number = 0;
 		public var percentPlayed:Number = 0;
 		public var errorMessage:String;
 		public var errorFile:String;
 		
-		public function VideoControllerEvent(type:String, videoController:VideoController, message:String = "") {
+		public function VideoControllerEvent(type:String, videoController:VideoController = null, message:String = "") {
 			
 			switch (type) {
 				case LOAD_PROGRESS : 
