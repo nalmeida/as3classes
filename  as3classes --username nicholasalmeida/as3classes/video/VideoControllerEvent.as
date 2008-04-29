@@ -57,7 +57,9 @@ package as3classes.video {
 					
 				case VIDEO_ERROR : 
 					if (videoController.TYPE == "youtube") {
-						errorFile = videoController.videoID;
+						try { 
+							errorFile = videoController.videoID;
+						} catch (e:Error) { };
 					} else {
 						errorFile = videoController.flv;
 					}
