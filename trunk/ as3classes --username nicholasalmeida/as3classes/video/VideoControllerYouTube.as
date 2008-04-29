@@ -17,7 +17,6 @@ package as3classes.video{
 		import flash.utils.clearInterval;
 		import flash.utils.setTimeout;
 		
-		
 		import as3classes.video.VideoControllerEvent;
 
 		/**
@@ -39,7 +38,9 @@ package as3classes.video{
         public class VideoControllerYouTube extends EventDispatcher{
 			private var _loader:Loader;
 			private var _as3_to_as2:LocalConnection;
+			private var _as3_to_as2_progress:LocalConnection;
 			private var _as2_to_as3:LocalConnection;
+			private var _as2_to_as3_progress:LocalConnection;
 			
 			public var videoId:String;
 			public var devKey:String;
@@ -51,6 +52,8 @@ package as3classes.video{
 			public var _volume:Number = 100;
 			public var avaliable:Boolean = false;
 			
+			public var _videoWidth:Number;
+			public var _videoHeight:Number;
 			public var isPlaying:Boolean;
 			public var autoPlay:Boolean;
 			public var loop:Boolean;
@@ -60,6 +63,7 @@ package as3classes.video{
 			
 			public const YT_DOMAIN:String = "www.youtube.com";
 			public const YT_GDATA_DOMAIN:String = "gdata.youtube.com";
+			public const TYPE:String = "youtube";
 			
 			public function VideoControllerYouTube ():void {
 			}
@@ -104,6 +108,33 @@ package as3classes.video{
 						trace("connection error");
 					}
 					
+				// -----------------------------------------------------------------------------
+					_as3_to_as2_progress = new LocalConnection();
+						_as3_to_as2_progress.addEventListener(StatusEvent.STATUS, onLocalConnectionStatusProgress, false, 0, true);
+						_as3_to_as2_progress.allowDomain("*");
+						_as3_to_as2_progress.allowDomain(YT_DOMAIN);
+						_as3_to_as2_progress.allowInsecureDomain(YT_DOMAIN);
+						
+						_as3_to_as2_progress.allowDomain(YT_GDATA_DOMAIN);
+						_as3_to_as2_progress.allowInsecureDomain(YT_GDATA_DOMAIN);
+				
+					_as2_to_as3_progress = new LocalConnection();
+						_as2_to_as3_progress.allowDomain("*");
+						_as2_to_as3_progress.allowDomain(YT_DOMAIN);
+						_as2_to_as3_progress.allowInsecureDomain(YT_DOMAIN);
+						
+						_as2_to_as3_progress.allowDomain(YT_GDATA_DOMAIN);
+						_as2_to_as3_progress.allowInsecureDomain(YT_GDATA_DOMAIN);
+						
+						_as2_to_as3_progress.addEventListener(StatusEvent.STATUS, onLocalConnectionStatusProgress, false, 0, true);
+						_as2_to_as3_progress.client = this; //This enables the local connection to use functions of this class
+						try {
+							_as2_to_as3_progress.connect("AS2_to_AS3_PROGRESS"); 
+						} catch (e:Error) {
+							trace("connection error");
+						}
+				// -----------------------------------------------------------------------------
+					
 				
 				_loader = new Loader();
 				_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, function(e:*):void { _trace("[VideoControllerYouTube] AS2 swf loaded."); }, false, 0, true);
@@ -116,22 +147,25 @@ package as3classes.video{
 			
 			private function _destroy():void {
 				
-				_as3_to_as2.send("AS3_to_AS2", "closeVideo");
-				
-				_as3_to_as2.removeEventListener(StatusEvent.STATUS, onLocalConnectionStatusChange);
-				_as2_to_as3.removeEventListener(StatusEvent.STATUS, onLocalConnectionStatusChange);
+				//_as3_to_as2.removeEventListener(StatusEvent.STATUS, onLocalConnectionStatusChange);
+				//_as2_to_as3.removeEventListener(StatusEvent.STATUS, onLocalConnectionStatusChange);
 				
 				try {
 					_as2_to_as3.close();
+					_as2_to_as3_progress.close();
 				} catch (e:Error) {
 					trace(e);
 				}
 				
+				_as3_to_as2.send("AS3_to_AS2", "closeVideo");
+				
 				setTimeout(function():void{
-					
 					try {
 						_as3_to_as2 = null;
+						_as3_to_as2_progress = null;
+						
 						_as2_to_as3 = null;
+						_as2_to_as3_progress = null;
 					} catch (e:Error) {
 						trace(e);
 					}
@@ -147,7 +181,18 @@ package as3classes.video{
 					_interval = 0;
 					
 					dispatchEvent(new VideoControllerEvent(VideoControllerEvent.YOUTUBE_PLAYER_CLOSED, this));
+					
+					duration = 0;
+					pause();
+					
 				}, 1000);
+				
+			}
+			
+			public function setSize(w:Number, h:Number):void {
+				_videoWidth = w;
+				_videoHeight = h;
+				_as3_to_as2.send("AS3_to_AS2", "setSize", _videoWidth, _videoHeight);
 			}
 			
 			public function stop():void {
@@ -179,9 +224,14 @@ package as3classes.video{
 			}
 			
 			public function pause():void {
-				_as3_to_as2.send("AS3_to_AS2", "pauseVideo");
-				isPlaying = false;
-				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_PAUSE, this));
+				try {
+					_as3_to_as2.send("AS3_to_AS2", "pauseVideo");
+					isPlaying = false;
+					dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_PAUSE, this));
+				} catch (e:Error) {
+					
+				}
+				
 			}
 			
 			public function loadVideoById(id:String):void {
@@ -190,7 +240,7 @@ package as3classes.video{
 			}
 			
 			public function get time():Number {
-				_as3_to_as2.send("AS3_to_AS2", "getCurrentTime");
+				//_as3_to_as2_progress.send("AS3_to_AS2_PROGRESS", "getCurrentTime");
 				return _time;
 			}
 			
@@ -203,7 +253,7 @@ package as3classes.video{
 			}
 			
 			public function get percentLoaded():Number {
-				_as3_to_as2.send("AS3_to_AS2", "getVideoPercentLoaded");
+				_as3_to_as2_progress.send("AS3_to_AS2_PROGRESS", "getVideoPercentAndTime");
 				return _percentLoaded;
 			}
 			
@@ -232,16 +282,17 @@ package as3classes.video{
 				_as3_to_as2.send("AS3_to_AS2", "seekTo", $amount, true);
 			}
 			
-			public function _setCurrentTime($time:Number):void {
-				_time = $time
-			}
+			//public function _setCurrentTime($time:Number):void {
+				//_time = $time
+			//}
 			
 			public function _setDuration($duration:Number):void {
 				duration = $duration;
 			}
 			
-			public function _setPercentLoaded($percentLoaded:Number):void {
+			public function _setPercentAndTime($percentLoaded:Number, $time:Number):void {
 				_percentLoaded = $percentLoaded;
+				_time = $time
 			}
 			
 			// Handlers
@@ -256,6 +307,9 @@ package as3classes.video{
 				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.YOUTUBE_PLAYER_LOADED));
 			}
 			
+			public function onPlayerStateChangeProgress(e:Number):void {
+				//trace(e);
+			}
 			public function onPlayerStateChange(e:Number):void {
 				//Possible values are unstarted (-1), ended (0), playing (1), paused (2), buffering (3), video cued (5).
 				_trace("[VideoControllerYouTube] State changed to: " + e);
@@ -281,7 +335,7 @@ package as3classes.video{
 								play();
 							}
 						}
-						if(_interval == 0) _interval = setInterval(_onEnterFrame, 200);
+						if(_interval == 0) _interval = setInterval(_onEnterFrame, 250);
 						break;
 					case 2 : 
 						isPlaying = false;
@@ -302,6 +356,9 @@ package as3classes.video{
 				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_ERROR, this, "Video not found: " + videoId));
 			}				
 			
+			private function onLocalConnectionStatusProgress(e:StatusEvent):void {
+				//trace(e);
+			}
 			private function onLocalConnectionStatusChange(e:StatusEvent):void{
 				//trace(e.level);
 			}
@@ -315,7 +372,6 @@ package as3classes.video{
 						avaliable = true;
 					}
 				}
-				percentPlayed;
 				percentLoaded;
 				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.LOAD_PROGRESS, this));
 				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_PROGRESS, this));
