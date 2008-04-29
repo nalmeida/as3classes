@@ -19,13 +19,14 @@ package as3classes.video {
 		public static const VIDEO_STOP:String = "video_stop";
 		
 		public static const YOUTUBE_PLAYER_LOADED:String = "youtube_player_loaded";
+		public static const YOUTUBE_PLAYER_CLOSED:String = "youtube_player_closed";
 		
 		public var percentLoaded:Number = 0;
 		public var percentPlayed:Number = 0;
 		public var errorMessage:String;
 		public var errorFile:String;
 		
-		public function VideoControllerEvent(type:String, videoController:VideoController = null, message:String = "") {
+		public function VideoControllerEvent(type:String, videoController:* = null, message:String = "") {
 			
 			switch (type) {
 				case LOAD_PROGRESS : 
@@ -37,7 +38,11 @@ package as3classes.video {
 					break;
 					
 				case LOAD_ERROR : 
-					errorFile = videoController.flv;
+					if (videoController.TYPE == "youtube") {
+						errorFile = videoController.videoID;
+					} else {
+						errorFile = videoController.flv;
+					}
 					break;
 					
 					
@@ -51,7 +56,11 @@ package as3classes.video {
 					break;
 					
 				case VIDEO_ERROR : 
-					errorFile = videoController.flv;
+					if (videoController.TYPE == "youtube") {
+						errorFile = videoController.videoID;
+					} else {
+						errorFile = videoController.flv;
+					}
 					errorMessage = message;
 					break;
 			}
