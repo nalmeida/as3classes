@@ -12,6 +12,7 @@ package as3classes.ui.video{
 	import as3classes.video.VideoControllerYouTube;
 	import as3classes.video.VideoControllerEvent;
 	import redneck.ui.Slider;
+	import as3classes.util.URL;
 	
 	
 	/**
@@ -38,8 +39,8 @@ package as3classes.ui.video{
 		public var duration:Number = 0;
 		public var autoPlay:Boolean = false;
 		public var loop:Boolean = false;
-		public var videoWidth:int = 320;
-		public var videoHeight:int = 240;
+		public var _videoWidth:int = 320;
+		public var _videoHeight:int = 240;
 		public var youtube:Boolean = false;
 		public var playAfterLoad:Number = .3;
 		public var timeRegressive:Boolean = false;
@@ -74,7 +75,8 @@ package as3classes.ui.video{
 		
 		
 		private const VALID_PROPS:Array = ["videoWidth", "videoHeight", "loop", "autoPlay", "duration", "videoID", "playAfterLoad", "timeRegressive", "devKey", "as2SWF"];
-		private const TYPE:String = "youtube";
+		public const TYPE:String = "youtube";
+		public const YOUTUBE_URL:String = "http://www.youtube.com/watch?v=";
 		
 		public function VideoComponentYoutube($mc:*, $initObj:Object = null):void{
 			
@@ -104,7 +106,7 @@ package as3classes.ui.video{
 			
 			// Start Buttons
 			
-			holder.addEventListener(MouseEvent.CLICK, playPause, false, 0, true);
+			holder.addEventListener(MouseEvent.CLICK, openYoyTube, false, 0, true);
 			
 			playPauseBt.addEventListener(MouseEvent.CLICK, playPause, false, 0, true);
 			playPauseBt.addEventListener(MouseEvent.MOUSE_OVER, _overBt, false, 0, true);
@@ -247,6 +249,28 @@ package as3classes.ui.video{
 			playPauseBt = null;
 			rewindBt = null;
 			fld_time = null;
+		}
+		
+		public function openYoyTube(evt:MouseEvent):void {
+			URL.call(YOUTUBE_URL + videoID, "_blank");
+		}
+		
+		public function get videoWidth():Number {
+			return _videoWidth;
+		}
+		
+		public function set videoWidth(w:Number):void {
+			_videoWidth = w;
+			//if (control != null) control.setSize(_videoWidth, _videoHeight);
+		}
+		
+		public function get videoHeight():Number {
+			return _videoHeight;
+		}
+		
+		public function set videoHeight(h:Number):void {
+			_videoHeight = h;
+			//if (control != null) control.setSize(_videoWidth, _videoHeight);
 		}
 		
 		public function changeVideo($videoID:String):void {
@@ -414,6 +438,7 @@ package as3classes.ui.video{
 		}
 		
 		private function _onLoadInit(evt:VideoControllerEvent):void {
+			control.setSize(videoWidth, videoHeight);
 			_trace("[VideoComponentYoutube] Video loader started. Flv: " + videoID);
 			holder.visible = true;
 		}
@@ -428,7 +453,7 @@ package as3classes.ui.video{
 		}
 		
 		private function _onVideoError(evt:VideoControllerEvent):void {
-			_trace("[VideoComponentYoutube] Video ERROR." + evt.errorMessage + " Flv: " + evt.errorFile);
+			trace("[VideoComponentYoutube] Video ERROR." + evt.errorMessage + " Flv: " + evt.errorFile);
 			disableControls();
 		}
 		
@@ -474,6 +499,7 @@ package as3classes.ui.video{
 		}
 		
 		private function _onVideoPlay(evt:VideoControllerEvent):void {
+			enableControls();
 			playPauseBt.gotoAndStop("_pause");
 		}
 		
