@@ -15,6 +15,7 @@ package as3classes.video{
 		import flash.events.EventDispatcher;
 		import flash.utils.setInterval;
 		import flash.utils.clearInterval;
+		import flash.utils.setTimeout;
 		
 		
 		import as3classes.video.VideoControllerEvent;
@@ -57,11 +58,13 @@ package as3classes.video{
 			public var _percentLoaded:Number = 0;
 			public var _interval:uint;
 			
+			public const YT_DOMAIN:String = "www.youtube.com";
+			public const YT_GDATA_DOMAIN:String = "gdata.youtube.com";
+			
 			public function VideoControllerYouTube ():void {
 			}
 			
 			public function init($container:*, $devKey:String, $as2SWF:String, $autoplay:Boolean = true, $loop:Boolean = false):void {
-				
 				container = $container as Sprite;
 				devKey = $devKey; // To get a $devKey try: http://code.google.com/apis/youtube/dashboard/?newRegistration=1
 				as2SWF = $as2SWF;
@@ -69,63 +72,82 @@ package as3classes.video{
 				autoPlay = $autoplay;
 				loop = $loop;
 				
-				Security.allowDomain('www.youtube.com');
-				Security.allowDomain('gdata.youtube.com');
-				Security.allowInsecureDomain('gdata.youtube.com');
-				Security.allowInsecureDomain('www.youtube.com');
+				Security.allowDomain(YT_DOMAIN);
+				Security.allowInsecureDomain(YT_DOMAIN);
 				
-				if(_as3_to_as2 == null){
-					_as3_to_as2 = new LocalConnection();
+				Security.allowDomain(YT_GDATA_DOMAIN);
+				Security.allowInsecureDomain(YT_GDATA_DOMAIN);
+				
+				
+				_as3_to_as2 = new LocalConnection();
 					_as3_to_as2.addEventListener(StatusEvent.STATUS, onLocalConnectionStatusChange, false, 0, true);
-				}
-				
-				
-				if (_as2_to_as3 == null) {
-					_as2_to_as3 = new LocalConnection();
+					_as3_to_as2.allowDomain("*");
+					_as3_to_as2.allowDomain(YT_DOMAIN);
+					_as3_to_as2.allowInsecureDomain(YT_DOMAIN);
+					
+					_as3_to_as2.allowDomain(YT_GDATA_DOMAIN);
+					_as3_to_as2.allowInsecureDomain(YT_GDATA_DOMAIN);
+			
+				_as2_to_as3 = new LocalConnection();
+					_as2_to_as3.allowDomain("*");
+					_as2_to_as3.allowDomain(YT_DOMAIN);
+					_as2_to_as3.allowInsecureDomain(YT_DOMAIN);
+					
+					_as2_to_as3.allowDomain(YT_GDATA_DOMAIN);
+					_as2_to_as3.allowInsecureDomain(YT_GDATA_DOMAIN);
+					
 					_as2_to_as3.addEventListener(StatusEvent.STATUS, onLocalConnectionStatusChange, false, 0, true);
 					_as2_to_as3.client = this; //This enables the local connection to use functions of this class
-					_as2_to_as3.connect("AS2_to_AS3");
-				}
+					try {
+						_as2_to_as3.connect("AS2_to_AS3"); 
+					} catch (e:Error) {
+						trace("connection error");
+					}
+					
 				
 				_loader = new Loader();
-				_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, function(e:*):void { trace("carregou"); }, false, 0, true);
+				_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, function(e:*):void { _trace("[VideoControllerYouTube] AS2 swf loaded."); }, false, 0, true);
 				_loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onSwfLoadError, false, 0, true);
 				
 				var url:String = as2SWF + "?devKey=" + devKey + "&" + "VideoControllerYouTube=" + String(Math.round(Math.random()  * 100 * new Date().getTime()));;
 				_loader.load(new URLRequest(url));
-				trace("[VideoControllerYouTube] Loading swf file:\n\t" + url);
+				_trace("[VideoControllerYouTube] Loading swf file:\n\t" + url);
 			}
 			
 			private function _destroy():void {
 				
-				//_as3_to_as2.removeEventListener(StatusEvent.STATUS, onLocalConnectionStatusChange);
-				//_as2_to_as3.removeEventListener(StatusEvent.STATUS, onLocalConnectionStatusChange);	
+				_as3_to_as2.send("AS3_to_AS2", "closeVideo");
 				
-				//try{
-					//_as3_to_as2.close();
-					//_as2_to_as3.close();
-				//} catch (e:Error) {
-					//trace(e);
-				//}
+				_as3_to_as2.removeEventListener(StatusEvent.STATUS, onLocalConnectionStatusChange);
+				_as2_to_as3.removeEventListener(StatusEvent.STATUS, onLocalConnectionStatusChange);
 				
-				//try {
-					//_as3_to_as2 = null;
-					//_as2_to_as3 = null;
-				//} catch (e:Error) {
-					//trace(e);
-				//}
-				
-				if (_loader != null) {
-					_loader.unload();
-					container.removeChild(_loader);
-					_loader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, onSwfLoadError);
-					_loader = null;
+				try {
+					_as2_to_as3.close();
+				} catch (e:Error) {
+					trace(e);
 				}
 				
-				clearInterval(_interval);
-				_interval = 0;
-				
-				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.YOUTUBE_PLAYER_CLOSED, this));
+				setTimeout(function():void{
+					
+					try {
+						_as3_to_as2 = null;
+						_as2_to_as3 = null;
+					} catch (e:Error) {
+						trace(e);
+					}
+					
+					if (_loader != null) {
+						_loader.unload();
+						container.removeChild(_loader);
+						_loader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, onSwfLoadError);
+						_loader = null;
+					}
+					
+					clearInterval(_interval);
+					_interval = 0;
+					
+					dispatchEvent(new VideoControllerEvent(VideoControllerEvent.YOUTUBE_PLAYER_CLOSED, this));
+				}, 1000);
 			}
 			
 			public function stop():void {
@@ -148,7 +170,6 @@ package as3classes.video{
 			
 			public function close():void {
 				stop();
-				_as3_to_as2.send("AS3_to_AS2", "closeVideo");
 			}
 			
 			public function play():void {
@@ -226,7 +247,7 @@ package as3classes.video{
 			// Handlers
 			public function onSwfLoadError(e:IOErrorEvent):void {
 				trace("[VideoControllerYouTube] ERROR: File not found: " + as2SWF);
-				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.LOAD_ERROR, null, "File not found: " + as2SWF));
+				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.LOAD_ERROR, this, "File not found: " + as2SWF));
 				destroy();
 			}
 			
@@ -237,7 +258,7 @@ package as3classes.video{
 			
 			public function onPlayerStateChange(e:Number):void {
 				//Possible values are unstarted (-1), ended (0), playing (1), paused (2), buffering (3), video cued (5).
-				trace("[VideoControllerYouTube] State changed to: " + e);
+				_trace("[VideoControllerYouTube] State changed to: " + e);
 				switch(e) {
 					case -1 : 
 						_destroy();
@@ -278,11 +299,11 @@ package as3classes.video{
 			public function onError(e:Number):void {
 				//100 for "Video not found."
 				_trace("[VideoControllerYouTube] ERROR: " + e +  ". Video not found: " + videoId);
-				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_ERROR, null, "Video not found: " + videoId));
+				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_ERROR, this, "Video not found: " + videoId));
 			}				
 			
 			private function onLocalConnectionStatusChange(e:StatusEvent):void{
-				//trace(e);
+				//trace(e.level);
 			}
 			
 			private function _onEnterFrame():void {

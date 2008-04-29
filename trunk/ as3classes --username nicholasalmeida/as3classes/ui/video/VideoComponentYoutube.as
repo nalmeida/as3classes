@@ -16,17 +16,15 @@ package as3classes.ui.video{
 	
 	/**
 	 <code>
-			videoControl = new VideoComponent(video);
-			videoControl.verbose = false;
-			videoControl.init( {
-				flv:"http://br.youtube.com/watch?v=Eu-SCI9Ks_Y",
-				// LONG VIDEO // flv:"http://br.youtube.com/watch?v=W1nhljdqf0E&feature=bz303",
-				youtube: true,
-				duration: 11.712,
-				playAfterLoad: .25,
-				autoPlay: true,
-				timeRegressive: false
-			} );
+		videoControl = new VideoComponentYoutube(video);
+		videoControl.verbose = false;
+		videoControl.init( {
+			devKey: "AI39si6wrMCU8iALegU8weZAVpdD4lVCR4fsDgiTJGP32gXkPq9MSaJB9QlO8VrOpY7UGHnbKtyQTgo4bTD5IazUxqr7JC7rWQ",
+			as2SWF: "yt.swf",
+			videoID:"Eu-SCI9Ks_Y",
+			autoPlay: true,
+			timeRegressive: false
+		} );
 	 </code>
 	 */
 	//TODO: Slider do vídeo
@@ -267,6 +265,10 @@ package as3classes.ui.video{
 		}
 		
 		private function _changeVideo():void {
+			
+			slider.x = 0;
+			track.scaleX = 0;
+			
 			_startVideoLoading();
 			
 			disableControls();
