@@ -13,7 +13,7 @@ package as3classes.ui.form {
 	public class TextfieldComponent {
 		
 		public var mc:DisplayObjectContainer;
-		public var background:*;
+		public var background:Sprite;
 		public var fld_text:TextField;
 		
 		// Commom
