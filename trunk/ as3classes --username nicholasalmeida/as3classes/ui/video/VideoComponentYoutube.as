@@ -42,7 +42,6 @@ package as3classes.ui.video{
 		public var _videoWidth:int = 320;
 		public var _videoHeight:int = 240;
 		public var youtube:Boolean = false;
-		public var playAfterLoad:Number = .3;
 		public var timeRegressive:Boolean = false;
 		
 		public var verbose:Boolean = false;
@@ -74,7 +73,7 @@ package as3classes.ui.video{
 		private var _trackSize:Number = 0;
 		
 		
-		private const VALID_PROPS:Array = ["videoWidth", "videoHeight", "loop", "autoPlay", "duration", "videoID", "playAfterLoad", "timeRegressive", "devKey", "as2SWF"];
+		private const VALID_PROPS:Array = ["videoWidth", "videoHeight", "loop", "autoPlay", "duration", "videoID", "timeRegressive", "devKey", "as2SWF"];
 		public const TYPE:String = "youtube";
 		public const YOUTUBE_URL:String = "http://www.youtube.com/watch?v=";
 		
@@ -145,8 +144,8 @@ package as3classes.ui.video{
 				//_sliderControl.addEventListener(Slider.EVENT_RELEASE, _onReleaseSlider, false, 0, true);
 				//_sliderControl.addEventListener(Slider.EVENT_CHANGE, _onReleaseSlider, false, 0, true);
 				
-			_sliderVolume = new Slider(volumeSlider, volumeTrack, 0, true, true);
-				_sliderVolume.addEventListener(Slider.EVENT_CHANGE, _onVolumeChange, false, 0, true);
+			_sliderVolume = new Slider(volumeSlider, volumeTrack, 0, false, true);
+				_sliderVolume.addEventListener(Slider.EVENT_RELEASE, _onVolumeChange, false, 0, true);
 				
 			volumeTrackSlider.visible = false;
 			
@@ -239,7 +238,7 @@ package as3classes.ui.video{
 			//_sliderControl = null;
 			
 			if(_sliderVolume != null){
-				_sliderVolume.removeEventListener(Slider.EVENT_CHANGE, _onVolumeChange);
+				_sliderVolume.removeEventListener(Slider.EVENT_RELEASE, _onVolumeChange);
 				_sliderVolume.destroy();
 				_sliderVolume = null;
 			}
@@ -423,7 +422,6 @@ package as3classes.ui.video{
 		 
 		private function _startVideoLoading():void {
 			control.verbose = verbose;
-			//control.playAfterLoad = playAfterLoad;
 			control.init(video, devKey, as2SWF, autoPlay, loop);
 		}
 		
