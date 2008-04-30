@@ -260,7 +260,6 @@ package as3classes.ui.video{
 		
 		public function set videoWidth(w:Number):void {
 			_videoWidth = w;
-			//if (control != null) control.setSize(_videoWidth, _videoHeight);
 		}
 		
 		public function get videoHeight():Number {
@@ -269,7 +268,6 @@ package as3classes.ui.video{
 		
 		public function set videoHeight(h:Number):void {
 			_videoHeight = h;
-			//if (control != null) control.setSize(_videoWidth, _videoHeight);
 		}
 		
 		public function changeVideo($videoID:String):void {
