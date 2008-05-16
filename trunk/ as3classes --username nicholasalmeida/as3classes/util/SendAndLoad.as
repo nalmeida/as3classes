@@ -11,6 +11,7 @@ package as3classes.util {
 	import flash.events.EventDispatcher;
 	
 	import as3classes.util.SendAndLoadEvent;
+	import com.adobe.utils.StringUtil;
 	
 	/**
 	 @see
@@ -40,6 +41,7 @@ package as3classes.util {
 		
 		private var _request:URLRequest;
 		private var _loader:URLLoader;
+		private var _success:*;
 		
 		function SendAndLoad() {
 			_request = new URLRequest();
@@ -95,17 +97,17 @@ package as3classes.util {
 			 * Creating URLRequest object.
 			 */
 			_request.url = url;
-			_request.method = URLRequestMethod.POST;
 			
 			if (type == "xml") {	
 				_request.data = $data.toXMLString();
+				_request.method = URLRequestMethod.POST;
 				//_request.contentType = "text/xml"; // TODO: Ver por que não funciona o contentType de XML
 			}
 			
 			/**
 			 * Creating URLLoader object.
 			 */
-			_loader.dataFormat = URLLoaderDataFormat.VARIABLES;
+			_loader.dataFormat = URLLoaderDataFormat.TEXT;
 			_loader.addEventListener(Event.COMPLETE, _onComplete, false, 0, true);
 			_loader.addEventListener(IOErrorEvent.IO_ERROR, _onIOError, false, 0, true);
 			
@@ -123,15 +125,19 @@ package as3classes.util {
 		}
 		
 		private function _onComplete(evt:Event):void {
+			var data:String = evt.target.data;
 			if (type == "xml" ) {
 				try {
-					//TODO: Ver pq não funciona quando recebe um XML sem  o XML declaration.
-					var success:XML = new XML(unescape(evt.target.data));
-					_trace("[SendAndLoad] Received data: " + success);
-					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.COMPLETE, success, type));
+					//TODO: Ver pq não funciona quando recebe um XML sem o XML declaration.
+					_success = new XML(data);
+					_trace("[SendAndLoad] Received data: " + _success);
+					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.COMPLETE, _success, type));
 				} catch (e:Error) {
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.ERROR, "* ERROR #1 : " + e.message, "error"));
 					//throw new Error("* ERROR [SendAndLoad] _onComplete method: " + e.message);
+					trace(" ---------------------------------------------- ");
+					trace(evt.target.data);
+					trace(" ---------------------------------------------- ");
 					trace("* ERROR [SendAndLoad] _onComplete method: " + e.message);
 				}
 			}
@@ -150,7 +156,7 @@ package as3classes.util {
 				_loader = null;
 				_request = null;
 			}
-			
+			_success = null;
 			sending = false;
 		}
 		
