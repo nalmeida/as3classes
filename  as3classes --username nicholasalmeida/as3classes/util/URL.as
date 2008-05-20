@@ -26,6 +26,7 @@ package as3classes.util {
 		
 		private static var _arrURLQueue:Array = [];
 		private static var _hasStarted:Boolean = false;
+		private static var _analyticsPrefix:String = "";
 		
 		public static var verbose:Boolean = true;
 		public static var trackerFunction:String = "pageTracker._trackPageview";
@@ -59,7 +60,7 @@ package as3classes.util {
 			@param $analyticsString Arguments to "urchinTracker".
 		 */
 		public static function analytics($analyticsString:String):void {
-			_arrURLQueue.push( { js: trackerFunction, args: $analyticsString } );
+			_arrURLQueue.push( { js: trackerFunction, args: _analyticsPrefix+$analyticsString } );
 			_start();
 		}
 		
@@ -102,6 +103,13 @@ package as3classes.util {
 		
 		private static function _start():void {
 			setTimeout(_run, _arrURLQueue.length * 300);
+		}
+		
+		public static function set analyticsPrefix($value:String):void {
+			if ($value.slice(0, 1) != "/") {
+				$value = "/" + $value;
+			}
+			_analyticsPrefix = $value;
 		}
     }
 }
