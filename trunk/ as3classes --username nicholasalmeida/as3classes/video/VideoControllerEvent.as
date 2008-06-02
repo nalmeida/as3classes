@@ -1,4 +1,4 @@
-package as3classes.video {
+﻿package as3classes.video {
 	
 	import flash.events.Event
 	

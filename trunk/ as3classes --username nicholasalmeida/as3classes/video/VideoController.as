@@ -1,4 +1,4 @@
-package as3classes.video {
+ï»¿package as3classes.video {
 	
 	import flash.display.Sprite;
 	import flash.events.EventDispatcher;
@@ -62,11 +62,11 @@ package as3classes.video {
 			trace(evt.errorMessage);
 		}
 		private function _onInit(evt:VideoControllerEvent):void {
-			trace("Vídeo disponível");
+			trace("VÃ­deo disponÃ­vel");
 		}
 		
 		private function _onComplete(evt:VideoControllerEvent):void {
-			trace("Vídeo completo");
+			trace("VÃ­deo completo");
 		}
 		
 		private function _onProgress(evt:VideoControllerEvent):void {
