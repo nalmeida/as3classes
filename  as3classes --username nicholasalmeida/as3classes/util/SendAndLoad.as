@@ -1,4 +1,4 @@
-package as3classes.util {
+Ôªøpackage as3classes.util {
 	import flash.events.DataEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
@@ -101,7 +101,7 @@ package as3classes.util {
 			if (type == "xml") {	
 				_request.data = $data.toXMLString();
 				_request.method = URLRequestMethod.POST;
-				//_request.contentType = "text/xml"; // TODO: Ver por que n„o funciona o contentType de XML
+				//_request.contentType = "text/xml"; // TODO: Ver por que n√£o funciona o contentType de XML
 			}
 			
 			/**
@@ -128,7 +128,7 @@ package as3classes.util {
 			var data:String = evt.target.data;
 			if (type == "xml" ) {
 				try {
-					//TODO: Ver pq n„o funciona quando recebe um XML sem o XML declaration.
+					//TODO: Ver pq n√£o funciona quando recebe um XML sem o XML declaration.
 					_success = new XML(data);
 					_trace("[SendAndLoad] Received data: " + _success);
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.COMPLETE, _success, type));

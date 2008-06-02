@@ -1,4 +1,4 @@
-package as3classes.sound {
+﻿package as3classes.sound {
 	
 	import flash.events.*;
 	

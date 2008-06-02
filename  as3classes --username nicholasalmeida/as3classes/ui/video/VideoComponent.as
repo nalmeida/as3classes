@@ -237,17 +237,20 @@ package as3classes.ui.video{
 			//_sliderControl.destroy();
 			//_sliderControl = null;
 			
+			video.parent.removeChild(video);
+			
 			if(_sliderVolume != null){
 				_sliderVolume.removeEventListener(Slider.EVENT_CHANGE, _onVolumeChange);
 				_sliderVolume.destroy();
 				_sliderVolume = null;
 			}
-			
+
 			slider = null;
 			track = null;
 			playPauseBt = null;
 			rewindBt = null;
 			fld_time = null;
+			video = null;
 		}
 		
 		/**

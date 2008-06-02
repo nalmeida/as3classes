@@ -1,4 +1,4 @@
-package as3classes.util {
+﻿package as3classes.util {
 	
 	import flash.display.DisplayObjectContainer;
 	
