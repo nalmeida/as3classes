@@ -19,7 +19,7 @@
 		var firstname:String = "Nicholas";
 		var lastname:String = "Almeida";
 		var xmlToSend:XML = <root>
-								<firstname>{name}</firstname>
+								<firstname>{firstname}</firstname>
 								<lastname>{lastname}</lastname>
 							</root>;
 	
