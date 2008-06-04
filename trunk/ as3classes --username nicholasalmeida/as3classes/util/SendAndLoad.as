@@ -129,6 +129,7 @@
 			if (type == "xml" ) {
 				try {
 					//TODO: Ver pq não funciona quando recebe um XML sem o XML declaration.
+					data = data.replace(/\t|\n/g, "").replace(/[^>]+$/g, "")
 					_success = new XML(data);
 					_trace("[SendAndLoad] Received data: " + _success);
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.COMPLETE, _success, type));
@@ -149,7 +150,7 @@
 			destroy();
 		}
 		
-		private function destroy():void {
+		public function destroy():void {
 			if (_loader) {
 				_loader.removeEventListener(Event.COMPLETE, _onComplete);
 				_loader.addEventListener(IOErrorEvent.IO_ERROR, _onIOError);
