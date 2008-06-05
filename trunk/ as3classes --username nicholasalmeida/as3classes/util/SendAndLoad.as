@@ -42,6 +42,7 @@
 		private var _request:URLRequest;
 		private var _loader:URLLoader;
 		private var _success:*;
+		private var _lastNode:String = "</root>";
 		
 		function SendAndLoad() {
 			_request = new URLRequest();
@@ -125,11 +126,12 @@
 		}
 		
 		private function _onComplete(evt:Event):void {
-			var data:String = evt.target.data;
+			var data:String = evt.target.data.toString();
+			var regex:RegExp = new RegExp("(" + _lastNode + ")[^>]+$");
 			if (type == "xml" ) {
 				try {
 					//TODO: Ver pq não funciona quando recebe um XML sem o XML declaration.
-					data = data.replace(/\t|\n/g, "").replace(/[^>]+$/g, "")
+					data = data.replace(/\t|\n/g, "").replace(regex, "$1");
 					_success = new XML(data);
 					_trace("[SendAndLoad] Received data: " + _success);
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.COMPLETE, _success, type));
@@ -170,5 +172,18 @@
 				trace(str);
 			}
 		}
+		
+		
+		/**
+		 * Set the last node to avoid corrupted end-of xml data.
+		 * @param	$value. Value of the node. By default it's "</root>"
+		 */
+		public function set lastNode($value:String):void {
+			_lastNode = $value;
+		}
+		public function get lastNode():String {
+			return _lastNode;
+		}
+
 	}
 }
