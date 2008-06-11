@@ -6,6 +6,7 @@ package as3classes.ui.form {
 	import flash.display.Sprite;
 	import flash.text.TextField;
 	import flash.events.FocusEvent;
+	import flash.text.TextFieldType;
 	
 	import as3classes.util.TextfieldUtil;
 	import caurina.transitions.Tweener;
@@ -25,6 +26,7 @@ package as3classes.ui.form {
 		//
 		
 		// Textfield only
+		public var selectable:Boolean = true;
 		public var type:String = "input";
 		public var restrict:String = "none";
 		public var _initText:String = "";
@@ -35,7 +37,7 @@ package as3classes.ui.form {
 		public var padding:Object = {top: 0, left: 0, right: 0};
 		//
 		
-		private const VALID_PROPS:Array = ["title", "type", "tabIndex", "required", "restrict", "maxChars", "minChars", "text", "initText", "align", "equal", "customErrorMessage", "padding"];
+		private const VALID_PROPS:Array = ["title", "type", "selectable", "tabIndex", "required", "restrict", "maxChars", "minChars", "text", "initText", "align", "equal", "customErrorMessage", "padding"];
 		public const TYPE:String = "textfield";
 		private var objSize:Object = { };
 		
@@ -109,7 +111,7 @@ package as3classes.ui.form {
 		
 		public function enable():void {
 			applyRestrictions();
-			fld_text.selectable = true;
+			fld_text.selectable = selectable;
 			Tweener.addTween(mc, {alpha: 1, time: .3, transition: "linear" } );
 		}
 		
@@ -118,6 +120,9 @@ package as3classes.ui.form {
 			fld_text.maxChars = maxChars;
 			if (type == "password" && !initText) {
 				fld_text.displayAsPassword = true;
+			}else if (type === "dynamic") {
+				fld_text.type = TextFieldType.DYNAMIC;
+				fld_text.selectable = selectable;
 			}
 		}
 		
