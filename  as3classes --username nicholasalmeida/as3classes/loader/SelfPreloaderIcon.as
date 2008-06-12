@@ -6,7 +6,6 @@
 	import flash.events.Event;
 	
 	import as3classes.loader.SelfPreloader;
-	import as3classes.util.StageUtil;
 	
 	// @original: http://www.dreaminginflash.com/2007/11/13/actionscript-3-preloader/
 	
@@ -40,7 +39,7 @@
 			addChild(super.standardLoader);
 			
             super.stage.addEventListener(Event.RESIZE, onResize, false, 0, true);
-			super.onResize();
+			onResize();
 		}
 		
 		public override function onResize(evt:Event = null):void {
