@@ -1,5 +1,7 @@
 ﻿package as3classes.loader{
 
+	import flash.display.StageAlign;
+	import flash.display.StageScaleMode;
 	import flash.display.MovieClip;
 	import flash.events.Event;
 	
@@ -29,17 +31,19 @@
 		
 		public override function init():void {
 			trace("SelfPreloaderIcon.init");
+			
+			super.stage.scaleMode = StageScaleMode.NO_SCALE;
+			super.stage.align = StageAlign.TOP_LEFT;
+			
 			super.useIcon = true;
 			super.standardLoader = new lib_standardLoader as MovieClip;
 			addChild(super.standardLoader);
 			
-			super.standardLoader.x = StageUtil.getWidth() * .5;
-			super.standardLoader.y = StageUtil.getHeight() * .5;
-			
             super.stage.addEventListener(Event.RESIZE, onResize, false, 0, true);
+			super.onResize();
 		}
 		
-		public override function onResize(evt:Event):void {
+		public override function onResize(evt:Event = null):void {
 			super.standardLoader.x = super.stage.stageWidth * .5;
 			super.standardLoader.y = super.stage.stageHeight * .5;
 		}

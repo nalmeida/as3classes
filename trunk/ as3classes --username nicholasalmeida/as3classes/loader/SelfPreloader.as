@@ -6,7 +6,6 @@
 	import flash.events.IOErrorEvent;
 	import flash.utils.getDefinitionByName;
 	import as3classes.util.RootUtil;
-	import as3classes.util.StageUtil;
 
 	// @original: http://www.dreaminginflash.com/2007/11/13/actionscript-3-preloader/
 	
@@ -31,7 +30,6 @@
 			stop();
 			
 			RootUtil.setRoot(this);
-			StageUtil.init(RootUtil.getRoot());
 			
 			addEventListener(Event.ENTER_FRAME, onEnterFrame, false, 0, true);
 			loaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onIOError, false, 0, true);
@@ -94,7 +92,7 @@
 		
 		// OVERRIDED Functions
 		public function init():void {trace("SelfPreloader.init");}
-		public function onResize(evt:Event):void {}
+		public function onResize(evt:Event = null):void {}
 	}
 }
 
