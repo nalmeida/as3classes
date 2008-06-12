@@ -137,6 +137,12 @@
 						tmp = _checkCheck(fld);
 						if(tmp !== true) return _onError(tmp);
 					}
+				} else if(t === "combobox"){
+					/* ---------------------------------------------------------------------- Check */
+					if(fld.required === true) {
+						tmp = _checkCombo(fld);
+						if(tmp !== true) return _onError(tmp);
+					}
 				}
 				// ELSES
 			}
@@ -330,13 +336,31 @@
 		/* ---------------------------------------------------------------------- Required */
 		public function _checkCheck(fld:*):*{
 			if(fld.selected == false) {
-				if(fld.customErrorMessage)
+				if(fld.customErrorMessage != null)
 					return {fld:fld, message:fld.customErrorMessage};
 				else
 					if(language== "en")
 						return {fld:fld, message:"You must select the \"" + fld.title + "\" field."};
 					else
 						return {fld:fld, message:"Você deve selecionar o campo \"" + fld.title + "\"."};
+			}
+			return true;
+		}
+		//}
+		/**
+		 * ComboBox validation 
+		 */
+		//{
+		/* ---------------------------------------------------------------------- Required */
+		public function _checkCombo(fld:*):*{
+			if(fld.value == null || fld.value == "0" || fld.value == 0) {
+				if(fld.customErrorMessage)
+					return {fld:fld, message:fld.customErrorMessage};
+				else
+					if(language == "en")
+						return {fld:fld, message:"You must select some option from \"" + fld.title + "\" field."};
+					else
+						return {fld:fld, message:"Você deve selecionar alguma opção do campo \"" + fld.title + "\"."};
 			}
 			return true;
 		}
