@@ -19,17 +19,13 @@
 				Insert the line above at package of your Main class:
 				[Frame(factoryClass="as3classes.loader.SelfPreloader")]
 				
-				IMPORTANT:
-					Your main class MUST be named as "Main".
-					
-					If you want to add a MovieClip as your preloader icon:
-					 * Create a SWC file with a MovieClip with linkage name "lib_standardLoader".
-					 * I allways will be at center center of stage.
+				IMPORTANT: Your main class MUST be named as "Main".
 	 */
 	
 	public class SelfPreloader extends MovieClip {
 		
 		public var standardLoader:MovieClip;
+		public var useIcon:Boolean = false;
 		
 		public function SelfPreloader() {
 			stop();
@@ -37,26 +33,18 @@
 			RootUtil.setRoot(this);
 			StageUtil.init(RootUtil.getRoot());
 			
-			try {
-				standardLoader = new (getChildByName("lib_standardLoader") as Class)() as MovieClip;
-				addChild(standardLoader);
-				
-				standardLoader.x = StageUtil.getWidth() * .5;
-				standardLoader.y = StageUtil.getHeight() * .5;
-				
-			} catch (e:Error) {
-				trace("WARNING: lib_standardLoader not defined.");
-			}
-			
 			addEventListener(Event.ENTER_FRAME, onEnterFrame, false, 0, true);
 			loaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onIOError, false, 0, true);
+			
+			init();
 		}
 		
 		public function onIOError(event:IOErrorEvent):void {
-			try {
-				standardLoader.stop();
-			} catch (e:Error) {}
-			
+			if (useIcon) {
+				try {
+					standardLoader.stop();
+				} catch (e:Error) {}
+			}
 			stop();
 			removeListeners();
 			trace(event.toString());
@@ -66,6 +54,12 @@
 		public function removeListeners():void {
 			removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 			loaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, onIOError);
+			
+			if (useIcon) {
+				if (stage.hasEventListener(Event.RESIZE)) {
+					stage.removeEventListener(Event.RESIZE, onResize);
+				}
+			}
 		}
 		
 		public function onEnterFrame(event:Event):void {
@@ -82,17 +76,25 @@
 		}
 		
 		private function onComplete():void {
-			try {
-				removeChild(standardLoader);
-				standardLoader = null;
-			} catch (e:Error) {}
-			var mainClass:Class = Class(getDefinitionByName("Main"));
 			
+			if (useIcon) {
+				try {
+					removeChild(standardLoader);
+					standardLoader = null;
+				} catch (e:Error) {}
+			}
+			
+			var mainClass:Class = Class(getDefinitionByName("Main"));
 			if(mainClass) {
 				var app:Object = new mainClass();
 				addChild(app as DisplayObject);
 			}
+			app = mainClass = null;
 		}
+		
+		// OVERRIDED Functions
+		public function init():void {trace("SelfPreloader.init");}
+		public function onResize(evt:Event):void {}
 	}
 }
 
