@@ -171,6 +171,7 @@ package as3classes.video{
 					}
 					
 					if (_loader != null) {
+						trace("debug >>> loader unloaded? " + _loader);
 						_loader.unload();
 						container.removeChild(_loader);
 						_loader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, onSwfLoadError);
@@ -211,6 +212,7 @@ package as3classes.video{
 			
 			public function destroy():void {
 				stop();
+				_destroy();
 			}
 			
 			public function close():void {
