@@ -5,6 +5,7 @@
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.utils.getDefinitionByName;
+	import flash.utils.setTimeout;
 	import as3classes.util.RootUtil;
 
 	// @original: http://www.dreaminginflash.com/2007/11/13/actionscript-3-preloader/
@@ -81,7 +82,10 @@
 					standardLoader = null;
 				} catch (e:Error) {}
 			}
-			
+			setTimeout(_addMainClass, 200);
+		}
+		
+		private function _addMainClass():void{
 			var mainClass:Class = Class(getDefinitionByName("Main"));
 			if(mainClass) {
 				var app:Object = new mainClass();
@@ -89,6 +93,7 @@
 			}
 			app = mainClass = null;
 		}
+		
 		
 		// OVERRIDED Functions
 		public function init():void {trace("SelfPreloader.init");}
