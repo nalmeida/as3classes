@@ -13,7 +13,7 @@
 		SelfPreloader class. Creates a self preloader in the "first frame".
 		
 		@author Nicholas Almeida nicholasalmeida.com
-		@version 12/6/2008 12:22
+		@since 12/6/2008 12:22
 		@usage
 				Insert the line above at package of your Main class:
 				[Frame(factoryClass="as3classes.loader.SelfPreloaderIcon")]
