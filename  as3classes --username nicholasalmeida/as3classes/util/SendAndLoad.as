@@ -5,6 +5,7 @@
 	import flash.net.URLRequestMethod;
 	import flash.net.URLLoaderDataFormat;
 	import flash.events.IOErrorEvent;
+	import flash.events.SecurityErrorEvent;
 	import flash.system.System;
 	
 	import flash.events.Event;
@@ -12,6 +13,7 @@
 	
 	import as3classes.util.SendAndLoadEvent;
 	import com.adobe.utils.StringUtil;
+	import flash.utils.setTimeout;
 	
 	/**
 	 @see
@@ -90,7 +92,7 @@
                 }
             }
 			
-			if (typeof $data) {
+			if (typeof $data == "xml") {
 				type = "xml";
 			}
 			
@@ -102,7 +104,7 @@
 			if (type == "xml") {	
 				_request.data = $data.toXMLString();
 				_request.method = URLRequestMethod.POST;
-				//_request.contentType = "text/xml"; // TODO: Ver por que não funciona o contentType de XML
+				//_request.contentType = "text/xml"; // TODO: Ver pq não dá para usar o contentType.
 			}
 			
 			/**
@@ -110,19 +112,28 @@
 			 */
 			_loader.dataFormat = URLLoaderDataFormat.TEXT;
 			_loader.addEventListener(Event.COMPLETE, _onComplete, false, 0, true);
+			_loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, _onSecurityError, false, 0, true);
 			_loader.addEventListener(IOErrorEvent.IO_ERROR, _onIOError, false, 0, true);
 			
 			sending = true;
 			
-			_trace("[SendAndLoad]  Sending to: " + url);
+			setTimeout(_start, 10);
+		}
+		
+		private function _onSecurityError(evt:SecurityErrorEvent):void {
+			trace("[SendAndLoad] _onSecurityError");
+			trace(evt);
+		}
+		
+		private function _start():void{
+			_trace("----------------------------------------------\n[SendAndLoad]  Sending to: " + url);
 			_trace("[SendAndLoad]  Sending data: " + _request.data);
 			
 			try {
 				_loader.load(_request);				
 			} catch (e:Error) {
-				throw new Error("* ERROR [SendAndLoad] send method: " + e.message);
+				throw new Error("* ERROR [SendAndLoad] send method: " + e.message + "\n----------------------------------------------\n");
 			}
-
 		}
 		
 		private function _onComplete(evt:Event):void {
@@ -133,7 +144,7 @@
 					//TODO: Ver pq não funciona quando recebe um XML sem o XML declaration.
 					data = data.replace(/\t|\n/g, "").replace(regex, "$1");
 					_success = new XML(data);
-					_trace("[SendAndLoad] Received data: " + _success);
+					_trace("[SendAndLoad] Received data: " + _success + "\n----------------------------------------------\n");
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.COMPLETE, _success, type));
 				} catch (e:Error) {
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.ERROR, "* ERROR #1 : " + e.message, "error"));
@@ -141,7 +152,7 @@
 					trace(" ---------------------------------------------- ");
 					trace(evt.target.data);
 					trace(" ---------------------------------------------- ");
-					trace("* ERROR [SendAndLoad] _onComplete method: " + e.message);
+					trace("* ERROR [SendAndLoad] _onComplete method: " + e.message + "\n----------------------------------------------\n");
 				}
 			}
 			destroy();
@@ -155,7 +166,8 @@
 		public function destroy():void {
 			if (_loader) {
 				_loader.removeEventListener(Event.COMPLETE, _onComplete);
-				_loader.addEventListener(IOErrorEvent.IO_ERROR, _onIOError);
+				_loader.removeEventListener(IOErrorEvent.IO_ERROR, _onIOError);
+				_loader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, _onSecurityError);
 				_loader = null;
 				_request = null;
 			}
