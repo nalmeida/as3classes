@@ -1,4 +1,4 @@
-﻿package  {
+﻿package  as3classes.ui.font {
 	import flash.text.AntiAliasType;
 	import flash.text.GridFitType;
 	import flash.text.Font;
@@ -10,7 +10,7 @@
 	* Style.
 	* 
 	* @author Marcelo Miranda Carneiro - mail: mcarneiro@gmail.com.
-	* @version 0.1.0
+	* @version 0.1.1
 	* @since 30.06.2008
 	* @usage
 	 	<code>
