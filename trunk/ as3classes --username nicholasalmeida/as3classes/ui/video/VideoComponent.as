@@ -260,7 +260,8 @@ package as3classes.ui.video{
 		 */
 		public function changeVideo($flv:String, $duration:Number):void {
 			flv = $flv;
-			duration = $duration;
+			duration = Math.round(int($duration * 1000)) / 1000;
+			duration = duration / 1000;
 			
 			// External Call of change Video
 			if (control.avaliable) {
@@ -293,12 +294,16 @@ package as3classes.ui.video{
 			slider.x = 0;
 		}
 		
-		public function play(evt:*):void {
+		public function play(evt:* = null):void {
 			control.play();
 		}
 		
-		public function pause(evt:*):void {
+		public function pause(evt:* = null):void {
 			control.pause();
+		}
+		
+		public function stop(evt:* = null):void {
+			control.stop();
 		}
 		
 		public function playPause(evt:*):void {
