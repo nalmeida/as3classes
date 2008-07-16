@@ -295,15 +295,27 @@ package as3classes.ui.video{
 		}
 		
 		public function play(evt:* = null):void {
-			control.play();
+			try {
+				control.play();
+			} catch (e:Error) {
+				trace("[VideoComponent] play WARNING. control = null");
+			}
 		}
 		
 		public function pause(evt:* = null):void {
-			control.pause();
+			try {
+				control.pause();
+			} catch (e:Error) {
+				trace("[VideoComponent] play WARNING. control = null");
+			}
 		}
 		
 		public function stop(evt:* = null):void {
-			control.stop();
+			try {
+				control.stop();
+			} catch (e:Error) {
+				trace("[VideoComponent] stop WARNING. control = null");
+			}
 		}
 		
 		public function playPause(evt:*):void {
