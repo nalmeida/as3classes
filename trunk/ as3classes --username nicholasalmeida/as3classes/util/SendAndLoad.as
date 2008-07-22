@@ -25,10 +25,10 @@
 								<lastname>{lastname}</lastname>
 							</root>;
 	
-		getXml = new SendAndLoad();
+		var getXml:SendAndLoad = new SendAndLoad();
 		
-		getXml.addEventListener(SendAndLoadEvent.COMPLETE, onComplete);
-		getXml.addEventListener(SendAndLoadEvent.ERROR, onError);
+		getXml.addEventListener(SendAndLoadEvent.COMPLETE, _onComplete, false, 0, true);
+		getXml.addEventListener(SendAndLoadEvent.ERROR, _onError, false, 0, true);
 		getXml.verbose = true;
 		getXml.send("http://localhost/log_post.asp", xmlToSend);
 	 </code>
