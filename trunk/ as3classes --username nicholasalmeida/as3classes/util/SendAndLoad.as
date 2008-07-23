@@ -138,11 +138,13 @@
 		
 		private function _onComplete(evt:Event):void {
 			var data:String = evt.target.data.toString();
-			var regex:RegExp = new RegExp("(" + _lastNode + ").+$");
+			var regex:RegExp = new RegExp("(^.*" + _lastNode + ").*");
+			
 			if (type == "xml" ) {
 				try {
 					//TODO: Ver pq não funciona quando recebe um XML sem o XML declaration.
-					data = data.replace(/\t|\n/g, "").replace(regex, "$1");
+					data = data.replace(/\t|\n|\r/g, "").replace(regex, "$1");
+					trace(" data >> " + data + "\n\n\n");
 					_success = new XML(data);
 					_trace("[SendAndLoad] Received data: " + _success + "\n----------------------------------------------\n");
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.COMPLETE, _success, type));
@@ -155,6 +157,8 @@
 					trace("* ERROR [SendAndLoad] _onComplete method: " + e.message + "\n----------------------------------------------\n");
 				}
 			}
+			regex = null;
+			data = null;
 			destroy();
 		}
 		
