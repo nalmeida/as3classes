@@ -143,7 +143,6 @@
 				try {
 					//TODO: Ver pq não funciona quando recebe um XML sem o XML declaration.
 					data = data.replace(/\t|\n/g, "").replace(regex, "$1");
-					trace(data);
 					_success = new XML(data);
 					_trace("[SendAndLoad] Received data: " + _success + "\n----------------------------------------------\n");
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.COMPLETE, _success, type));
