@@ -13,25 +13,49 @@ package as3classes.ui {
 	import flash.ui.Keyboard;
 	
 	/**
-	* Alert Class
-	* @author Nicholas Almeida. nicholasalmeida.com
-	* @since 23/7/2008 18:26
-	*/
-	
-	/* USAGE
-	Alert.init(this);
-	Alert.addEventListener(Event.CLOSE, _onClosePop);
-	Alert.addEventListener(Event.OPEN, _onOpenPop);
-	
-	private function _onOpenPop(e:Event):void {
-		trace("open");
-	}
+		Create a static "alert" using default ou a custom skin.
 		
-	private function _onClosePop(e:Event):void {
-		trace("close");
-		Alert.destroy(); // removing elements
-	}
-	*/
+		@author Nicholas Almeida nicholasalmeida.com
+		@since 23/7/2008 18:26
+		@usage
+				<code>
+					//////////////////////////////////////////////////////////////////////////////////
+					// IMPORTANT
+					//
+					// When using skinBySprite, it MUST have this MovieClips AND instance names
+					//////////////////////////////////////////////////////////////////////////////////
+					
+					+---------------------------------------------------+
+					| 	_bg: Background MC								|
+					| 													|
+					| 	_tit_holder: MC contains title textfield		|
+					| 		_fld_tit: Title textfield					|
+					| 													|
+					| 	_msg_holder: MC contains message textfield		|
+					| 		_fld_msg: Message textfield					|
+					| 													|
+					| 	_bt_ok: The "close" button						|
+					+---------------------------------------------------+
+					
+					// Alert.init(this); // Default skin
+					
+					Alert.init(this, {
+						skinBySprite: alert_sprite // Sprite with MC's
+					});
+					
+					Alert.addEventListener(Event.CLOSE, _onClosePop);
+					Alert.addEventListener(Event.OPEN, _onOpenPop);
+					
+					private function _onOpenPop(e:Event):void {
+						trace("open");
+					}
+						
+					private function _onClosePop(e:Event):void {
+						trace("close");
+						Alert.destroy(); // removing elements
+					}
+				</code>
+	 */
 		
 	public class Alert {
 		// Config vars
@@ -41,8 +65,8 @@ package as3classes.ui {
 		public static var messageTextFormat:TextFormat;
 		public static var buttonTextFormat:TextFormat;
 		
-		public static var width:Number = 320;
-		public static var height:Number = 180;
+		public static var width:int = 320;
+		public static var height:int = 180;
 		public static var buttonText:String = " OK ";
 		public static var defaultPadding:int = 5;
 		public static var align:String = "mc";
@@ -65,6 +89,20 @@ package as3classes.ui {
 		
 		private static const VALID_PROPS:Array = ["skinBySprite", "align", "defaultPadding", "buttonText", "height", "width"];
 		
+		/**
+		 * Init the Alert class and set the holder and config values.
+		 * 
+		 * @param	$holder 			Sprite or MovieClip Alert will be added.
+		 * @param	$configObj 			Object	Object with config information.
+		 * @param		.skinBySprite 	Sprite 	Sprite with skin MovieClips insde.
+		 * @param		.align 			String	Alert align. Default "mc" (middle center)
+		 * @param		.defaultPadding	int		If you are using the default skin, its the internal padding. Default: 5.
+		 * @param		.buttonText		String	Text inside the button "ok". Default: " OK ".
+		 * @param		.width			int		If you are using the default skin, it's the Alert width. Default: 320.
+		 * @param		.height			int		If you are using the default skin, it's the Alert height. Default: 180.
+		 * 
+		 * @return 	none;
+		 */
 		public static function init($holder:Sprite, $configObj:Object = null ):void {
 			_holder = $holder as Sprite;
 			
@@ -79,6 +117,13 @@ package as3classes.ui {
 			_isOpened = false;
 		}
 		
+		/**
+		 * Set the Title, Message and fires the Event.OPEN.
+		 * 
+		 * @param	$message		String	Alert message.
+		 * @param	$title			String	Alert title
+		 * @return	mc				Sprite	The openec Alert.
+		 */
 		public static function open($message:String, $title:String = "ERRO"):Sprite {
 			if(!isOpened){
 				_appySkin();
@@ -104,6 +149,11 @@ package as3classes.ui {
 			return mc;
 		}
 		
+		/**
+		 * Fires the event Event.CLOSE.
+		 * 
+		 * @param	e
+		 */
 		public static function close(e:MouseEvent = null):void {
 			dispatchEvent(new Event(Event.CLOSE));
 		}
@@ -116,6 +166,11 @@ package as3classes.ui {
 		
 		static public function get isOpened():Boolean { return _isOpened; }
 		
+		/**
+		 * Remove the Alert elements from holder stage.
+		 * 
+		 * @return	none
+		 */
 		public static function destroy():void {
 			if (!useSkin) {
 				try {
@@ -164,10 +219,18 @@ package as3classes.ui {
 			}
 		}
 		
+		/**
+		 * Set the skinBySprite Sprite.
+		 * 
+		 * @param	$skinBySprite
+		 */
 		public static function setSkin($skinBySprite:Sprite):void {
 			skinBySprite = $skinBySprite;
 			useSkin = true;
 		}
+		
+		
+		// Provate methods
 		
 		private static function _appySkin():void {
 			
@@ -260,8 +323,9 @@ package as3classes.ui {
 			
 		}
 		
-		
+		//
 		// Static EventDispatcher by gSkinner: http://www.gskinner.com/blog/archives/2007/07/building_a_stat_1.html
+		//
 		protected static var disp:EventDispatcher;
 		public static function addEventListener(p_type:String, p_listener:Function, p_useCapture:Boolean=false, p_priority:int=0, p_useWeakReference:Boolean=false):void {
 			if (disp == null) { disp = new EventDispatcher(); }
