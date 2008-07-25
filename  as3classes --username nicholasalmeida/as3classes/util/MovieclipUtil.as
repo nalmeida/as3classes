@@ -20,7 +20,7 @@
 					</code>
 		 */
 		
-        public static function swapToHightestIndex($scope:DisplayObjectContainer, $movieclip:*):void {
+        public static function swapToHightestIndex($scope:DisplayObjectContainer, $movieclip:*):uint {
 			
 			var highest:uint = 0;
 			
@@ -36,6 +36,8 @@
 			} else {
 				_trace("\"" + $movieclip + "\" is on the highest index " + highest);
 			}
+			
+			return highest;
 		}
 		
 		/**
