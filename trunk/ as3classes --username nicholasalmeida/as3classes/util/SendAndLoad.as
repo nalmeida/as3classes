@@ -43,7 +43,7 @@
 		
 		private var _request:URLRequest;
 		private var _loader:URLLoader;
-		private var _success:*;
+		private var _successXML:XML;
 		private var _lastNode:String = "</root>";
 		
 		function SendAndLoad() {
@@ -145,9 +145,9 @@
 					//TODO: Ver pq não funciona quando recebe um XML sem o XML declaration.
 					data = data.replace(/\t|\n|\r/g, "").replace(regex, "$1");
 					trace(" data >> " + data + "\n\n\n");
-					_success = new XML(data);
-					_trace("[SendAndLoad] Received data: " + _success + "\n----------------------------------------------\n");
-					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.COMPLETE, _success, type));
+					_successXML = new XML(data);
+					_trace("[SendAndLoad] Received data: " + _successXML + "\n----------------------------------------------\n");
+					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.COMPLETE, _successXML, type));
 				} catch (e:Error) {
 					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.ERROR, "* ERROR #1 : " + e.message, "error"));
 					//throw new Error("* ERROR [SendAndLoad] _onComplete method: " + e.message);
@@ -175,7 +175,7 @@
 				_loader = null;
 				_request = null;
 			}
-			_success = null;
+			_successXML = null;
 			sending = false;
 		}
 		
