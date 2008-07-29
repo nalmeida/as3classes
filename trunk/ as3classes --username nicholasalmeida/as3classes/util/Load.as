@@ -11,7 +11,7 @@
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	
-	import as3classes.util.SendAndLoadEvent;
+	import as3classes.util.LoadEvent;
 	import com.adobe.utils.StringUtil;
 	import flash.utils.setTimeout;
 	
@@ -25,20 +25,20 @@
 								<lastname>{lastname}</lastname>
 							</root>;
 	
-		var getXml:SendAndLoad = new SendAndLoad();
+		var getXml:Load = new Load();
 		
-		getXml.addEventListener(SendAndLoadEvent.COMPLETE, _onComplete, false, 0, true);
-		getXml.addEventListener(SendAndLoadEvent.ERROR, _onError, false, 0, true);
+		getXml.addEventListener(LoadEvent.COMPLETE, _onComplete, false, 0, true);
+		getXml.addEventListener(LoadEvent.ERROR, _onError, false, 0, true);
 		getXml.verbose = true;
 		getXml.send("http://localhost/log_post.asp", xmlToSend);
 	 </code>
 	 */
-	public class SendAndLoad extends EventDispatcher{
+	public class Load extends EventDispatcher{
 		
 		public var url:String;
 		public var type:String = "";
 		public var verbose:Boolean = false;
-		public var sending:Boolean = false;
+		public var loading:Boolean = false;
 		public var preventCache:Boolean;
 		
 		private var _request:URLRequest;
@@ -46,7 +46,7 @@
 		private var _successXML:XML;
 		private var _lastNode:String = "</root>";
 		
-		function SendAndLoad() {
+		function Load() {
 			_request = new URLRequest();
 			_loader = new URLLoader();
 		}
@@ -59,23 +59,20 @@
 		 * @param	$useCodePage If you want to use System.useCodePage. Default true.
 		 * @return
 		 */
-		public function send($URL:String, $data:*, $preventCache:Boolean = false , $useCodePage:Boolean = false):* {
+		public function load($URL:String, $type:String = "xml", $preventCache:Boolean = false , $useCodePage:Boolean = false):* {
 			
 			System.useCodePage = $useCodePage;
+			type = $type;
 			
 			/**
 			 * Basic verification and feedback
 			 */
 			if ($URL == null || $URL == "") {
-				trace("* ERROR: SendAndLoad.send $URL undefined.");
+				trace("* ERROR: "+this+".send $URL undefined.");
 				return;
 			}
-			if ($data == null) {
-				trace("* ERROR: SendAndLoad.send $data undefined.");
-				return;
-			}
-			if (sending) {
-				dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.ERROR, "* ERROR: SendAndLoad.send is already sending data.", "error"));
+			if (loading) {
+				dispatchEvent(new LoadEvent(LoadEvent.ERROR, "* ERROR: "+this+".load is already loading data.", "error"));
 				return;
 			}
 			
@@ -84,7 +81,7 @@
 			
 			if (preventCache) {
 				var d:Date = new Date();
-                var cacheString:String = "SendAndLoad=" + String(Math.round(Math.random()  * 100 * d.getTime()));
+                var cacheString:String = "Load=" + String(Math.round(Math.random()  * 100 * d.getTime()));
                 if(url.indexOf("?") == -1){
                     url += "?" + cacheString;
                 }else{
@@ -92,20 +89,10 @@
                 }
             }
 			
-			if (typeof $data == "xml") {
-				type = "xml";
-			}
-			
 			/**
 			 * Creating URLRequest object.
 			 */
 			_request.url = url;
-			
-			if (type == "xml") {	
-				_request.data = $data.toXMLString();
-				_request.method = URLRequestMethod.POST;
-				//_request.contentType = "text/xml"; // TODO: Ver pq não dá para usar o contentType.
-			}
 			
 			/**
 			 * Creating URLLoader object.
@@ -115,46 +102,42 @@
 			_loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, _onSecurityError, false, 0, true);
 			_loader.addEventListener(IOErrorEvent.IO_ERROR, _onIOError, false, 0, true);
 			
-			sending = true;
+			loading = true;
 			
 			setTimeout(_start, 10);
 		}
 		
 		private function _onSecurityError(evt:SecurityErrorEvent):void {
-			trace("[SendAndLoad] _onSecurityError");
+			trace(this+" _onSecurityError");
 			trace(evt);
 		}
 		
 		private function _start():void{
-			_trace("----------------------------------------------\n[SendAndLoad]  Sending to: " + url);
-			_trace("[SendAndLoad]  Sending data: " + _request.data);
+			_trace("----------------------------------------------\n" + this + " Loading data from: " + url);
 			
 			try {
 				_loader.load(_request);				
 			} catch (e:Error) {
-				throw new Error("* ERROR [SendAndLoad] send method: " + e.message + "\n----------------------------------------------\n");
+				throw new Error("* ERROR "+this+" send method: " + e.message + "\n----------------------------------------------\n");
 			}
 		}
 		
 		private function _onComplete(evt:Event):void {
 			var data:String = evt.target.data.toString();
-			// var regex:RegExp = new RegExp("(^.*" + _lastNode + ").*");
 			
 			if (type == "xml" ) {
 				try {
 					//TODO: Ver pq não funciona quando recebe um XML sem o XML declaration.
-					// data = data.replace(/\t|\n|\r/g, "").replace(regex, "$1");
 					_trace(this + " original data >> " + data + "\n\n\n");
 					_successXML = new XML(data);
-					_trace("[SendAndLoad] Received data: " + _successXML + "\n----------------------------------------------\n");
-					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.COMPLETE, _successXML, type));
+					_trace(this+" Received data: " + _successXML + "\n----------------------------------------------\n");
+					dispatchEvent(new LoadEvent(LoadEvent.COMPLETE, _successXML, type));
 				} catch (e:Error) {
-					dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.ERROR, "* ERROR #1 : " + e.message, "error"));
-					//throw new Error("* ERROR [SendAndLoad] _onComplete method: " + e.message);
+					dispatchEvent(new LoadEvent(LoadEvent.ERROR, "* ERROR #1 : " + e.message, "error"));
 					trace(" ---------------------------------------------- ");
 					trace(evt.target.data);
 					trace(" ---------------------------------------------- ");
-					trace("* ERROR [SendAndLoad] _onComplete method: " + e.message + "\n----------------------------------------------\n");
+					trace("* "+this+" ERROR _onComplete method: " + e.message + "\n----------------------------------------------\n");
 				}
 			}
 			//regex = null;
@@ -163,7 +146,7 @@
 		}
 		
 		private function _onIOError(evt:IOErrorEvent):void {
-			dispatchEvent(new SendAndLoadEvent(SendAndLoadEvent.ERROR, "* ERROR #404 : Unable to load data from: " + url, "error"));
+			dispatchEvent(new LoadEvent(LoadEvent.ERROR, "* ERROR #404 : Unable to load data from: " + url, "error"));
 			destroy();
 		}
 		
@@ -176,7 +159,7 @@
 				_request = null;
 			}
 			_successXML = null;
-			sending = false;
+			loading = false;
 		}
 		
 		/**
@@ -199,6 +182,10 @@
 		}
 		public function get lastNode():String {
 			return _lastNode;
+		}
+		
+		public override function toString():String {
+			return "[Load]";
 		}
 
 	}
