@@ -22,6 +22,33 @@
 			return txt.slice(0,1).toUpperCase() + "" + txt.slice(1).toLowerCase();
 		}
 		
+		private static var specialChars:Object = [
+			{val:"a",let:"áàãâä"},
+			{val:"e",let:"éèêë"},
+			{val:"i",let:"íìîï"},
+			{val:"o",let:"óòõôö"},
+			{val:"u",let:"úùûü"},
+			{val:"c",let:"ç"},
+			{val:"A",let:"ÁÀÃÂÄ"},
+			{val:"E",let:"ÉÈÊË"},
+			{val:"I",let:"ÍÌÎÏ"},
+			{val:"O",let:"ÓÒÕÔÖ"},
+			{val:"U",let:"ÚÙÛÜ"},
+			{val:"U",let:"Ç"}
+		];
+		public static function replaceSpecialChars($value:String, $spaceSymbol:String = "_"):String {
+			var regex:RegExp;
+			var returnString:String = $value;
+			for (var i:int = 0; i < specialChars.length; i++) {
+				regex = new RegExp("["+specialChars[i].let+"]", "g");
+				returnString = returnString.replace(regex, specialChars[i].val);
+				regex = null;
+			}
+			return returnString.replace(/ /g,$spaceSymbol);
+		}
+		public static function convertToURI($value:String):String {
+			return replaceSpecialChars($value).replace(/[^a-zA-Z0-9_\.\-]/g, "-");
+		}
 		/**
 			Replaces all special characters.
 			
