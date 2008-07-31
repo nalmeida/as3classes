@@ -71,6 +71,7 @@ package as3classes.ui {
 		public static var defaultPadding:int = 5;
 		public static var align:String = "mc";
 		public static var skinBySprite:Sprite;
+		public static var htmlText:Boolean = false;
 		
 		// Private
 		private static var _isOpened:Boolean;
@@ -87,7 +88,7 @@ package as3classes.ui {
 			public static var _msg_holder:Sprite;
 				public static var _fld_msg:TextField;
 		
-		private static const VALID_PROPS:Array = ["skinBySprite", "align", "defaultPadding", "buttonText", "height", "width"];
+		private static const VALID_PROPS:Array = ["skinBySprite", "align", "defaultPadding", "buttonText", "height", "width", "htmlText"];
 		
 		/**
 		 * Init the Alert class and set the holder and config values.
@@ -100,6 +101,7 @@ package as3classes.ui {
 		 * @param		.buttonText		String	Text inside the button "ok". Default: " OK ".
 		 * @param		.width			int		If you are using the default skin, it's the Alert width. Default: 320.
 		 * @param		.height			int		If you are using the default skin, it's the Alert height. Default: 180.
+		 * @param		.htmlText		boolean	If text is HTML. Default: false.
 		 * 
 		 * @return 	none;
 		 */
@@ -128,8 +130,13 @@ package as3classes.ui {
 			if(!isOpened){
 				_appySkin();
 				
-				_fld_tit.text = $title;
-				_fld_msg.text = $message;
+				if(!htmlText){
+					_fld_tit.text = $title;
+					_fld_msg.text = $message;
+				} else {
+					_fld_tit.htmlText = $title;
+					_fld_msg.htmlText = $message;
+				}
 				
 				if (!useSkin) {
 					_fld_ok.text = buttonText;
