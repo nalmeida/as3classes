@@ -168,21 +168,18 @@ package as3classes.ui.video{
 				}
 			}
 			
-			if(flv == null) {
-				throw new Error("* ERROR [VideoComponent]: you MUST define flv file.");
-			}
-			
-			if(duration == 0) {
-				throw new Error("* ERROR [VideoComponent]: you MUST define duration time.");
-			} else {
-				duration = Math.round(int(duration * 1000)) / 1000;
-				duration = duration / 1000;
-			}
-			
 			video = new Video(videoWidth, videoHeight);
 			holder.addChild(video);
 			
-			_changeVideo();
+			if (flv != null) {
+				if(duration != 0) {
+					duration = Math.round(int(duration * 1000)) / 1000;
+					duration = duration / 1000;
+				}
+				//throw new Error("* ERROR [VideoComponent]: you MUST define flv file.");
+				_changeVideo();
+			}
+			
 		}
 		
 		public function destroy():void {
