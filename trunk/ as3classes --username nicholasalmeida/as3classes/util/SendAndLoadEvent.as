@@ -1,5 +1,5 @@
 ﻿package as3classes.util {
-	import flash.events.*;
+	import flash.events.Event;
 	
 	public class SendAndLoadEvent extends Event{
 		
