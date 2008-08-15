@@ -5,7 +5,6 @@
     import flash.net.URLRequest;
 	import flash.utils.setTimeout;
 	import flash.external.ExternalInterface;
-	import com.adobe.serialization.json.JSON;
 	import as3classes.util.RootUtil;
 	
 	import as3classes.util.LocationUtil;
@@ -46,11 +45,11 @@
 			Calls a external javascript function using ExternalInterface.call method.
 			
 			@param $javascriptFunction Function name.
-			@param ... statements Arguments to javascript. All arguments will be sent using JSON notation as Array
+			@param ... statements Arguments to javascript. All arguments will be sent as parameters
 		 */
 		public static function javascript($javascriptFunction:String, ... statements):void {
-			var args:String = statements.length > 0 ? JSON.encode(statements) : "";
-			_arrURLQueue.push( { js: $javascriptFunction, args: args } );
+			trace("\n******************\n" + URL + " WARNING: Statements are not passed as JSON array anymore. They go as native parameters.\n Modification made at: 14/8/2008 11:31 \n******************");
+			_arrURLQueue.push( { js: $javascriptFunction, args: statements } );
 			_start();
 		}
 		
@@ -60,22 +59,29 @@
 			@param $analyticsString Arguments to "urchinTracker".
 		 */
 		public static function analytics($analyticsString:String):void {
-			_arrURLQueue.push( { js: trackerFunction, args: _analyticsPrefix+$analyticsString } );
-			_start();
+			javascript(trackerFunction, (_analyticsPrefix + $analyticsString));
 		}
 		
 		private static function _run():void {
 			
 			var j:String = _arrURLQueue[0].js;
-			var a:String = _arrURLQueue[0].args;
+			var a:Array = _arrURLQueue[0].args;
 			
 			var u:String = _arrURLQueue[0].url;
 			var t:String = _arrURLQueue[0].target;
 			
+			var args:Array = [];
+			
 			if (LocationUtil.isWeb(RootUtil.getRoot())) {
 				if (j) { // Javascript request
 					if (ExternalInterface.available) {
-						ExternalInterface.call(j, a);
+						args[args.length] = j;
+						var i:int;
+						for (i = 0; i < a.length; i++) {
+							args[args.length] = a[i];
+						}
+						//trace("args: " + args.join(" ||| ") + " args.length: " + args.length);
+						ExternalInterface.call.apply(null, args);
 					} else {
 						_trace("* ERROR: ExternalInterface not avaliable. " + j + "(" + a + ")");
 					}
@@ -88,7 +94,11 @@
 				}
 			} else {
 				if (j) {
-					if (j === trackerFunction) a = "\"" + a + "\"";
+					if (j === trackerFunction) {
+						a.splice(0, 0, "\"");
+						a[a.length] = "\"";
+						a = [a.join("")];
+					}
 					_trace("! URL.javascript() 	running LOCAL. " + j + "(" + a + ")");
 				} else {
 					_trace("! URL.call() 		running LOCAL. URL: \"" + u + "\" TARGET: \"" + t + "\"");					
