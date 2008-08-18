@@ -65,7 +65,7 @@
 			var optTxtVal:Object = $optTxtValues;
 			var a:String;
 			if (obj == null) {
-				throw new Error("Style.setStyle ERROR: Style does not exists.");
+				throw new Error("Style.setStyle ERROR: Style \""+$name+"\" does not exists.");
 				return;
 			}
 			
