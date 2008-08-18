@@ -108,7 +108,7 @@
 					}
 					
 					/* ---------------------------------------------------------------------- Email */
-					if(fld.restrict == "email" || fld.restrict == "mail") {
+					if((fld.restrict == "email" || fld.restrict == "mail") && fld.text != "") {
 						tmp = _checkEmail(fld);
 						if(tmp !== true) return _onError(tmp);
 					}
