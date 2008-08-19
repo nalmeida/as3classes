@@ -46,7 +46,7 @@ package as3classes.amf {
 		protected static var disp:EventDispatcher;
 		
 		/**
-		 * Init the AMCFonnection
+		 * Init the AMFConnection
 		 * @param	$gatewayAddress		gateway server address.
 		 */
 		public static function init($gatewayAddress:String):void {
