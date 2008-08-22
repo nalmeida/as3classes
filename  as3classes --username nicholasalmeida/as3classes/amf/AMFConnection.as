@@ -17,10 +17,13 @@ package as3classes.amf {
 	
 		AMFConnection.init("http://localhost/app/Gateway.aspx");
 		AMFConnection.service = "Service.Class";
+		AmfConnection.verbose = true;
 		
-		AMFConnection.call("myMethod", 123);
-		AMFConnection.addEventListener(AMFConnectionEvent.COMPLETE, _onCompleteAMF);
-		AMFConnection.addEventListener(AMFConnectionEvent.ERROR, _onErrorAMF);
+		var amfGet= new AMFConnection();
+		amfGet.addEventListener(AMFConnectionEvent.COMPLETE, _onCompleteAMF);
+		amfGet.addEventListener(AMFConnectionEvent.ERROR, _onErrorAMF);
+		
+		amfGet.call("myMethod", 123);
 		
 		...
 		
