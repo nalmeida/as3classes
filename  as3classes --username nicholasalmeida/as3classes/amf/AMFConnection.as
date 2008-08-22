@@ -44,14 +44,14 @@ package as3classes.amf {
 		private static var _service:String = "";
 		private static var _connected:Boolean = false;
 		
-		private static var _currentInstance:AMFConnection;
-		
+		private static var _scope:AMFConnection;
+		private var _id:String = "";
 		
 		protected static var disp:EventDispatcher;
 		
-		public function AMFConnection() {
+		public function AMFConnection($id:String = "") {
 			responder = new Responder(_onComplete, _onError);
-			
+			_id = $id;
 		}
 		
 		/**
@@ -80,7 +80,8 @@ package as3classes.amf {
 		 * @param	... $arguments	arguments to server.	
 		 */
 		public function call($method:String, ... $arguments):void {
-			_currentInstance = this;
+			_scope = this;
+			
 			var tmpArr:Array = [service + $method, responder];
 			for (var i:int = 0; i < $arguments.length; i++) {
 				tmpArr.push($arguments[i]);
@@ -133,7 +134,7 @@ package as3classes.amf {
 		// Private
 		static private function _securityError(e:SecurityErrorEvent):void {
 			_trace("[AMFConnection] SECURITY ERROR. " + e.text)
-			_currentInstance._onError( {description: "[AMFConnection] SECURITY ERROR. " + e.text} );
+			_scope._onError( {description: "[AMFConnection] SECURITY ERROR. " + e.text} );
 		}
 		
 		static private function _onNetStatus(e:NetStatusEvent):void {
@@ -143,7 +144,7 @@ package as3classes.amf {
 			_trace("[AMFConnection] Status: " + e.info.code);
 			if (e.info.level == "error") {
 				_connected = false;
-				_currentInstance._onError( {description: "[AMFConnection] ERROR. " + e.info.description + ". " + e.info.details} );
+				_scope._onError( {description: "[AMFConnection] ERROR. " + e.info.description + ". " + e.info.details} );
 			} else if (e.info.level == "status") {
 				if (e.info.code == "NetConnection.Connect.Closed") {
 					_connected = false;
@@ -153,11 +154,11 @@ package as3classes.amf {
 		}
 		
 		private function _onError($answer:Object):void {
-			dispatchEvent(new AMFConnectionEvent(AMFConnectionEvent.ERROR, $answer));
+			_scope.dispatchEvent(new AMFConnectionEvent(AMFConnectionEvent.ERROR, $answer));
 		}
 		
 		private function _onComplete($answer:*):void {
-			dispatchEvent(new AMFConnectionEvent(AMFConnectionEvent.COMPLETE, $answer));
+			_scope.dispatchEvent(new AMFConnectionEvent(AMFConnectionEvent.COMPLETE, $answer));
 		}
 		
 		// SET/GET
