@@ -1,5 +1,6 @@
 package as3classes.amf {
 	
+	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
@@ -33,7 +34,7 @@ package as3classes.amf {
 
 	*/
 	
-	public class AMFConnection {
+	public class AMFConnection extends EventDispatcher{
 		
 		public static var gateway:NetConnection;
 		public static var responder:Responder;
@@ -43,14 +44,21 @@ package as3classes.amf {
 		private static var _service:String = "";
 		private static var _connected:Boolean = false;
 		
+		private static var _currentInstance:AMFConnection;
+		
+		
 		protected static var disp:EventDispatcher;
+		
+		public function AMFConnection() {
+			responder = new Responder(_onComplete, _onError);
+			
+		}
 		
 		/**
 		 * Init the AMFConnection
 		 * @param	$gatewayAddress		gateway server address.
 		 */
 		public static function init($gatewayAddress:String):void {
-			
 			gatewayAddress = $gatewayAddress;
 			gateway = new NetConnection();
 			gateway.addEventListener(NetStatusEvent.NET_STATUS, _onNetStatus, false, 0, true);
@@ -64,7 +72,6 @@ package as3classes.amf {
 				trace(e);
 			}
 			
-			responder = new Responder(_onComplete, _onError);
 		}
 		
 		/**
@@ -72,13 +79,26 @@ package as3classes.amf {
 		 * @param	$method			method name. It will be concat the "service" variable.
 		 * @param	... $arguments	arguments to server.	
 		 */
-		public static function call($method:String, ... $arguments):void {
+		public function call($method:String, ... $arguments):void {
+			_currentInstance = this;
 			var tmpArr:Array = [service + $method, responder];
 			for (var i:int = 0; i < $arguments.length; i++) {
 				tmpArr.push($arguments[i]);
 			}
+			
 			if (connected) {
-				_trace("[AMFConnection] call: " + tmpArr);
+				if(verbose){
+					_trace("\n[AMFConnection] call: "  + service + $method);
+					for (var k:String in $arguments) {
+						trace(k + ": " + $arguments[k] + " - type: " + typeof($arguments[k]));
+						if(typeof($arguments[k]) == "object"){
+							for (var m:String in $arguments[k]) {
+								trace("\t" + m + ": " + $arguments[k][m]);
+							}
+						}
+					}
+					_trace("------------------------------------------\n");
+				}
 				gateway.call.apply(null, tmpArr);
 			} else {
 				_onError( { description:"Connection: \"" + gatewayAddress + "\" closed." } );
@@ -113,7 +133,7 @@ package as3classes.amf {
 		// Private
 		static private function _securityError(e:SecurityErrorEvent):void {
 			_trace("[AMFConnection] SECURITY ERROR. " + e.text)
-			_onError( {description: "[AMFConnection] SECURITY ERROR. " + e.text} );
+			_currentInstance._onError( {description: "[AMFConnection] SECURITY ERROR. " + e.text} );
 		}
 		
 		static private function _onNetStatus(e:NetStatusEvent):void {
@@ -123,7 +143,7 @@ package as3classes.amf {
 			_trace("[AMFConnection] Status: " + e.info.code);
 			if (e.info.level == "error") {
 				_connected = false;
-				_onError( {description: "[AMFConnection] ERROR. " + e.info.description + ". " + e.info.details} );
+				_currentInstance._onError( {description: "[AMFConnection] ERROR. " + e.info.description + ". " + e.info.details} );
 			} else if (e.info.level == "status") {
 				if (e.info.code == "NetConnection.Connect.Closed") {
 					_connected = false;
@@ -132,12 +152,12 @@ package as3classes.amf {
 			
 		}
 		
-		private static function _onError($answer:Object):void {
-			disp.dispatchEvent(new AMFConnectionEvent(AMFConnectionEvent.ERROR, $answer));
+		private function _onError($answer:Object):void {
+			dispatchEvent(new AMFConnectionEvent(AMFConnectionEvent.ERROR, $answer));
 		}
 		
-		private static function _onComplete($answer:*):void{
-			disp.dispatchEvent(new AMFConnectionEvent(AMFConnectionEvent.COMPLETE, $answer));
+		private function _onComplete($answer:*):void {
+			dispatchEvent(new AMFConnectionEvent(AMFConnectionEvent.COMPLETE, $answer));
 		}
 		
 		// SET/GET
@@ -153,6 +173,7 @@ package as3classes.amf {
 		
 		
 		// Dispatcher
+		/*
   		public static function addEventListener(...p_args:Array):void {
    			if (disp == null) { disp = new EventDispatcher(); }
    			disp.addEventListener.apply(null, p_args);
@@ -165,6 +186,7 @@ package as3classes.amf {
    			if (disp == null) { return; }
    			disp.dispatchEvent.apply(null, p_args);
    		}
+		*/
 
 		protected static function _trace(msg:String):void {
 			if (verbose) trace(msg);
