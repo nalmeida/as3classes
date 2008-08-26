@@ -34,7 +34,9 @@ package as3classes.ui.form {
 		public var minChars:Number; // used on form validation only.
 		public var align:String = "left";
 		public var equal:TextfieldComponent;
-		public var padding:Object = {top: 0, left: 0, right: 0};
+		public var padding:Object = { top: 0, left: 0, right: 0 };
+		
+		public static var listenersWeakReference:Boolean = true;
 		//
 		
 		private const VALID_PROPS:Array = ["title", "type", "selectable", "tabIndex", "required", "restrict", "maxChars", "minChars", "text", "initText", "align", "equal", "customErrorMessage", "padding"];
@@ -82,8 +84,8 @@ package as3classes.ui.form {
 			/**
 			 * Listeners
 			 */
-			fld_text.addEventListener(FocusEvent.FOCUS_IN, clearInitText, false, 0, true);
-			fld_text.addEventListener(FocusEvent.FOCUS_OUT, checkInitText, false, 0, true);
+			fld_text.addEventListener(FocusEvent.FOCUS_IN, clearInitText, false, 0, listenersWeakReference);
+			fld_text.addEventListener(FocusEvent.FOCUS_OUT, checkInitText, false, 0, listenersWeakReference);
 			
 			/**
 			 * TabIndex
