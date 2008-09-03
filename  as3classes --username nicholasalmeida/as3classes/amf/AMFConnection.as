@@ -39,9 +39,6 @@ package as3classes.amf {
 	
 	public class AMFConnection extends EventDispatcher{
 		
-		
-		
-		
 		// STATIC METHODS
 		
 		protected static var disp:EventDispatcher;
@@ -62,6 +59,7 @@ package as3classes.amf {
 			_gateway = new NetConnection();
 			_gateway.addEventListener(NetStatusEvent.NET_STATUS, _onNetStatus, false, 0, true);
 			_gateway.addEventListener(SecurityErrorEvent.SECURITY_ERROR, _securityError, false, 0, true);
+			_trace(AMFConnection + " connecting at: \"" _gatewayAddress + "\"");
 			connect();
 		}
 
