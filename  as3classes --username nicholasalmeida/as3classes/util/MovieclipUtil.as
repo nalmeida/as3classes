@@ -24,7 +24,7 @@
 			
 			var highest:uint = 0;
 			
-			for (var i:uint = 0; i < $scope.numChildren - 1; i++) {
+			for (var i:uint = 0; i < $scope.numChildren ; i++) {
 				var mc:* = $scope.getChildAt(i);
 				
 				if ($scope.getChildIndex(mc) > highest) highest = $scope.getChildIndex(mc);
