@@ -23,7 +23,7 @@ package as3classes.ui.video{
 				flv:"http://br.youtube.com/watch?v=Eu-SCI9Ks_Y",
 				// LONG VIDEO // flv:"http://br.youtube.com/watch?v=W1nhljdqf0E&feature=bz303",
 				youtube: true,
-				duration: 11.712,
+				duration: 11712,
 				playAfterLoad: .25,
 				autoPlay: true,
 				timeRegressive: false
