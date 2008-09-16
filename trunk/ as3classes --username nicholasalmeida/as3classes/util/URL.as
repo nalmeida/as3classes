@@ -48,7 +48,6 @@
 			@param ... statements Arguments to javascript. All arguments will be sent as parameters
 		 */
 		public static function javascript($javascriptFunction:String, ... statements):void {
-			trace("\n******************\n" + URL + " WARNING: Statements are not passed as JSON array anymore. They go as native parameters.\n Modification made at: 14/8/2008 11:31 \n******************");
 			_arrURLQueue.push( { js: $javascriptFunction, args: statements } );
 			_start();
 		}
