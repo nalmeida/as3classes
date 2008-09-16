@@ -59,7 +59,7 @@ package as3classes.amf {
 			_gateway = new NetConnection();
 			_gateway.addEventListener(NetStatusEvent.NET_STATUS, _onNetStatus, false, 0, true);
 			_gateway.addEventListener(SecurityErrorEvent.SECURITY_ERROR, _securityError, false, 0, true);
-			_trace(AMFConnection + " connecting at: \"" _gatewayAddress + "\"");
+			_trace(AMFConnection + " connecting at: \"" + _gatewayAddress + "\"");
 			connect();
 		}
 
@@ -193,7 +193,7 @@ package as3classes.amf {
 			}
 			
 			if (_connected) {
-				if(_verbose){
+				if (_verbose) {
 					_trace("\n"+this+" call: "  + service + $method);
 					for (var k:String in $arguments) {
 						trace(k + ": " + $arguments[k] + " - type: " + typeof($arguments[k]));
