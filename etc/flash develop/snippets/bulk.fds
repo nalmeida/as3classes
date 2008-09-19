@@ -1,0 +1,37 @@
+﻿
+import br.com.stimuli.loading.BulkLoader;
+import br.com.stimuli.loading.BulkErrorEvent;
+import br.com.stimuli.loading.BulkProgressEvent;
+
+private function load():void{
+	$(Clipboard) = new BulkLoader(BulkLoader.getUniqueName());
+	addLoadListeners();
+	$(Clipboard).add(______ADDRESS______, {
+		id: ______ID______
+	});
+	$(Clipboard).start();
+}
+
+private function addLoadListeners():void {
+	$(Clipboard).addEventListener(BulkProgressEvent.COMPLETE, _onLoadComplete, false, 0, true);
+	$(Clipboard).addEventListener(BulkProgressEvent.PROGRESS, _onLoadProgress, false, 0, true);
+	$(Clipboard).addEventListener(BulkErrorEvent.ERROR, _onLoadError, false, 0, true);
+}
+private function removeLoadListeners():void {
+	$(Clipboard).removeEventListener(BulkProgressEvent.COMPLETE, _onLoadComplete);
+	$(Clipboard).removeEventListener(BulkProgressEvent.PROGRESS, _onLoadProgress);
+	$(Clipboard).removeEventListener(BulkErrorEvent.ERROR, _onLoadError);
+}
+private function _onLoadProgress($evt:BulkProgressEvent):void {
+	trace("<load> PROGRESS: "+ $evt.percendLoaded);
+}
+private function _onLoadComplete($evt:BulkProgressEvent):void {
+	trace("<load> SUCCESS: "+ $evt.itemsLoaded);
+	$(Clipboard).getContent(______ID______) as Sprite;
+	removeLoadListeners();
+}
+private function _onLoadError($evt:BulkErrorEvent):void {
+	trace("<load> ERROR: Error loading [" + $evt.errors+"]");
+	$(Clipboard).removeFailedItems();
+	removeLoadListeners();
+}
