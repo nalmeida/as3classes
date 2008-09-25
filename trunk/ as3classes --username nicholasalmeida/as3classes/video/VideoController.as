@@ -98,8 +98,8 @@
 		public const TYPE:String = "video";
 		
 		public function VideoController($flv:String = "", $video:Video = null, $duration:Number = NaN, $autoplay:Boolean = false, $loop:Boolean = false):void {
-			if ($flv != "") init($flv, $video, $duration, $autoplay, $loop);
 			loader = new BulkLoader(BulkLoader.getUniqueName());
+			if ($flv != "") init($flv, $video, $duration, $autoplay, $loop);
 		}
 		
 		public function init($flv:String, $video:Video, $duration:Number, $autoplay:Boolean = false, $loop:Boolean = false):void {
