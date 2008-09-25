@@ -345,7 +345,7 @@
 				case "NetStream.Play.Stop":
 					dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_COMPLETE, this));
 					_trace("! VideoController complete.");
-					if (loop) rewind();
+					if (loop) seek(0);
 					else pause();
 					break;
 			}
