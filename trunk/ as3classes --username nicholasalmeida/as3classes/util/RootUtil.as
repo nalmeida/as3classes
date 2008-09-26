@@ -15,6 +15,7 @@
 	 */
 	public class RootUtil extends Sprite {
 		
+		private static var _arrFlashVars:Array = [];
 		private static var _documentClass:Sprite;
 		
 		/**
@@ -23,7 +24,7 @@
 			@param $documentClass Document Class
 			@return none
 		 */
-		public static function setRoot($documentClass:Sprite):void {
+		public static function init($documentClass:Sprite):void {
 			_documentClass = $documentClass;
 		}
 		
@@ -43,15 +44,32 @@
 			@param $defaultValue Default value if $varName is null.
 			@return	returnValue The Flashvars variable. If is running on Flash IDE returns $defaultValue else $varName value.
 		 */
-		public static function getFlashvar($varName:String, $defaultValue:String):* {
+		public static function getFlashvar($varName:String, $defaultValue:String = null):* {
 			var returnValue:String;
 			try {
 				returnValue = getRoot().root.loaderInfo.parameters[$varName];
-				if (!returnValue) returnValue = $defaultValue;
+				if (!returnValue) {
+					if ($defaultValue == null) $defaultValue = $varName;
+					returnValue = $defaultValue;
+				}
 			} catch (e:Error) {
 				returnValue = $defaultValue;
 			}
+			
+			_arrFlashVars.push( {variable:$varName, value:$defaultValue } );
+			
 			return returnValue;
+		}
+		
+		/**
+		 * Lists all variagles got by Flashvars or if it's running inside flash the defaultValues.
+		 */
+		public static function listFlashvar():void {
+			for (var i:int = 0; i < _arrFlashVars.length; i++) {
+				trace(" Flashvar list");
+				trace(" " + _arrFlashVars[i].variable + ":\"" + _arrFlashVars[i].value + "\"");
+				trace(" ------------------------------------------------------ ");
+			}
 		}
 	}
 }
