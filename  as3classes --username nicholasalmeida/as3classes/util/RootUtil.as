@@ -65,11 +65,11 @@
 		 * Lists all variagles got by Flashvars or if it's running inside flash the defaultValues.
 		 */
 		public static function listFlashvar():void {
+			trace(" Flashvar list ---------------------------------------- ");
 			for (var i:int = 0; i < _arrFlashVars.length; i++) {
-				trace(" Flashvar list");
 				trace(" " + _arrFlashVars[i].variable + ":\"" + _arrFlashVars[i].value + "\"");
-				trace(" ------------------------------------------------------ ");
 			}
+			trace(" ------------------------------------------------------ ");
 		}
 	}
 }
