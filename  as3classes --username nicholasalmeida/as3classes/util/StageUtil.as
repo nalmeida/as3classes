@@ -31,6 +31,12 @@
 		
 		private static var _documentClass:DisplayObject;
 		
+		public static var minWidth:Number = -1;
+		public static var maxWidth:Number = -1;
+		
+		public static var minHeight:Number = -1;
+		public static var maxHeight:Number = -1;
+		
 		/**
 			Inits the StageUtil class
 			
@@ -62,7 +68,14 @@
 		 * @return Number
 		 */
 		public static function get width():Number {
-			return getStage().stage.stageWidth;
+			var n:Number = getStage().stage.stageWidth;
+			if (maxWidth != -1) {
+				if (n > maxWidth) n = maxWidth;
+			}
+			if (minWidth != -1) {
+				if (n < minWidth) n = minWidth;
+			}
+			return n;
 		}
 		
 		/**
@@ -80,7 +93,14 @@
 		 * @return Number
 		 */
 		public static function get height():Number {
-			return getStage().stage.stageHeight;
+			var n:Number = getStage().stage.stageHeight;
+			if (maxHeight != -1) {
+				if (n > maxHeight) n = maxHeight;
+			}
+			if (minHeight != -1) {
+				if (n < minHeight) n = minHeight;
+			}
+			return n;
 		}	
 		
 		/**
