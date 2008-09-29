@@ -59,7 +59,7 @@
 			@return _documentClass
 		 */
 		public static function getStage():DisplayObject {
-			return _documentClass;
+			return _documentClass.stage;
 		}
 		
 		/**
