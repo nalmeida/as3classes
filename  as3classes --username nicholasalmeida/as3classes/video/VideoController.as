@@ -152,8 +152,12 @@
 		public function set netStream($netStream:NetStream):void {
 			if (_netStream == null) {
 				_netStream = $netStream;
-				_connect();
-				_netStream.addEventListener(NetStatusEvent.NET_STATUS, _onNetStatus, false, 0, true);
+				try {
+					_connect();
+					_netStream.addEventListener(NetStatusEvent.NET_STATUS, _onNetStatus, false, 0, true);
+				} catch (e:Error) {
+					trace(e);
+				}
 			}
 		}
 		
