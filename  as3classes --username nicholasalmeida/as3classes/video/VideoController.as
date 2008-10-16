@@ -153,8 +153,8 @@
 			if (_netStream == null) {
 				_netStream = $netStream;
 				try {
-					_connect();
-					_netStream.addEventListener(NetStatusEvent.NET_STATUS, _onNetStatus, false, 0, true);
+				_connect();
+				_netStream.addEventListener(NetStatusEvent.NET_STATUS, _onNetStatus, false, 0, true);
 				} catch (e:Error) {
 					trace(e);
 				}
@@ -274,7 +274,7 @@
 			loader.add(flv , {id: flvId, type: BulkLoader.TYPE_VIDEO, pausedAtStart: true});
 			
 			loader.addEventListener(BulkProgressEvent.PROGRESS, _onLoadProgress, false, 0, true);
-			loader.addEventListener(BulkProgressEvent.COMPLETE, _onLoadComplete, false, 0, true);
+			loader.addEventListener(BulkProgressEvent.COMPLETE, _onLoadComplete);
 			loader.addEventListener(BulkErrorEvent.ERROR, _onLoadError, false, 0, true);
 			
 			loader.start();
@@ -291,6 +291,11 @@
 		}
 		
 		private function _onLoadComplete(evt:BulkProgressEvent):void {
+			
+			if (netStream == null) {
+				_attachVideo();
+			}
+			
 			dispatchEvent(new VideoControllerEvent(VideoControllerEvent.LOAD_COMPLETE, this));
 			
 			loader.removeEventListener(BulkProgressEvent.PROGRESS, _onLoadProgress);
@@ -300,18 +305,22 @@
 		private function _onLoadProgress(evt:BulkProgressEvent):void {
 			
 			_percentLoaded = evt.percentLoaded;
-			
-			if (_percentLoaded > playAfterLoad && !avaliable) {
-				netStream = loader.getNetStream(flvId);
-				video.attachNetStream(netStream);
-				avaliable = true;
-				dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_START, this));
-				addEventListener(Event.ENTER_FRAME, _onEnterFrame, false, 0, true);
-				
-				volume = _volume; // restoring the volume
+
+			if (_percentLoaded > playAfterLoad && !avaliable && loader.getNetStream(flvId) != null) {
+				_attachVideo();
 			}
 			
 			dispatchEvent(new VideoControllerEvent(VideoControllerEvent.LOAD_PROGRESS, this));
+		}
+		
+		private function _attachVideo():void {
+			netStream = loader.getNetStream(flvId);
+			video.attachNetStream(netStream);
+			avaliable = true;
+			dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_START, this));
+			addEventListener(Event.ENTER_FRAME, _onEnterFrame, false, 0, true);
+			
+			volume = _volume; // restoring the volume
 		}
 		 
 		private function _onEnterFrame(evt:Event):void {

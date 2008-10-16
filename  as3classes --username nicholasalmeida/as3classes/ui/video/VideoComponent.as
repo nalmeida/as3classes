@@ -3,6 +3,7 @@ package as3classes.ui.video{
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.geom.Point;
 	import flash.media.Video;
 	import flash.events.MouseEvent;
 	import flash.display.MovieClip;
@@ -113,10 +114,8 @@ package as3classes.ui.video{
 			
 			fld_time.addEventListener(MouseEvent.CLICK, changeTimeMode, false, 0, true);
 			
-			volumeBt.addEventListener(MouseEvent.CLICK, _openVolume, false, 0, true);
 			volumeBt.addEventListener(MouseEvent.MOUSE_OVER, _openVolume, false, 0, true);
 			volumeBt.addEventListener(MouseEvent.ROLL_OVER, _overBt, false, 0, true);
-			volumeBt.addEventListener(MouseEvent.ROLL_OUT, _closeVolume, false, 0, true);
 			
 			control = new VideoController();
 				control.addEventListener(VideoControllerEvent.LOAD_START, _onLoadInit, false, 0, true);
@@ -196,7 +195,6 @@ package as3classes.ui.video{
 			
 			fld_time.removeEventListener(MouseEvent.CLICK, changeTimeMode);
 			
-			volumeBt.removeEventListener(MouseEvent.CLICK, _openVolume);
 			volumeBt.removeEventListener(MouseEvent.MOUSE_OVER, _openVolume);
 			volumeBt.removeEventListener(MouseEvent.ROLL_OVER, _overBt);
 			volumeBt.removeEventListener(MouseEvent.ROLL_OUT, _closeVolume);
@@ -320,9 +318,7 @@ package as3classes.ui.video{
 		}
 		
 		public function enableControls():void {
-			volumeBt.buttonMode = 
 			volumeBt.mouseEnabled = 
-			volumeBt.useHandCursor = 
 			
 			fld_time.mouseEnabled = 
 			
@@ -398,18 +394,80 @@ package as3classes.ui.video{
 		 */
 		
 		private function _closeVolume(evt:MouseEvent):void {
-			volumeBt.alpha = .5;
-			Tweener.addTween(volumeTrackSlider, { alpha:0, time: .3, transition: "linear", onComplete: function():void { volumeTrackSlider.visible = false; } } );
+			volumeBt.alpha = 1;
+			Tweener.addTween(volumeTrackSlider, {
+				alpha:0,
+				time: .3,
+				transition: "linear",
+				onComplete: function():void {
+					resetVolumeSlider();
+					volumeTrackSlider.visible = false;
+					volumeBt.alpha = .5;
+				}
+			});
+
+			volumeBt.removeEventListener(MouseEvent.MOUSE_OUT, _closeVolume);
+			volumeBt.addEventListener(MouseEvent.MOUSE_OVER, _openVolume);
 		}
 		
 		private function _openVolume(evt:MouseEvent):void {
-			volumeTrackSlider.alpha = 1;
+
+			volumeBt.addEventListener(MouseEvent.MOUSE_OUT, _closeVolume);
+			volumeBt.removeEventListener(MouseEvent.MOUSE_OVER, _openVolume);
+			
+			volumeBt.alpha = 1;
+			
 			volumeTrackSlider.visible = true;
+			Tweener.pauseTweens(volumeTrackSlider, "alpha");
+			Tweener.addTween(volumeTrackSlider, { 
+				alpha: 1, 
+				time: .3, 
+				transition: "linear"
+			});
+			
+			resetVolumeSlider();
+			_sliderVolume = new Slider(volumeSlider, volumeTrack, (1 - control.volume), true, true);
+				_sliderVolume.addEventListener(Slider.EVENT_CHANGE, _onVolumeChange);
+				_sliderVolume.addEventListener(Slider.EVENT_PRESS, _disableVolumeOut);
+				_sliderVolume.addEventListener(Slider.EVENT_RELEASE, _enableVolumeOut);
 		}
 		
 		private function _onVolumeChange(evt:Event):void {
 			control.volume = (1-_sliderVolume.percent);
 		}
+		private function _enableVolumeOut(e:Event):void {
+			volumeBt.addEventListener(MouseEvent.MOUSE_OUT, _closeVolume);
+			
+			var _objectsUnderPoint:Array = volumeBt.parent.getObjectsUnderPoint(new Point(volumeBt.parent.mouseX, volumeBt.parent.mouseY));
+			var i:int;
+			var isUnder:Boolean = false;
+			for (i = 0; i < _objectsUnderPoint.length; i++) {
+				if (_objectsUnderPoint[i].parent.name === "background") {
+					isUnder = true;
+					break;
+				}
+			}
+			if (isUnder === false) {
+				_closeVolume(null);
+			}
+		}
+		private function _disableVolumeOut(e:Event):void {
+			volumeBt.removeEventListener(MouseEvent.MOUSE_OUT, _closeVolume);
+		}
+
+		private function resetVolumeSlider():void {
+			if(_sliderVolume != null){
+				_sliderVolume.removeEventListener(Slider.EVENT_CHANGE, _onVolumeChange);
+				_sliderVolume.removeEventListener(Slider.EVENT_PRESS, _disableVolumeOut);
+				_sliderVolume.removeEventListener(Slider.EVENT_RELEASE, _enableVolumeOut);
+				_sliderVolume.destroy();
+				_sliderVolume = null;
+			}
+		}
+
+
+		
+		
 		 
 		private function _onReleaseSlider(evt:Event):void {
 			
