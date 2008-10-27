@@ -5,7 +5,7 @@
 	
 	public class GadgetInteraction {
 		
-		public static var ANALYTICS_CODE:String = 0;
+		public static var ANALYTICS_CODE:String = "0";
 		private static var time:Number;
 		
 		public static function call($obj:Object):void {
