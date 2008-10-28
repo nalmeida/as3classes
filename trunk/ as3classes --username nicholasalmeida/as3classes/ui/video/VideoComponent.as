@@ -115,8 +115,10 @@ package as3classes.ui.video{
 			
 			fld_time.addEventListener(MouseEvent.CLICK, changeTimeMode, false, 0, true);
 			
+			volumeBt.addEventListener(MouseEvent.CLICK, _openVolume, false, 0, true);
 			volumeBt.addEventListener(MouseEvent.MOUSE_OVER, _openVolume, false, 0, true);
 			volumeBt.addEventListener(MouseEvent.ROLL_OVER, _overBt, false, 0, true);
+			volumeBt.addEventListener(MouseEvent.ROLL_OUT, _closeVolume, false, 0, true);
 			
 			control = new VideoController();
 				control.addEventListener(VideoControllerEvent.LOAD_START, _onLoadInit, false, 0, true);
@@ -140,6 +142,8 @@ package as3classes.ui.video{
 				
 			_sliderVolume = new Slider(volumeSlider, volumeTrack, 0, true, true);
 				_sliderVolume.addEventListener(Slider.EVENT_CHANGE, _onVolumeChange, false, 0, true);
+				_sliderVolume.addEventListener(Slider.EVENT_PRESS, _disableVolumeOut);
+				_sliderVolume.addEventListener(Slider.EVENT_RELEASE, _enableVolumeOut);
 				
 			volumeTrackSlider.visible = false;
 			
@@ -255,6 +259,7 @@ package as3classes.ui.video{
 		 * @param	$duration time in MILLISECONDS. Ex.: 52 sec = 52000 milliseconds
 		 */
 		public function changeVideo($flv:String, $duration:Number):void {
+			trace("flv: " + flv);
 			flv = $flv;
 			duration = Math.round(int($duration * 1000)) / 1000;
 			duration = duration / 1000;
@@ -401,7 +406,6 @@ package as3classes.ui.video{
 				time: .3,
 				transition: "linear",
 				onComplete: function():void {
-					resetVolumeSlider();
 					volumeTrackSlider.visible = false;
 					volumeBt.alpha = .5;
 				}
@@ -425,12 +429,6 @@ package as3classes.ui.video{
 				time: .3, 
 				transition: "linear"
 			});
-			
-			resetVolumeSlider();
-			_sliderVolume = new Slider(volumeSlider, volumeTrack, (1 - control.volume), true, true);
-				_sliderVolume.addEventListener(Slider.EVENT_CHANGE, _onVolumeChange);
-				_sliderVolume.addEventListener(Slider.EVENT_PRESS, _disableVolumeOut);
-				_sliderVolume.addEventListener(Slider.EVENT_RELEASE, _enableVolumeOut);
 		}
 		
 		private function _onVolumeChange(evt:Event):void {
