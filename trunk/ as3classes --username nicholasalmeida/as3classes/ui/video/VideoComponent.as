@@ -8,6 +8,7 @@ package as3classes.ui.video{
 	import flash.events.MouseEvent;
 	import flash.display.MovieClip;
 	import flash.text.TextField;
+	import flash.utils.setTimeout;
 	
 	import caurina.transitions.Tweener;
 	import as3classes.video.YouTubeDecoder;
@@ -132,10 +133,10 @@ package as3classes.ui.video{
 				control.addEventListener(VideoControllerEvent.VIDEO_PAUSE, _onVideoPause, false, 0, true);
 				control.addEventListener(VideoControllerEvent.VIDEO_STOP, _onVideoStop, false, 0, true);
 			
-			//_sliderControl = new Slider(slider, track, 0, true);
-				//_sliderControl.addEventListener(Slider.EVENT_PRESS, pause, false, 0, true);
-				//_sliderControl.addEventListener(Slider.EVENT_RELEASE, _onReleaseSlider, false, 0, true);
-				//_sliderControl.addEventListener(Slider.EVENT_CHANGE, _onReleaseSlider, false, 0, true);
+			_sliderControl = new Slider(slider, track, 0, true);
+				_sliderControl.addEventListener(Slider.EVENT_PRESS, pause, false, 0, true);
+				_sliderControl.addEventListener(Slider.EVENT_RELEASE, _onReleaseSlider, false, 0, true);
+				_sliderControl.addEventListener(Slider.EVENT_CHANGE, _onMoveSlider, false, 0, true);
 				
 			_sliderVolume = new Slider(volumeSlider, volumeTrack, 0, true, true);
 				_sliderVolume.addEventListener(Slider.EVENT_CHANGE, _onVolumeChange, false, 0, true);
@@ -225,12 +226,12 @@ package as3classes.ui.video{
 				control = null;
 			}
 			
-			//_sliderControl.removeEventListener(Slider.EVENT_PRESS, pause);
-			//_sliderControl.removeEventListener(Slider.EVENT_RELEASE, _onReleaseSlider);
-			//_sliderControl.removeEventListener(Slider.EVENT_CHANGE, _onReleaseSlider);
+			_sliderControl.removeEventListener(Slider.EVENT_PRESS, pause);
+			_sliderControl.removeEventListener(Slider.EVENT_RELEASE, _onReleaseSlider);
+			_sliderControl.removeEventListener(Slider.EVENT_CHANGE, _onMoveSlider);
 			
-			//_sliderControl.destroy();
-			//_sliderControl = null;
+			_sliderControl.destroy();
+			_sliderControl = null;
 			
 			video.parent.removeChild(video);
 			
@@ -470,13 +471,20 @@ package as3classes.ui.video{
 		
 		 
 		private function _onReleaseSlider(evt:Event):void {
+			setTimeout(play, 250);
+		}
+		
+		private function _onMoveSlider(evt:Event):void {
 			
 			if (slider.x > track.width) {
 				slider.x = track.width;
 			}
 			
 			var calc:Number = ((duration * slider.x ) / _trackSize);
-				calc = (int(calc * 1000) / 1000);
+				calc = (int(calc * 10) / 10);
+				calc = calc - (calc / 10);
+				
+				trace("calc: " + calc);
 			
 			control.seek(calc);
 		}
