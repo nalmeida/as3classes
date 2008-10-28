@@ -172,7 +172,9 @@ package as3classes.ui.video{
 				}
 			}
 			
-			video = new Video(videoWidth, videoHeight);
+			video = new Video();
+			video.width = videoWidth;
+			video.height = videoHeight;
 			holder.addChild(video);
 			
 			if (flv != null) {
@@ -183,6 +185,7 @@ package as3classes.ui.video{
 				//throw new Error("* ERROR [VideoComponent]: you MUST define flv file.");
 				_changeVideo();
 			}
+			
 			
 		}
 		
@@ -259,7 +262,6 @@ package as3classes.ui.video{
 		 * @param	$duration time in MILLISECONDS. Ex.: 52 sec = 52000 milliseconds
 		 */
 		public function changeVideo($flv:String, $duration:Number):void {
-			trace("flv: " + flv);
 			flv = $flv;
 			duration = Math.round(int($duration * 1000)) / 1000;
 			duration = duration / 1000;
@@ -482,8 +484,6 @@ package as3classes.ui.video{
 				calc = (int(calc * 10) / 10);
 				calc = calc - (calc / 10);
 				
-				trace("calc: " + calc);
-			
 			control.seek(calc);
 		}
 		 
