@@ -16,7 +16,7 @@
 	 
 	 
 		public static function onLoadError(e:*):void { // ErrorEvent or IOErrorEvent
-			trace("ERROR");
+			trace("ERROR" + e);
 		}
 
 		public static function onLoadProgress(e:ProgressEvent):void {
@@ -65,7 +65,7 @@
 			loader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, _onLoadError);
 		}
 		
-		private function _onLoadError(e:Event):void {
+		private function _onLoadError(e:*):void {
 			dispatchEvent(e);
 		}
 		
@@ -89,9 +89,16 @@
 			whatToLoad = $whatToLoad;
 			percentLoaded = 0;
 			content = null;
-			loader.load(new URLRequest(whatToLoad));
+			try {
+				loader.load(new URLRequest(whatToLoad));
+			} catch (e:Error) {
+				trace(this + " ERROR : " + whatToLoad + " not found");
+			}
 		}
 		
+		public override function toString():String {
+			return "[SimpleLoader]";
+		}
 	}
 	
 }
