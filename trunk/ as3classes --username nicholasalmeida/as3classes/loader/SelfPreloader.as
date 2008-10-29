@@ -32,8 +32,8 @@
 			
 			RootUtil.init(this);
 			
-			addEventListener(Event.ENTER_FRAME, onEnterFrame, false, 0, true);
-			loaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onIOError, false, 0, true);
+			addEventListener(Event.ENTER_FRAME, onEnterFrame);
+			loaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
 			
 			init();
 		}
