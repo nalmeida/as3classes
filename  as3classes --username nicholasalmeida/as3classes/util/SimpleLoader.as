@@ -1,4 +1,4 @@
-﻿package src.as3classes.util {
+﻿package as3classes.util {
 	
 	/**
 	 * Very Simple Content Loader
