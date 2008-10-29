@@ -4,6 +4,7 @@
 	import flash.display.MovieClip;
 	import flash.events.ProgressEvent;
 	import flash.events.Event;
+	import flash.events.IOErrorEvent;
 	
 	
 	public class MainPreloader extends MovieClip {
@@ -21,8 +22,13 @@
 			super();
 			stop();
 			
-			loaderInfo.addEventListener(ProgressEvent.PROGRESS, progressHandler, false, 0, true);
-			loaderInfo.addEventListener(Event.COMPLETE, completeHandler, false, 0, true);
+			loaderInfo.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+			loaderInfo.addEventListener(Event.COMPLETE, completeHandler);
+			loaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
+		}
+		
+		private function onIOError(event:IOErrorEvent):void {
+			trace("IOErrorEvent");
 		}
 		
 		private function progressHandler(event:ProgressEvent):void {
