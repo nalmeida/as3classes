@@ -1,5 +1,6 @@
 package as3classes.ui.video{
 	
+	import as3classes.ui.loader.LoaderIcon;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -40,6 +41,7 @@ package as3classes.ui.video{
 		public var video:Video;
 		public var duration:Number = 0;
 		public var autoPlay:Boolean = false;
+		public var autoLoad:Boolean = true;
 		public var loop:Boolean = false;
 		public var videoWidth:int = 320;
 		public var videoHeight:int = 240;
@@ -50,6 +52,8 @@ package as3classes.ui.video{
 		public var verbose:Boolean = false;
 		
 		public var mc:Sprite;
+			public var bigLoader:LoaderIcon;
+			public var startLoading:Sprite;
 			public var background:Sprite;
 			public var controlerBackground:Sprite;
 			public var playerControl:Sprite;
@@ -77,11 +81,13 @@ package as3classes.ui.video{
 		private var _trackSize:Number = 0;
 		
 		
-		private const VALID_PROPS:Array = ["videoWidth", "videoHeight", "loop", "autoPlay", "duration", "flv", "youtube", "playAfterLoad", "timeRegressive"];
+		private const VALID_PROPS:Array = ["videoWidth", "videoHeight", "loop", "autoPlay", "autoLoad", "duration", "flv", "youtube", "playAfterLoad", "timeRegressive"];
 		
 		public function VideoComponent($mc:*, $initObj:Object = null):void{
 			
 			mc = $mc as Sprite;
+				bigLoader = new LoaderIcon(mc, mc.getChildByName("bigLoader") as MovieClip);
+				startLoading = mc.getChildByName("startLoading") as Sprite;
 				background = mc.getChildByName("background") as Sprite;
 				playerControl = mc.getChildByName("playerControl") as Sprite;
 					controlerBackground = playerControl.getChildByName("background") as MovieClip;
@@ -101,17 +107,19 @@ package as3classes.ui.video{
 					
 				holder = mc.getChildByName("holder") as Sprite;
 			
+			bigLoader.hide();
+				
 			// Start Buttons
 			
 			holder.addEventListener(MouseEvent.CLICK, playPause, false, 0, true);
 			
 			playPauseBt.addEventListener(MouseEvent.CLICK, playPause, false, 0, true);
-			playPauseBt.addEventListener(MouseEvent.MOUSE_OVER, _overBt, false, 0, true);
-			playPauseBt.addEventListener(MouseEvent.MOUSE_OUT, _outBt, false, 0, true);
+			//playPauseBt.addEventListener(MouseEvent.MOUSE_OVER, _overBt, false, 0, true);
+			//playPauseBt.addEventListener(MouseEvent.MOUSE_OUT, _outBt, false, 0, true);
 			
 			rewindBt.addEventListener(MouseEvent.CLICK, rewind, false, 0, true);
-			rewindBt.addEventListener(MouseEvent.MOUSE_OVER, _overBt, false, 0, true);
-			rewindBt.addEventListener(MouseEvent.MOUSE_OUT, _outBt, false, 0, true);
+			//rewindBt.addEventListener(MouseEvent.MOUSE_OVER, _overBt, false, 0, true);
+			//rewindBt.addEventListener(MouseEvent.MOUSE_OUT, _outBt, false, 0, true);
 			
 			fld_time.addEventListener(MouseEvent.CLICK, changeTimeMode, false, 0, true);
 			
@@ -144,6 +152,10 @@ package as3classes.ui.video{
 				_sliderVolume.addEventListener(Slider.EVENT_CHANGE, _onVolumeChange, false, 0, true);
 				_sliderVolume.addEventListener(Slider.EVENT_PRESS, _disableVolumeOut);
 				_sliderVolume.addEventListener(Slider.EVENT_RELEASE, _enableVolumeOut);
+				
+			startLoading.buttonMode = true;
+			startLoading.mouseChildren = false;
+			startLoading.addEventListener(MouseEvent.CLICK, _clickStarLoading, false, 0, true);
 				
 			volumeTrackSlider.visible = false;
 			
@@ -183,9 +195,9 @@ package as3classes.ui.video{
 					duration = duration / 1000;
 				}
 				//throw new Error("* ERROR [VideoComponent]: you MUST define flv file.");
-				_changeVideo();
+				if(autoLoad == true)
+					_changeVideo();
 			}
-			
 			
 		}
 		
@@ -292,6 +304,17 @@ package as3classes.ui.video{
 			track.scaleX = 0;
 		}
 		
+				
+		private function _clickStarLoading(e:MouseEvent = null):void {
+			autoPlay = true;
+			_changeVideo();
+		}
+		private function _hideStarLoading():void {
+			if(startLoading.parent != null){
+				startLoading.parent.removeChild(startLoading);
+			}
+		}
+		
 		public function rewind(evt:MouseEvent):void {
 			control.rewind();
 			slider.x = 0;
@@ -342,6 +365,10 @@ package as3classes.ui.video{
 			playPauseBt.mouseEnabled = 
 			playPauseBt.useHandCursor = true;
 			
+			volumeBt.alpha = 
+			rewindBt.alpha = 
+			playPauseBt.alpha = 1;
+
 			trackSlider.mouseChildren = true;
 		}
 		
@@ -385,6 +412,7 @@ package as3classes.ui.video{
 				_onVideoProgress(null);
 			}
 		}
+		
 		
 		/**
 		 * Private
@@ -488,6 +516,10 @@ package as3classes.ui.video{
 		}
 		 
 		private function _startVideoLoading():void {
+			
+			_hideStarLoading();
+			
+			bigLoader.show();
 			control.verbose = verbose;
 			control.playAfterLoad = playAfterLoad;
 			control.init(flv, video, duration, autoPlay, loop);
@@ -570,6 +602,7 @@ package as3classes.ui.video{
 		
 		private function _onVideoPlay(evt:VideoControllerEvent):void {
 			playPauseBt.gotoAndStop("_pause");
+			bigLoader.hide();
 		}
 		
 		private function _onVideoPause(evt:VideoControllerEvent):void {

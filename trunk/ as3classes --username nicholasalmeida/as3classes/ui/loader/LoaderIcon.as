@@ -20,6 +20,7 @@
 		private var _parent:DisplayObjectContainer;
 		private var _animationScope:MovieClip;
 		private var _position:Point;
+		private var _visible:Boolean;
 		private var _scale:Number;
 		
 		public function LoaderIcon($parent:DisplayObjectContainer, $container:MovieClip, $animationScope:MovieClip = null, $position:Point = null, $scale:Number = 1):void {
@@ -47,6 +48,7 @@
 		private function _showComplete():void {
 			_container.alpha = 1;
 			dispatchEvent(new Event(SHOW_COMPLETE));
+			_visible = true;
 		}
 		private function _hideComplete():void {
 			_container.alpha = 0;
@@ -56,10 +58,10 @@
 				_container.parent.removeChild(_container);
 			}
 			dispatchEvent(new Event(HIDE_COMPLETE));
+			_visible = false;
 		}
 		
 		public function show($fx:Boolean = true):void {
-			trace("show");
 			dispatchEvent(new Event(SHOW_START));
 			_initTransition();
 			if ($fx === true) {
@@ -69,7 +71,6 @@
 			}
 		}
 		public function hide($fx:Boolean = true):void {
-			trace("hide");
 			dispatchEvent(new Event(HIDE_START));
 			_initTransition();
 			if ($fx === true) {
@@ -81,6 +82,15 @@
 		
 		public function get container():MovieClip { return _container; }
 		public function get animationScope():MovieClip { return _animationScope; }
+		
+		public function set visible($value:Boolean):void {
+			if (_visible === true) {
+				show(false);
+			} else {
+				hide(false);
+			}
+		}
+		public function get visible():Boolean { return _visible; }
 		
 		public override function toString():String {
 			return "[LoaderIcon]";
