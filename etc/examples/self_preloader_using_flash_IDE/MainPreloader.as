@@ -22,9 +22,13 @@
 			super();
 			stop();
 			
-			loaderInfo.addEventListener(ProgressEvent.PROGRESS, progressHandler);
-			loaderInfo.addEventListener(Event.COMPLETE, completeHandler);
-			loaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
+			if (loaderInfo.bytesLoaded == loaderInfo.bytesTotal) {
+				completeHandler();
+			}else{
+				loaderInfo.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+				loaderInfo.addEventListener(Event.COMPLETE, completeHandler);
+				loaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
+			}
 		}
 		
 		private function onIOError(event:IOErrorEvent):void {
@@ -38,7 +42,7 @@
 			trace(_percent);
 		}
 		
-		private function completeHandler(event:Event):void {
+		private function completeHandler(event:Event = null):void {
 			loaderInfo.removeEventListener(ProgressEvent.PROGRESS, progressHandler);
 			loaderInfo.removeEventListener(Event.COMPLETE, completeHandler);
 			main();
