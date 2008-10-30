@@ -5,6 +5,7 @@
 	import flash.events.ProgressEvent;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
+	import flash.events.ErrorEvent;
 	
 	
 	public class MainPreloader extends MovieClip {
@@ -28,23 +29,35 @@
 				loaderInfo.addEventListener(ProgressEvent.PROGRESS, progressHandler);
 				loaderInfo.addEventListener(Event.COMPLETE, completeHandler);
 				loaderInfo.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
+				loaderInfo.addEventListener(ErrorEvent.ERROR, onError);
 			}
 		}
 		
-		private function onIOError(event:IOErrorEvent):void {
-			trace("IOErrorEvent");
+		private function onError(e:ErrorEvent):void {
+			trace(this + " ErrorEvent" + e);
 		}
 		
-		private function progressHandler(event:ProgressEvent):void {
-			_loaded = event.bytesLoaded;
-			_total = event.bytesTotal;
+		
+		private function onIOError(e:IOErrorEvent):void {
+			trace(this + " IOErrorEvent" + e);
+		}
+		
+		private function progressHandler(e:ProgressEvent):void {
+			_loaded = e.bytesLoaded;
+			_total = e.bytesTotal;
 			_percent = _loaded / _total;
 			trace(_percent);
 		}
 		
-		private function completeHandler(event:Event = null):void {
-			loaderInfo.removeEventListener(ProgressEvent.PROGRESS, progressHandler);
-			loaderInfo.removeEventListener(Event.COMPLETE, completeHandler);
+		private function completeHandler(e:Event = null):void {
+			try {
+				loaderInfo.removeEventListener(ProgressEvent.PROGRESS, progressHandler);
+				loaderInfo.removeEventListener(Event.COMPLETE, completeHandler);
+				loaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, onIOError);
+				loaderInfo.removeEventListener(ErrorEvent.ERROR, onError);
+			} catch (e:Error) {
+				
+			}
 			main();
 		}
 		
@@ -53,6 +66,10 @@
 			var programClass:Class = loaderInfo.applicationDomain.getDefinition(DOCUMENT_CLASS) as Class;
 			var program:Sprite = new programClass() as Sprite;
 			addChild(program);
+		}
+		
+		public override function toString():String {
+			return "[MainPreloader]";
 		}
 	}
 }
