@@ -8,11 +8,11 @@ package as3classes.ui.video{
 	import flash.media.Video;
 	import flash.events.MouseEvent;
 	import flash.display.MovieClip;
+	import flash.net.SharedObject;
 	import flash.text.TextField;
 	import flash.utils.setTimeout;
 	
 	import caurina.transitions.Tweener;
-	import as3classes.video.YouTubeDecoder;
 	import as3classes.video.VideoController;
 	import as3classes.video.VideoControllerEvent;
 	import redneck.ui.Slider;
@@ -23,9 +23,7 @@ package as3classes.ui.video{
 			videoControl = new VideoComponent(video);
 			videoControl.verbose = false;
 			videoControl.init( {
-				flv:"http://br.youtube.com/watch?v=Eu-SCI9Ks_Y",
-				// LONG VIDEO // flv:"http://br.youtube.com/watch?v=W1nhljdqf0E&feature=bz303",
-				youtube: true,
+				flv:"your_video.flv",
 				duration: 11712,
 				playAfterLoad: .25,
 				autoPlay: true,
@@ -41,13 +39,13 @@ package as3classes.ui.video{
 		public var video:Video;
 		public var duration:Number = 0;
 		public var autoPlay:Boolean = false;
-		public var autoLoad:Boolean = true;
+		public var autoLoad:Boolean = false;
 		public var loop:Boolean = false;
 		public var videoWidth:int = 320;
 		public var videoHeight:int = 240;
-		public var youtube:Boolean = false;
-		public var playAfterLoad:Number = .3;
+		public var playAfterLoad:Number = .2;
 		public var timeRegressive:Boolean = false;
+		public var rememberVolume:Boolean = false;
 		
 		public var verbose:Boolean = false;
 		
@@ -67,6 +65,7 @@ package as3classes.ui.video{
 					public var sliderBackground:Sprite;
 					
 					public var volumeBt:Sprite;
+						public var volumeWaves:Sprite;
 						public var volumeTrackSlider:Sprite;
 							public var volumeBackground:Sprite;
 							public var volumeSlider:Sprite;
@@ -74,14 +73,19 @@ package as3classes.ui.video{
 				
 			public var holder:Sprite;
 			
-		public var _ytdecoder:YouTubeDecoder;
 		public var control:VideoController;
+		public var isMute:Boolean = false;
+		
 		private var _sliderControl:Slider;
 		private var _sliderVolume:Slider;
 		private var _trackSize:Number = 0;
+		private var _currentVolume:Number = 1;
+		private var _volumeSliderPos:Number;
+		private var _soID:String;
 		
 		
-		private const VALID_PROPS:Array = ["videoWidth", "videoHeight", "loop", "autoPlay", "autoLoad", "duration", "flv", "youtube", "playAfterLoad", "timeRegressive"];
+		private const VALID_PROPS:Array = ["videoWidth", "videoHeight", "loop", "autoPlay", "autoLoad", "duration", "flv", "playAfterLoad", "timeRegressive","rememberVolume"];
+		private var so:SharedObject;
 		
 		public function VideoComponent($mc:*, $initObj:Object = null):void{
 			
@@ -100,6 +104,7 @@ package as3classes.ui.video{
 						sliderBackground = trackSlider.getChildByName("background") as Sprite;
 					
 					volumeBt = playerControl.getChildByName("volumeBt") as Sprite;
+						volumeWaves = volumeBt.getChildByName("volumeWaves") as Sprite;
 						volumeTrackSlider = volumeBt.getChildByName("volumeTrackSlider") as Sprite;
 							volumeBackground = volumeTrackSlider.getChildByName("background") as Sprite;
 							volumeTrack = volumeTrackSlider.getChildByName("track") as Sprite;
@@ -115,17 +120,12 @@ package as3classes.ui.video{
 			
 			playPauseBt.addEventListener(MouseEvent.CLICK, playPause, false, 0, true);
 			//playPauseBt.addEventListener(MouseEvent.MOUSE_OVER, _overBt, false, 0, true);
-			//playPauseBt.addEventListener(MouseEvent.MOUSE_OUT, _outBt, false, 0, true);
-			
 			rewindBt.addEventListener(MouseEvent.CLICK, rewind, false, 0, true);
-			//rewindBt.addEventListener(MouseEvent.MOUSE_OVER, _overBt, false, 0, true);
-			//rewindBt.addEventListener(MouseEvent.MOUSE_OUT, _outBt, false, 0, true);
 			
 			fld_time.addEventListener(MouseEvent.CLICK, changeTimeMode, false, 0, true);
 			
-			volumeBt.addEventListener(MouseEvent.CLICK, _openVolume, false, 0, true);
+			volumeBt.addEventListener(MouseEvent.CLICK, _clickVolume, false, 0, true);
 			volumeBt.addEventListener(MouseEvent.MOUSE_OVER, _openVolume, false, 0, true);
-			volumeBt.addEventListener(MouseEvent.ROLL_OVER, _overBt, false, 0, true);
 			volumeBt.addEventListener(MouseEvent.ROLL_OUT, _closeVolume, false, 0, true);
 			
 			control = new VideoController();
@@ -167,6 +167,8 @@ package as3classes.ui.video{
 			
 			disableControls();
 			track.scaleX = 0;
+			
+			fld_time.text = "00:00";
 		}
 		
 		public function init($initObj:Object):void {
@@ -188,6 +190,13 @@ package as3classes.ui.video{
 			video.width = videoWidth;
 			video.height = videoHeight;
 			holder.addChild(video);
+			
+			if (rememberVolume) {
+				_soID = this + "_volume_" + mc.name;
+				so = SharedObject.getLocal(_soID);
+				
+				trace(so.data.volume);
+			}
 			
 			if (flv != null) {
 				if(duration != 0) {
@@ -215,15 +224,9 @@ package as3classes.ui.video{
 			
 			fld_time.removeEventListener(MouseEvent.CLICK, changeTimeMode);
 			
+			volumeBt.removeEventListener(MouseEvent.CLICK, _clickVolume);
 			volumeBt.removeEventListener(MouseEvent.MOUSE_OVER, _openVolume);
-			volumeBt.removeEventListener(MouseEvent.ROLL_OVER, _overBt);
 			volumeBt.removeEventListener(MouseEvent.ROLL_OUT, _closeVolume);
-			
-			if(_ytdecoder != null){
-				_ytdecoder.removeEventListener(Event.COMPLETE, _onDecodeYoutubeVideo);
-				_ytdecoder.destroy();
-				_ytdecoder = null;
-			}
 			
 			if(control != null){
 				control.removeEventListener(VideoControllerEvent.LOAD_START, _onLoadInit);
@@ -290,14 +293,7 @@ package as3classes.ui.video{
 		}
 		
 		private function _changeVideo():void {
-			if (youtube) {
-				_ytdecoder = new YouTubeDecoder();
-				_ytdecoder.decodeURL(flv);
-				_ytdecoder.addEventListener(Event.COMPLETE, _onDecodeYoutubeVideo);
-				_trace("[VideoComponent] Requesting YouTube video: " + flv);
-			} else {
-				_startVideoLoading();
-			}
+			_startVideoLoading();
 			
 			disableControls();
 			fld_time.text = (timeRegressive ? "-" : "" ) + "00:00";
@@ -324,7 +320,7 @@ package as3classes.ui.video{
 			try {
 				control.play();
 			} catch (e:Error) {
-				trace("[VideoComponent] play WARNING. control = null");
+				trace("["+this+"] play WARNING. control = null");
 			}
 		}
 		
@@ -332,7 +328,7 @@ package as3classes.ui.video{
 			try {
 				control.pause();
 			} catch (e:Error) {
-				trace("[VideoComponent] play WARNING. control = null");
+				trace("["+this+"] play WARNING. control = null");
 			}
 		}
 		
@@ -340,7 +336,7 @@ package as3classes.ui.video{
 			try {
 				control.stop();
 			} catch (e:Error) {
-				trace("[VideoComponent] stop WARNING. control = null");
+				trace("["+this+"] stop WARNING. control = null");
 			}
 		}
 		
@@ -413,6 +409,31 @@ package as3classes.ui.video{
 			}
 		}
 		
+		public function muteUnmute(...arg):void {
+			if (isMute) {
+				unmute();
+			} else {
+				mute();
+			}
+		}
+		
+		public function unmute(...arg):void {
+			control.volume = _currentVolume;
+			volumeSlider.y = _volumeSliderPos;
+			volumeWaves.visible = true;
+			isMute = false;
+			_setSOVolume(_currentVolume);
+		}
+		
+		public function mute(...arg):void {
+			control.volume = 0;
+			_volumeSliderPos = volumeSlider.y;
+			volumeSlider.y = volumeTrack.y + volumeTrack.height - volumeSlider.height;
+			volumeWaves.visible = false;
+			isMute = true;
+			_setSOVolume(0);
+		}
+		
 		
 		/**
 		 * Private
@@ -430,27 +451,32 @@ package as3classes.ui.video{
 		 */
 		
 		private function _closeVolume(evt:MouseEvent):void {
-			volumeBt.alpha = 1;
 			Tweener.addTween(volumeTrackSlider, {
 				alpha:0,
 				time: .3,
 				transition: "linear",
 				onComplete: function():void {
 					volumeTrackSlider.visible = false;
-					volumeBt.alpha = .5;
 				}
 			});
 
 			volumeBt.removeEventListener(MouseEvent.MOUSE_OUT, _closeVolume);
 			volumeBt.addEventListener(MouseEvent.MOUSE_OVER, _openVolume);
 		}
+			
+		private function _clickVolume(evt:MouseEvent):void {
+			if (evt.target.name == "volumeBt") {
+				if (isMute) {
+					unmute();
+				} else {
+					mute();
+				}
+			}
+		}
 		
 		private function _openVolume(evt:MouseEvent):void {
-
 			volumeBt.addEventListener(MouseEvent.MOUSE_OUT, _closeVolume);
 			volumeBt.removeEventListener(MouseEvent.MOUSE_OVER, _openVolume);
-			
-			volumeBt.alpha = 1;
 			
 			volumeTrackSlider.visible = true;
 			Tweener.pauseTweens(volumeTrackSlider, "alpha");
@@ -462,7 +488,17 @@ package as3classes.ui.video{
 		}
 		
 		private function _onVolumeChange(evt:Event):void {
-			control.volume = (1-_sliderVolume.percent);
+			
+			_currentVolume = (1 - _sliderVolume.percent);
+			control.volume = _currentVolume;
+			_setSOVolume(_currentVolume);
+			
+			if (_currentVolume <= 0) {
+				mute();
+			} else {
+				volumeWaves.visible = true;
+			}
+			
 		}
 		private function _enableVolumeOut(e:Event):void {
 			volumeBt.addEventListener(MouseEvent.MOUSE_OUT, _closeVolume);
@@ -493,10 +529,6 @@ package as3classes.ui.video{
 				_sliderVolume = null;
 			}
 		}
-
-
-		
-		
 		 
 		private function _onReleaseSlider(evt:Event):void {
 			setTimeout(play, 250);
@@ -526,47 +558,44 @@ package as3classes.ui.video{
 			
 		}
 		
-		private function _onDecodeYoutubeVideo(evt:*):void {
-			flv = _ytdecoder.flvPath;
-			
-			_ytdecoder.removeEventListener(Event.COMPLETE, _onDecodeYoutubeVideo);
-			_ytdecoder = null;
-			
-			_startVideoLoading();
-			_trace("[VideoComponent] YouTube video decoded. Flv: " + flv);
-		}
-		
 		private function _onLoadError(evt:VideoControllerEvent):void {
 			disableControls();
-			_trace("[VideoComponent] Video loader ERROR." + evt.errorMessage + " Flv: " + evt.errorFile);
+			_trace("["+this+"] Video loader ERROR." + evt.errorMessage + " Flv: " + evt.errorFile);
 		}
 		
 		private function _onLoadInit(evt:VideoControllerEvent):void {
-			_trace("[VideoComponent] Video loader started. Flv: " + flv);
+			_trace("["+this+"] Video loader started. Flv: " + flv);
 			holder.visible = true;
 		}
 		
 		private function _onLoadProgress(evt:VideoControllerEvent):void {
-			_trace("[VideoComponent] Video loaded: " + evt.percentLoaded);
+			_trace("["+this+"] Video loaded: " + evt.percentLoaded);
 			track.scaleX = evt.percentLoaded;
 		}
 		
 		private function _onLoadComplete(evt:VideoControllerEvent):void {
-			_trace("[VideoComponent] Video loader complete.");
+			_trace("["+this+"] Video loader complete.");
 		}
 		
 		private function _onVideoError(evt:VideoControllerEvent):void {
-			_trace("[VideoComponent] Video ERROR." + evt.errorMessage + " Flv: " + evt.errorFile);
+			_trace("["+this+"] Video ERROR." + evt.errorMessage + " Flv: " + evt.errorFile);
 			disableControls();
 		}
 		
 		private function _onVideoStart(evt:VideoControllerEvent):void {
+			if(rememberVolume){
+				control.volume = so.data.volume;
+				volumeSlider.y = so.data.posSlider;
+				if (so.data.volume <= 0) {
+					volumeWaves.visible = false;
+				}
+			}
 			enableControls();
-			_trace("[VideoComponent] Video started.");
+			_trace("["+this+"] Video started.");
 		}
 		
 		private function _onVideoComplete(evt:VideoControllerEvent):void {
-			_trace("[VideoComponent] Video complete.");
+			_trace("["+this+"] Video complete.");
 		}
 		
 		private function _onVideoProgress(evt:*):void {
@@ -576,7 +605,7 @@ package as3classes.ui.video{
 				 */
 				slider.x = ((Math.ceil(evt.percentPlayed * 1000)/1000) * _trackSize);
 				slider.x = slider.x < 0 ? 0 : slider.x;
-				_trace("[VideoComponent] Video played: " + evt.percentPlayed + "\ttime: " + control.time);
+				_trace("["+this+"] Video played: " + evt.percentPlayed + "\ttime: " + control.time);
 			}
 			
 			/**
@@ -613,6 +642,15 @@ package as3classes.ui.video{
 			playPauseBt.gotoAndStop("_play");
 		}
 		
+				
+		private function _setSOVolume(vol:Number):void {
+			if(rememberVolume){
+				so.data.volume = vol;
+				so.data.posSlider = volumeSlider.y;
+				so.flush();
+			}
+		}
+		
 		/**
 		 * Private function to trace if verbose is true.
 		 * @param	str
@@ -622,5 +660,10 @@ package as3classes.ui.video{
 				trace(str);
 			}
 		}
+		
+		public override function toString():String {
+			return "VideoComponent";
+		}
+		
 	}
 }
