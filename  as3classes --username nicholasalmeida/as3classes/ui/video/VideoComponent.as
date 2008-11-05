@@ -20,15 +20,17 @@ package as3classes.ui.video{
 	
 	/**
 	 <code>
-			videoControl = new VideoComponent(video);
-			videoControl.verbose = false;
-			videoControl.init( {
-				flv:"your_video.flv",
-				duration: 11712,
-				playAfterLoad: .25,
-				autoPlay: true,
-				timeRegressive: false
-			} );
+		import as3classes.ui.video.VideoComponent;
+
+		var videoControl:VideoComponent = new VideoComponent(video);
+		videoControl.verbose = false;
+		videoControl.init( {
+			flv:"http://interface.desenv/util/exemplo_5.flv",
+			duration: 5000,
+			playAfterLoad: .25,
+			timeRegressive: false,
+			rememberVolume: true
+		} );
 	 </code>
 	 */
 	//TODO: Slider do vídeo
