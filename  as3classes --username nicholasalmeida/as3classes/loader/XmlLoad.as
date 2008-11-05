@@ -1,4 +1,4 @@
-﻿package as3classes.util {
+﻿package as3classes.loader {
 	import flash.events.DataEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
@@ -11,7 +11,7 @@
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	
-	import as3classes.util.XmlLoadEvent;
+	import as3classes.loader.XmlLoadEvent;
 	import com.adobe.utils.StringUtil;
 	import flash.utils.setTimeout;
 	
