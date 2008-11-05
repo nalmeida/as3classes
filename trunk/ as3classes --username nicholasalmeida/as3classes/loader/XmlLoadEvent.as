@@ -1,4 +1,4 @@
-﻿package as3classes.util {
+﻿package as3classes.loader {
 	import flash.events.*;
 	
 	public class XmlLoadEvent extends Event{
