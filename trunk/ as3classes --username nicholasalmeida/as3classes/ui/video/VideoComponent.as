@@ -51,6 +51,8 @@ package as3classes.ui.video{
 		
 		public var verbose:Boolean = false;
 		
+		public var sharedObjectName:String = "";
+		
 		public var mc:Sprite;
 			public var bigLoader:LoaderIcon;
 			public var startLoading:Sprite;
@@ -83,7 +85,6 @@ package as3classes.ui.video{
 		private var _trackSize:Number = 0;
 		private var _currentVolume:Number = 1;
 		private var _volumeSliderPos:Number;
-		private var _soID:String;
 		
 		
 		private const VALID_PROPS:Array = ["videoWidth", "videoHeight", "loop", "autoPlay", "autoLoad", "duration", "flv", "playAfterLoad", "timeRegressive","rememberVolume"];
@@ -194,8 +195,9 @@ package as3classes.ui.video{
 			holder.addChild(video);
 			
 			if (rememberVolume) {
-				_soID = this + "_volume_" + mc.name;
-				so = SharedObject.getLocal(_soID);
+				if (sharedObjectName == "") sharedObjectName = this + "_volume_" + mc.name;
+				
+				so = SharedObject.getLocal(sharedObjectName);
 				
 				trace(so.data.volume);
 			}
