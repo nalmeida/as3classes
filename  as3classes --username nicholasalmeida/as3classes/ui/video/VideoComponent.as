@@ -196,10 +196,7 @@ package as3classes.ui.video{
 			
 			if (rememberVolume) {
 				if (sharedObjectName == "") sharedObjectName = this + "_volume_" + mc.name;
-				
 				so = SharedObject.getLocal(sharedObjectName);
-				
-				trace(so.data.volume);
 			}
 			
 			if (flv != null) {
@@ -589,7 +586,9 @@ package as3classes.ui.video{
 		private function _onVideoStart(evt:VideoControllerEvent):void {
 			if(rememberVolume){
 				control.volume = so.data.volume;
-				volumeSlider.y = so.data.posSlider;
+				if(so.data.posSlider != undefined) {
+					volumeSlider.y = so.data.posSlider;
+				}
 				if (so.data.volume <= 0) {
 					volumeWaves.visible = false;
 				}
