@@ -1,7 +1,6 @@
 ﻿package as3classes.util {
 	
 	import flash.display.Sprite;
-	import com.adobe.serialization.json.*;
 	
 	/**
 		Root class. Create a global class to access the main root sprite.
