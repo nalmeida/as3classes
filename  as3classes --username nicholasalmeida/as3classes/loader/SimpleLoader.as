@@ -13,17 +13,19 @@
 			loader.addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 			
 		loader.load("your_swf.swf");
+		
+		// or holder.addChild(loader.loader); // Used when you load AS2 SWFs
 	 
 	 
-		public static function onLoadError(e:*):void { // ErrorEvent or IOErrorEvent
+		public function onLoadError(e:*):void { // ErrorEvent or IOErrorEvent
 			trace("ERROR" + e);
 		}
 
-		public static function onLoadProgress(e:ProgressEvent):void {
+		public function onLoadProgress(e:ProgressEvent):void {
 			trace("% loaded: " + loader.percentLoaded);
 		}
 
-		public static function onLoadComplete(e:Event):void {
+		public function onLoadComplete(e:Event):void {
 			holder.addChild(loader.content as MovieClip);
 		}
 		
@@ -37,6 +39,7 @@
 	import flash.events.ProgressEvent;
 	import flash.events.EventDispatcher;
 	import flash.net.URLRequest;
+	import flash.system.LoaderContext;
 		
 	public class SimpleLoader extends EventDispatcher{
 		
@@ -44,8 +47,10 @@
 		public var whatToLoad:String;
 		public var percentLoaded:Number;
 		public var content:*;
+		public var context:LoaderContext;
 		
-		public function SimpleLoader() {}
+		public function SimpleLoader() {
+		}
 		
 		private function _addListeners():void {
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, _onLoadComplete, false, 0, true);
@@ -71,11 +76,15 @@
 		
 		private function _onLoadProgress(e:Event):void {
 			dispatchEvent(e);
-			percentLoaded = loader.contentLoaderInfo.bytesTotal / loader.contentLoaderInfo.bytesTotal;
+			percentLoaded = loader.contentLoaderInfo.bytesLoaded / loader.contentLoaderInfo.bytesTotal;
 		}
 		
 		private function _onLoadComplete(e:Event):void {
-			content = loader.content;
+			try {
+				content = loader.content;
+			} catch (e:Error) {
+				trace("**************************************** " + this + " _onLoadComplete ERROR. Unable to read \"loader.content\"\n****************************************");
+			}
 			dispatchEvent(e);
 			_removeListeners();
 		}
@@ -91,8 +100,9 @@
 			} catch(e:Error){}
 		}
 		
-		public function load($whatToLoad:String):void {
+		public function load($whatToLoad:String, $context:LoaderContext = null):void {
 			whatToLoad = $whatToLoad;
+			context = $context;
 			percentLoaded = 0;
 			content = null;
 			
