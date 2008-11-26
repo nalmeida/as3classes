@@ -36,7 +36,7 @@
 			control.addEventListener(VideoControllerEvent.VIDEO_ERROR, _onError);
 			
 			
-			control.init(FLV_FILE, video, 7, true, true);
+			control.init(FLV_FILE, video, true, true);
 			
 			stage.addEventListener(MouseEvent.CLICK, _playPause );
 		}
@@ -89,7 +89,7 @@
 		public var loop:Boolean;
 		
 		public var loader:BulkLoader;
-		public var playAfterLoad:Number = .3;
+		public var playAfterLoad:Number = .2;
 		public var avaliable:Boolean = false;
 		
 		public var _percentLoaded:Number = 0;
@@ -97,12 +97,12 @@
 		
 		public const TYPE:String = "video";
 		
-		public function VideoController($flv:String = "", $video:Video = null, $duration:Number = NaN, $autoplay:Boolean = false, $loop:Boolean = false):void {
+		public function VideoController($flv:String = "", $video:Video = null, $autoplay:Boolean = false, $loop:Boolean = false):void {
 			loader = new BulkLoader(BulkLoader.getUniqueName());
-			if ($flv != "") init($flv, $video, $duration, $autoplay, $loop);
+			if ($flv != "") init($flv, $video, $autoplay, $loop);
 		}
 		
-		public function init($flv:String, $video:Video, $duration:Number, $autoplay:Boolean = false, $loop:Boolean = false):void {
+		public function init($flv:String, $video:Video, $autoplay:Boolean = false, $loop:Boolean = false):void {
 			try{
 				flv = $flv;
 			} catch (e:Error) {
@@ -113,12 +113,6 @@
 				video = $video;
 			} catch (e:Error) {
 				throw new Error("* ERROR [VideoController]: you MUST define $video target.");
-			}
-			
-			try{
-				_duration = Math.round(int($duration * 1000)) / 1000;
-			} catch (e:Error) {
-				throw new Error("* ERROR [VideoController]: you MUST define $duration time.");
 			}
 			
 			autoPlay = $autoplay;
@@ -153,8 +147,8 @@
 			if (_netStream == null) {
 				_netStream = $netStream;
 				try {
-				_connect();
-				_netStream.addEventListener(NetStatusEvent.NET_STATUS, _onNetStatus, false, 0, true);
+					_connect();
+					_netStream.addEventListener(NetStatusEvent.NET_STATUS, _onNetStatus, false, 0, true);
 				} catch (e:Error) {
 					trace(e);
 				}
@@ -315,6 +309,12 @@
 		
 		private function _attachVideo():void {
 			netStream = loader.getNetStream(flvId);
+			try {
+				_duration = Math.round(int(loader.getNetStreamMetaData(flvId).duration * 1000)) / 1000;
+			} catch (e:Error) {
+				_duration = 0;
+			}
+
 			video.attachNetStream(netStream);
 			avaliable = true;
 			dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_START, this));

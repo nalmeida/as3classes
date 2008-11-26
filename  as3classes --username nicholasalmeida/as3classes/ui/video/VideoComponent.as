@@ -26,7 +26,6 @@ package as3classes.ui.video{
 		videoControl.verbose = false;
 		videoControl.init( {
 			flv:"http://interface.desenv/util/exemplo_5.flv",
-			duration: 5000,
 			playAfterLoad: .25,
 			timeRegressive: false,
 			rememberVolume: true
@@ -87,7 +86,7 @@ package as3classes.ui.video{
 		private var _volumeSliderPos:Number;
 		
 		
-		private const VALID_PROPS:Array = ["videoWidth", "videoHeight", "loop", "autoPlay", "autoLoad", "duration", "flv", "playAfterLoad", "timeRegressive","rememberVolume"];
+		private const VALID_PROPS:Array = ["videoWidth", "videoHeight", "loop", "autoPlay", "autoLoad", "flv", "playAfterLoad", "timeRegressive","rememberVolume"];
 		private var so:SharedObject;
 		
 		public function VideoComponent($mc:*, $initObj:Object = null):void{
@@ -200,11 +199,6 @@ package as3classes.ui.video{
 			}
 			
 			if (flv != null) {
-				if(duration != 0) {
-					duration = Math.round(int(duration * 1000)) / 1000;
-					duration = duration / 1000;
-				}
-				//throw new Error("* ERROR [VideoComponent]: you MUST define flv file.");
 				if(autoLoad == true)
 					_changeVideo();
 			}
@@ -275,12 +269,9 @@ package as3classes.ui.video{
 		/**
 		 * 
 		 * @param	$flv FLV file path
-		 * @param	$duration time in MILLISECONDS. Ex.: 52 sec = 52000 milliseconds
 		 */
-		public function changeVideo($flv:String, $duration:Number):void {
+		public function changeVideo($flv:String):void {
 			flv = $flv;
-			duration = Math.round(int($duration * 1000)) / 1000;
-			duration = duration / 1000;
 			
 			// External Call of change Video
 			if (control.avaliable) {
@@ -424,6 +415,8 @@ package as3classes.ui.video{
 			volumeWaves.visible = true;
 			isMute = false;
 			_setSOVolume(_currentVolume);
+			
+			_trace("[" + this + "] volume UNMUTE.");
 		}
 		
 		public function mute(...arg):void {
@@ -433,6 +426,8 @@ package as3classes.ui.video{
 			volumeWaves.visible = false;
 			isMute = true;
 			_setSOVolume(0);
+			
+			_trace("[" + this + "] volume MUTE.");
 		}
 		
 		
@@ -541,7 +536,7 @@ package as3classes.ui.video{
 				slider.x = track.width;
 			}
 			
-			var calc:Number = ((duration * slider.x ) / _trackSize);
+			var calc:Number = ((control.duration * slider.x ) / _trackSize);
 				calc = (int(calc * 10) / 10);
 				calc = calc - (calc / 10);
 				
@@ -555,7 +550,7 @@ package as3classes.ui.video{
 			bigLoader.show();
 			control.verbose = verbose;
 			control.playAfterLoad = playAfterLoad;
-			control.init(flv, video, duration, autoPlay, loop);
+			control.init(flv, video, autoPlay, loop);
 			
 		}
 		
@@ -647,6 +642,9 @@ package as3classes.ui.video{
 		
 				
 		private function _setSOVolume(vol:Number):void {
+			
+			_trace("[" + this + "] volume changed:" + vol);
+			
 			if(rememberVolume){
 				so.data.volume = vol;
 				so.data.posSlider = volumeSlider.y;
