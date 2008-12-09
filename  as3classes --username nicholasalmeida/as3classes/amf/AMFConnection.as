@@ -15,15 +15,15 @@ package as3classes.amf {
 	* @since 15/8/2008 15:44
 	* @usage
 	
+		AMFConnection.verbose = true;
 		AMFConnection.init("http://localhost/app/Gateway.aspx");
 		AMFConnection.service = "Service.Class";
-		AMFConnection.verbose = true;
 		
-		var amfGet= new AMFConnection();
+		var amfGet:AMFConnection = new AMFConnection("myMethod");
 		amfGet.addEventListener(AMFConnectionEvent.COMPLETE, _onCompleteAMF);
 		amfGet.addEventListener(AMFConnectionEvent.ERROR, _onErrorAMF);
 		
-		amfGet.call("myMethod", 123);
+		amfGet.call(123);
 		
 		...
 		
