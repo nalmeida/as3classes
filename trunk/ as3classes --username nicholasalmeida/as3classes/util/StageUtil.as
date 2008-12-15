@@ -118,6 +118,7 @@
 		}
 		
 		private static function _resizeHandler(event:Event = null):void {
+			if (disp == null) { disp = new EventDispatcher(); }
 			disp.dispatchEvent(new Event(Event.RESIZE));
 		}
 		
