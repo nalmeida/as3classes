@@ -40,6 +40,7 @@ package as3classes.ui.form {
 			mc = $mc as Sprite;
 				fld_text = mc.getChildByName("fld_text") as TextField;
 				checkboxState = mc.getChildByName("mcState") as MovieClip;
+				checkboxState.stop();
 				//background = mc.getChildByName("mcBg") as Sprite;
 			
 			if ($initObj != null) {
