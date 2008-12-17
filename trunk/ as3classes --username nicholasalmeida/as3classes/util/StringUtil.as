@@ -62,7 +62,7 @@
 			}
 			return source;
 		}
-		
+		*/
 		// Original from: http://www.actionscript.org/forums/showthread.php3?t=111952
 		public static function replaceSpecialHTMLChars(str:String):String {
 			if(!str) return "";
@@ -158,12 +158,11 @@
 
 			while(str.indexOf('&') != -1 ){ // if it finds other occurences of the & symbol
 				for(var entity:String in aryEntities){
-					str =  replace(str, entity, aryEntities[entity]);
+					str =  str.replace(entity, aryEntities[entity]);
 				}
 			}
 			return str;
 		}
-		*/
 
 	}
 }
