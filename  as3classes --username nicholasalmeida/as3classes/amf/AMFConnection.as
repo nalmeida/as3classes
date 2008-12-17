@@ -2,6 +2,7 @@ package as3classes.amf {
 	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.events.IOErrorEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.events.NetStatusEvent;
@@ -59,6 +60,7 @@ package as3classes.amf {
 			_gateway = new NetConnection();
 			_gateway.addEventListener(NetStatusEvent.NET_STATUS, _onNetStatus, false, 0, true);
 			_gateway.addEventListener(SecurityErrorEvent.SECURITY_ERROR, _securityError, false, 0, true);
+			_gateway.addEventListener(IOErrorEvent.IO_ERROR, _IOError, false, 0, true);
 			_trace(AMFConnection + " connecting at: \"" + _gatewayAddress + "\"");
 			connect();
 		}
@@ -82,7 +84,7 @@ package as3classes.amf {
 				_connected = true;
 				_trace(AMFConnection + " connected.");
 			} catch (e:*) {
-				trace(e);
+				trace("[ERROR] AMFConnection.connect: " + e);
 			}
 		}
 		
@@ -105,10 +107,16 @@ package as3classes.amf {
 			close();
 			_gateway.removeEventListener(NetStatusEvent.NET_STATUS, _onNetStatus);
 			_gateway.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, _securityError);
+			_gateway.removeEventListener(IOErrorEvent.IO_ERROR, _IOError);
 			
 			_connected = false;
 			_gateway = null;
 			_trace(AMFConnection + " destroy.");
+		}
+		
+		private static function _IOError(e:IOErrorEvent):void {
+			_trace(AMFConnection + " IO ERROR. " + e.text)
+			dispatchEvent(new AMFConnectionEvent(AMFConnectionEvent.ERROR, { description: AMFConnection + " IO ERROR. " + e.text }));
 		}
 		
 		private static function _securityError(e:SecurityErrorEvent):void {
