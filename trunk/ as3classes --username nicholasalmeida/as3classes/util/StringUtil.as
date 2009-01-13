@@ -36,7 +36,7 @@
 			{val:"U",let:"ÚÙÛÜ"},
 			{val:"U",let:"Ç"}
 		];
-		public static function replaceSpecialChars($value:String, $spaceSymbol:String = "_"):String {
+		public static function replaceSpecialChars($value:String, $spaceSymbol:String = "-"):String {
 			var regex:RegExp;
 			var returnString:String = $value;
 			for (var i:int = 0; i < specialChars.length; i++) {
@@ -48,6 +48,19 @@
 		}
 		public static function convertToURI($value:String):String {
 			return replaceSpecialChars($value).replace(/[^a-zA-Z0-9_\.\-]/g, "-");
+		}
+		public static function leftZero($number:Number, $quantityOfLeftZeros:int = 2):String {
+
+			var qlz:int = $quantityOfLeftZeros;
+			var zeros:Array = [];
+			var i:int;
+			
+			for (i = 0; i < qlz; i++) {
+				zeros.push("0");
+			}
+			zeros.splice(0, $number.toString().length);
+
+			return zeros.join("")+$number.toString();
 		}
 		/**
 			Replaces all special characters.
