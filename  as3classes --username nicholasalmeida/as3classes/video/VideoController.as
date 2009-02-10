@@ -1,6 +1,7 @@
 ﻿package as3classes.video {
 	
 	import flash.display.Sprite;
+	import flash.events.ErrorEvent;
 	import flash.events.EventDispatcher;
 	import flash.media.Video;
 	import flash.net.NetStream;
@@ -8,9 +9,9 @@
 	import flash.events.Event;
 	import flash.media.Video;
 	import flash.media.SoundTransform;
+	import flash.utils.setTimeout;
 	
 	import br.com.stimuli.loading.BulkLoader;
-	import br.com.stimuli.loading.BulkErrorEvent;
 	import br.com.stimuli.loading.BulkProgressEvent;
 	
 	import as3classes.video.VideoControllerEvent;
@@ -129,7 +130,7 @@
 			
 			loader.removeEventListener(BulkProgressEvent.PROGRESS, _onLoadProgress);
 			loader.removeEventListener(BulkProgressEvent.COMPLETE, _onLoadComplete);
-			loader.removeEventListener(BulkErrorEvent.ERROR, _onLoadError);
+			loader.removeEventListener(ErrorEvent.ERROR, _onLoadError);
 			loader = null;
 			
 			removeEventListener(Event.ENTER_FRAME, _onEnterFrame);
@@ -269,14 +270,14 @@
 			
 			loader.addEventListener(BulkProgressEvent.PROGRESS, _onLoadProgress, false, 0, true);
 			loader.addEventListener(BulkProgressEvent.COMPLETE, _onLoadComplete);
-			loader.addEventListener(BulkErrorEvent.ERROR, _onLoadError, false, 0, true);
+			loader.addEventListener(ErrorEvent.ERROR, _onLoadError, false, 0, true);
 			
 			loader.start();
 			
 			dispatchEvent(new VideoControllerEvent(VideoControllerEvent.LOAD_START, this));
 		}
 		 
-		private function _onLoadError(evt:BulkErrorEvent):void {
+		private function _onLoadError(evt:ErrorEvent):void {
 			dispatchEvent(new VideoControllerEvent(VideoControllerEvent.LOAD_ERROR, this));
 			loader.removeFailedItems();
 			
@@ -293,7 +294,7 @@
 			dispatchEvent(new VideoControllerEvent(VideoControllerEvent.LOAD_COMPLETE, this));
 			
 			loader.removeEventListener(BulkProgressEvent.PROGRESS, _onLoadProgress);
-			loader.removeEventListener(BulkErrorEvent.ERROR, _onLoadError);
+			loader.removeEventListener(ErrorEvent.ERROR, _onLoadError);
 		}
 		
 		private function _onLoadProgress(evt:BulkProgressEvent):void {
@@ -308,13 +309,12 @@
 		}
 		
 		private function _attachVideo():void {
-			netStream = loader.getNetStream(flvId);
-			try {
-				_duration = Math.round(int(loader.getNetStreamMetaData(flvId).duration * 1000)) / 1000;
-			} catch (e:Error) {
-				_duration = 0;
+			if (loader.getNetStreamMetaData(flvId) === null) {
+				setTimeout(_attachVideo, 500);
+				return;
 			}
-
+			netStream = loader.getNetStream(flvId);
+			_duration = Math.round(int(loader.getNetStreamMetaData(flvId).duration * 1000)) / 1000;
 			video.attachNetStream(netStream);
 			avaliable = true;
 			dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_START, this));
