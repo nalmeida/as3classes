@@ -237,6 +237,7 @@
 		
 		public function stop():void {
 			try {
+				isPlaying = false;
 				netStream.pause();
 				seek(0);
 				_trace("! VideoController.stop called at: " + netStream.time);
