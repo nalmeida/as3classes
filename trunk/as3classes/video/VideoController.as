@@ -288,7 +288,6 @@
 		
 		private function _onLoadComplete(evt:BulkProgressEvent):void {
 			
-			trace("[VideoController._onLoadComplete] (netStream == null): " + (netStream == null));
 			if (netStream == null) {
 				_attachVideo();
 			}
