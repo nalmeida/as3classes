@@ -288,6 +288,7 @@
 		
 		private function _onLoadComplete(evt:BulkProgressEvent):void {
 			
+			trace("[VideoController._onLoadComplete] (netStream == null): " + (netStream == null));
 			if (netStream == null) {
 				_attachVideo();
 			}
@@ -310,6 +311,7 @@
 		}
 		
 		private function _attachVideo():void {
+			if (avaliable === true){ return;}
 			if (loader.getNetStreamMetaData(flvId) === null) {
 				setTimeout(_attachVideo, 500);
 				return;
@@ -320,7 +322,6 @@
 			avaliable = true;
 			dispatchEvent(new VideoControllerEvent(VideoControllerEvent.VIDEO_START, this));
 			addEventListener(Event.ENTER_FRAME, _onEnterFrame, false, 0, true);
-			
 			volume = _volume; // restoring the volume
 		}
 		 
