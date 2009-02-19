@@ -33,6 +33,7 @@
 			
 			_container.x = _position.x;
 			_container.y = _position.y;
+			_container.scaleX = _container.scaleY = _scale;
 			
 			_position = null;
 		}
