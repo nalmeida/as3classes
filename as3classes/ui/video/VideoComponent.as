@@ -11,6 +11,7 @@ package as3classes.ui.video{
 	import flash.net.SharedObject;
 	import flash.text.TextField;
 	import flash.utils.setTimeout;
+	import redneck.events.SliderEvent;
 	
 	import caurina.transitions.Tweener;
 	import as3classes.video.VideoController;
@@ -146,14 +147,14 @@ package as3classes.ui.video{
 				control.addEventListener(VideoControllerEvent.VIDEO_STOP, _onVideoStop, false, 0, true);
 			
 			_sliderControl = new Slider(slider, track, 0, true);
-				_sliderControl.addEventListener(Slider.EVENT_PRESS, pause, false, 0, true);
-				_sliderControl.addEventListener(Slider.EVENT_RELEASE, _onReleaseSlider, false, 0, true);
-				_sliderControl.addEventListener(Slider.EVENT_CHANGE, _onMoveSlider, false, 0, true);
+				_sliderControl.addEventListener(SliderEvent.ON_PRESS, pause, false, 0, true);
+				_sliderControl.addEventListener(SliderEvent.ON_RELEASE, _onReleaseSlider, false, 0, true);
+				_sliderControl.addEventListener(SliderEvent.ON_CHANGE, _onMoveSlider, false, 0, true);
 				
-			_sliderVolume = new Slider(volumeSlider, volumeTrack, 0, true, true);
-				_sliderVolume.addEventListener(Slider.EVENT_CHANGE, _onVolumeChange, false, 0, true);
-				_sliderVolume.addEventListener(Slider.EVENT_PRESS, _disableVolumeOut);
-				_sliderVolume.addEventListener(Slider.EVENT_RELEASE, _enableVolumeOut);
+			_sliderVolume = new Slider(volumeSlider, volumeTrack, 0, true, true, false);
+				_sliderVolume.addEventListener(SliderEvent.ON_CHANGE, _onVolumeChange, false, 0, true);
+				_sliderVolume.addEventListener(SliderEvent.ON_PRESS, _disableVolumeOut);
+				_sliderVolume.addEventListener(SliderEvent.ON_RELEASE, _enableVolumeOut);
 				
 			startLoading.buttonMode = true;
 			startLoading.mouseChildren = false;
@@ -188,10 +189,20 @@ package as3classes.ui.video{
 				}
 			}
 			
-			video = new Video();
+			bigLoader.hide();
+			_showStarLoading();
+			if(video == null){
+				video = new Video();
+			}else {
+				video.clear();
+				control.close();
+			}
 			video.width = videoWidth;
 			video.height = videoHeight;
-			holder.addChild(video);
+			
+			if (video.parent == null) {
+				holder.addChild(video);
+			}
 			
 			if (rememberVolume) {
 				if (sharedObjectName == "") sharedObjectName = this + "_volume_" + mc.name;
@@ -243,17 +254,19 @@ package as3classes.ui.video{
 				control = null;
 			}
 			
-			_sliderControl.removeEventListener(Slider.EVENT_PRESS, pause);
-			_sliderControl.removeEventListener(Slider.EVENT_RELEASE, _onReleaseSlider);
-			_sliderControl.removeEventListener(Slider.EVENT_CHANGE, _onMoveSlider);
+			_sliderControl.removeEventListener(SliderEvent.ON_PRESS, pause);
+			_sliderControl.removeEventListener(SliderEvent.ON_RELEASE, _onReleaseSlider);
+			_sliderControl.removeEventListener(SliderEvent.ON_CHANGE, _onMoveSlider);
 			
 			_sliderControl.destroy();
 			_sliderControl = null;
 			
-			video.parent.removeChild(video);
+			if(video != null)
+				if(video.parent != null)
+					video.parent.removeChild(video);
 			
 			if(_sliderVolume != null){
-				_sliderVolume.removeEventListener(Slider.EVENT_CHANGE, _onVolumeChange);
+				_sliderVolume.removeEventListener(SliderEvent.ON_CHANGE, _onVolumeChange);
 				_sliderVolume.destroy();
 				_sliderVolume = null;
 			}
@@ -298,9 +311,10 @@ package as3classes.ui.video{
 			_changeVideo();
 		}
 		private function _hideStarLoading():void {
-			if(startLoading.parent != null){
-				startLoading.parent.removeChild(startLoading);
-			}
+			startLoading.visible = false;
+		}
+		private function _showStarLoading():void {
+			startLoading.visible = true;
 		}
 		
 		public function rewind(evt:MouseEvent):void {
@@ -518,9 +532,9 @@ package as3classes.ui.video{
 
 		private function resetVolumeSlider():void {
 			if(_sliderVolume != null){
-				_sliderVolume.removeEventListener(Slider.EVENT_CHANGE, _onVolumeChange);
-				_sliderVolume.removeEventListener(Slider.EVENT_PRESS, _disableVolumeOut);
-				_sliderVolume.removeEventListener(Slider.EVENT_RELEASE, _enableVolumeOut);
+				_sliderVolume.removeEventListener(SliderEvent.ON_CHANGE, _onVolumeChange);
+				_sliderVolume.removeEventListener(SliderEvent.ON_PRESS, _disableVolumeOut);
+				_sliderVolume.removeEventListener(SliderEvent.ON_RELEASE, _enableVolumeOut);
 				_sliderVolume.destroy();
 				_sliderVolume = null;
 			}
@@ -570,7 +584,8 @@ package as3classes.ui.video{
 		}
 		
 		private function _onLoadComplete(evt:VideoControllerEvent):void {
-			_trace("["+this+"] Video loader complete.");
+			_trace("[" + this + "] Video loader complete.");
+			track.scaleX = 1;
 		}
 		
 		private function _onVideoError(evt:VideoControllerEvent):void {
