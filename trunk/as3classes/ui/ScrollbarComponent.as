@@ -5,6 +5,7 @@ package as3classes.ui {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.MouseEvent;
+	import redneck.events.SliderEvent;
 	
 	import redneck.ui.Slider;
 	import redneck.ui.Drag;
@@ -51,8 +52,8 @@ package as3classes.ui {
 			/**
 			 * Slider
 			 */
-			slider = new Slider(mcSlider, mcTrack, 0, true, true);
-			slider.addEventListener(Slider.EVENT_CHANGE, _onScrollChange, false, 0, true);
+			slider = new Slider(mcSlider, mcTrack, 0, true, true, false);
+			slider.addEventListener(SliderEvent.ON_CHANGE, _onScrollChange, false, 0, true);
 			
 			/**
 			 * Arrows
@@ -108,7 +109,7 @@ package as3classes.ui {
 			
 			_stopEnterframe(null);
 			
-			slider.removeEventListener(Slider.EVENT_CHANGE, _onScrollChange);
+			slider.removeEventListener(SliderEvent.ON_CHANGE, _onScrollChange);
 			slider.destroy();
 			
 			mc = null;

@@ -232,7 +232,7 @@ package as3classes.ui.form {
 			fld_text.x = padding.left;
 			fld_text.y = padding.top;
 			
-			background.width = objSize.w - (mcScroll.width * 2);
+			background.width = objSize.w - (mcScroll.width);
 			mcScroll.x = background.width;
 			background.height = objSize.h;
 			fld_text.width = background.width - padding.left - padding.right;
