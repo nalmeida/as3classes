@@ -52,18 +52,29 @@ package as3classes.ui {
 			/**
 			 * Slider
 			 */
+			
 			slider = new Slider(mcSlider, mcTrack, 0, true, true, false);
 			slider.addEventListener(SliderEvent.ON_CHANGE, _onScrollChange, false, 0, true);
 			
 			/**
 			 * Arrows
 			 */
-			mcUp.addEventListener(MouseEvent.MOUSE_DOWN, _startEnterframe, false, 0, true);
-			mcDown.addEventListener(MouseEvent.MOUSE_DOWN, _startEnterframe, false, 0, true);
-			
-			mcUp.stage.addEventListener(MouseEvent.MOUSE_UP, _stopEnterframe, false, 0, true);
-			mcDown.stage.addEventListener(MouseEvent.MOUSE_UP, _stopEnterframe, false, 0, true);
-			
+			mc.addEventListener(Event.ADDED_TO_STAGE, _onAddedToStage, false, 0, true);		
+		}
+		
+		private function _onAddedToStage(e:Event):void {
+			mc.removeEventListener(Event.ADDED_TO_STAGE, _onAddedToStage);
+			/**
+			 * Arrows
+			 */
+			if(!mcUp.hasEventListener(MouseEvent.MOUSE_DOWN)) {
+				mcUp.addEventListener(MouseEvent.MOUSE_DOWN, _startEnterframe, false, 0, true);
+				mcDown.addEventListener(MouseEvent.MOUSE_DOWN, _startEnterframe, false, 0, true);
+			}
+			if(!mcUp.stage.hasEventListener(MouseEvent.MOUSE_UP)) {
+				mcUp.stage.addEventListener(MouseEvent.MOUSE_UP, _stopEnterframe, false, 0, true);
+				mcDown.stage.addEventListener(MouseEvent.MOUSE_UP, _stopEnterframe, false, 0, true);
+			}
 		}
 		
 		public function adjustSizes():void {
