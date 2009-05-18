@@ -309,6 +309,31 @@
 				return false;
 			return true;
 		}
+		
+		/**
+		 * Validate date format
+		 * @param	day day of the date
+		 * @param	month month of the date
+		 * @param	year year of the date
+		 * @return
+		 */
+		public function isValidDate(day:int, month:int, year:int):Boolean {
+			if ( day < 1 || day > 31 )
+				return false;
+			if ( month == 2 && day > (isLeapYear(year) ? 29 : 28) )
+				return false;
+			if ( month < 1 || month > 12 )
+				return false;
+			return true;
+		}
+		/**
+		 * Returns if the year is a leap year
+		 * @param	ano year to be verified
+		 * @return
+		 */
+		public function isLeapYear(ano):int {
+			return (ano % 4 == 0 && (ano % 100 != 0 || ano % 400 == 0));
+		}
 
 		/**
 		 * Radiobutton validation
