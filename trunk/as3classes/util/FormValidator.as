@@ -317,7 +317,7 @@
 		 * @param	year year of the date
 		 * @return
 		 */
-		public function isValidDate(day:int, month:int, year:int):Boolean {
+		static public function isValidDate(day:int, month:int, year:int):Boolean {
 			if ( day < 1 || day > 31 )
 				return false;
 			if ( month == 2 && day > (isLeapYear(year) ? 29 : 28) )
@@ -331,7 +331,7 @@
 		 * @param	ano year to be verified
 		 * @return
 		 */
-		public function isLeapYear(ano):int {
+		static public function isLeapYear(ano):int {
 			return (ano % 4 == 0 && (ano % 100 != 0 || ano % 400 == 0));
 		}
 
