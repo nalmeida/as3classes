@@ -286,9 +286,7 @@
 			return true;
 		}
 		public static function _isCpf(cpf:String):Boolean{
-			trace("cpf to validade: " + cpf);
 			cpf = cpf.replace(/\.|-|\//g, "");
-			trace("cpf to validade: " + cpf);
 			if (cpf.length != 11 || cpf == "00000000000" || cpf == "11111111111" || cpf == "22222222222" || cpf == "33333333333" || cpf == "44444444444" || cpf == "55555555555" || cpf == "66666666666" || cpf == "77777777777" || cpf == "88888888888" || cpf == "99999999999")
 				return false;
 			var soma:Number = 0;
@@ -331,8 +329,8 @@
 		 * @param	ano year to be verified
 		 * @return
 		 */
-		static public function isLeapYear(ano):int {
-			return (ano % 4 == 0 && (ano % 100 != 0 || ano % 400 == 0));
+		static public function isLeapYear(year:int):Boolean {
+			return (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
 		}
 
 		/**
