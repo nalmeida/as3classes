@@ -58,9 +58,9 @@ package as3classes.amf {
 		public static function init($gatewayAddress:String):void {
 			_gatewayAddress = $gatewayAddress;
 			_gateway = new NetConnection();
-			_gateway.addEventListener(NetStatusEvent.NET_STATUS, _onNetStatus, false, 0, true);
-			_gateway.addEventListener(SecurityErrorEvent.SECURITY_ERROR, _securityError, false, 0, true);
-			_gateway.addEventListener(IOErrorEvent.IO_ERROR, _IOError, false, 0, true);
+			_gateway.addEventListener(NetStatusEvent.NET_STATUS, _onNetStatus);
+			_gateway.addEventListener(SecurityErrorEvent.SECURITY_ERROR, _securityError);
+			_gateway.addEventListener(IOErrorEvent.IO_ERROR, _IOError);
 			_trace(AMFConnection + " connecting at: \"" + _gatewayAddress + "\"");
 			connect();
 		}
@@ -84,7 +84,7 @@ package as3classes.amf {
 				_connected = true;
 				_trace(AMFConnection + " connected.");
 			} catch (e:*) {
-				trace("[ERROR] AMFConnection.connect: " + e);
+				_trace("[ERROR] AMFConnection.connect: " + e);
 			}
 		}
 		
@@ -182,7 +182,7 @@ package as3classes.amf {
 	
 		private var _id:String = "";
 		
-		public function AMFConnection($id:String = "") {
+		public function AMFConnection($id:String = "") { //$timeout:
 			_allInstances[_allInstances.length] = this;
 			_responder = new Responder(_onComplete, _onError);
 			_id = $id;
@@ -204,10 +204,10 @@ package as3classes.amf {
 				if (_verbose) {
 					_trace("\n"+this+" call: "  + service + $method);
 					for (var k:String in $arguments) {
-						trace(k + ": " + $arguments[k] + " - type: " + typeof($arguments[k]));
+						_trace(k + ": " + $arguments[k] + " - type: " + typeof($arguments[k]));
 						if(typeof($arguments[k]) == "object"){
 							for (var m:String in $arguments[k]) {
-								trace("\t" + m + ": " + $arguments[k][m]);
+								_trace("\t" + m + ": " + $arguments[k][m]);
 							}
 						}
 					}
@@ -218,6 +218,7 @@ package as3classes.amf {
 				_onError( { description:"Connection: \"" + _gatewayAddress + "\" closed." } );
 			}
 			tmpArr = null;
+			
 		}
 		
 

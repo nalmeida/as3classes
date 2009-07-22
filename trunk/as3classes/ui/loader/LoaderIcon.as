@@ -16,12 +16,12 @@
 		public const HIDE_COMPLETE:String = "hideComplete";
 		public const SHOW_START:String = "showStart";
 		public const HIDE_START:String = "hideStart";
-		private var _container:MovieClip;
-		private var _parent:DisplayObjectContainer;
-		private var _animationScope:MovieClip;
-		private var _position:Point;
-		private var _visible:Boolean;
-		private var _scale:Number;
+		protected var _container:MovieClip;
+		protected var _parent:DisplayObjectContainer;
+		protected var _animationScope:MovieClip;
+		protected var _position:Point;
+		protected var _visible:Boolean;
+		protected var _scale:Number;
 		
 		public function LoaderIcon($parent:DisplayObjectContainer, $container:MovieClip, $animationScope:MovieClip = null, $position:Point = null, $scale:Number = 1):void {
 			
@@ -39,20 +39,19 @@
 			_position = null;
 		}
 		
-		private function _initTransition():void {
-			if (_container.stage == null) {
+		protected function _initTransition():void {
+			if (_container.parent == null)
 				_parent.addChild(_container);
-			}
 			_animationScope.play();
 			_container.alpha = 0;
 			_container.visible = true;;
 		}
-		private function _showComplete():void {
+		protected function _showComplete():void {
 			_container.alpha = 1;
 			dispatchEvent(new Event(SHOW_COMPLETE));
 			_visible = true;
 		}
-		private function _hideComplete():void {
+		protected function _hideComplete():void {
 			_container.alpha = 0;
 			_container.visible = false;
 			_animationScope.stop();
