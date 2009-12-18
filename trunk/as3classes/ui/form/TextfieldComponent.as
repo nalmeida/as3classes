@@ -33,13 +33,14 @@ package as3classes.ui.form {
 		public var maxChars:Number = 0;
 		public var minChars:Number; // used on form validation only.
 		public var align:String = "left";
+		public var custom:Array;
 		public var equal:TextfieldComponent;
 		public var padding:Object = { top: 0, left: 0, right: 0 };
 		
 		public static var listenersWeakReference:Boolean = true;
 		//
 		
-		private const VALID_PROPS:Array = ["title", "type", "selectable", "tabIndex", "required", "restrict", "maxChars", "minChars", "text", "initText", "align", "equal", "customErrorMessage", "padding"];
+		private const VALID_PROPS:Array = ["title", "type", "selectable", "tabIndex", "required", "restrict", "maxChars", "minChars", "text", "initText", "align", "equal", "customErrorMessage", "padding", "custom"];
 		public const TYPE:String = "textfield";
 		private var objSize:Object = { };
 		

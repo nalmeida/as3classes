@@ -55,6 +55,7 @@
 	public class FormValidator extends EventDispatcher {
 		
 		private var arrToValidate:Array;
+		private var customValidations:Object = {};
 		private var arrButtons:Array;
 		private static var _language:String = "br";
 		public static const EMAIL_REGEX:RegExp = /^[A-Z0-9._%+-]+@(?:[A-Z0-9-]+\.)+[A-Z]{2,4}$/i;
@@ -67,6 +68,9 @@
 		public function addField(fld:*):void {
 			arrToValidate.push(fld);
 		}
+		public function addCustomValidation(name:String, method:Function):void {
+			customValidations[name] = method;
+		}
 		
 		public function addButton(bt:*):void {
 			arrButtons.push(bt);
@@ -78,77 +82,101 @@
 				return _onComplete();
 			}
 			
-			var fld:*;
-			var t:String;
-			var tmp:*;
-			
-			for (var i:int = 0; i < arrToValidate.length; i++) {
-				
-				fld = arrToValidate[i];
-				t = fld.TYPE;
-				
-				if (t === "textfield" || t === "textarea") {
-					
-					/* ---------------------------------------------------------------------- Required */
-					if(fld.required === true) {
-						tmp = _checkRequired(fld);
-						if (tmp !== true) return _onError(tmp);
-					}
-					
-					/* ---------------------------------------------------------------------- Min */
-					if(fld.text != ""){
-						tmp = _checkMinChars(fld);
-						if(tmp !== true) return _onError(tmp);
-					}
-					
-					/* ---------------------------------------------------------------------- Max */
-					if(fld.text != ""){
-						tmp = _checkMaxChars(fld);
-						if(tmp !== true) return _onError(tmp);
-					}
-					
-					/* ---------------------------------------------------------------------- Email */
-					if((fld.restrict == "email" || fld.restrict == "mail") && fld.text != "") {
-						tmp = _checkEmail(fld);
-						if(tmp !== true) return _onError(tmp);
-					}
-					
-					/* ---------------------------------------------------------------------- Equal */
-					if (fld.equal != null && (typeof(fld.equal) == typeof(fld))) {
-						tmp = _checkEqual(fld);
-						if(tmp !== true) return _onError(tmp);
-					}
-					/* ---------------------------------------------------------------------- CPF */
-					if(fld.restrict == "cpf" && fld.text != "") {
-						tmp = _checkCpf(fld);
-						if(tmp !== true) return _onError(tmp);
-					}
-
-					
-				} else if(t === "radiobutton"){
-					/* ---------------------------------------------------------------------- Radio */
-					if(fld.required === true) {
-						tmp = _checkRadio(fld);
-						if(tmp !== true) return _onError(tmp);
-					}
-				} else if(t === "checkbox"){
-					/* ---------------------------------------------------------------------- Check */
-					if(fld.required === true) {
-						tmp = _checkCheck(fld);
-						if(tmp !== true) return _onError(tmp);
-					}
-				} else if(t === "combobox"){
-					/* ---------------------------------------------------------------------- Check */
-					if(fld.required === true) {
-						tmp = _checkCombo(fld);
-						if(tmp !== true) return _onError(tmp);
-					}
+			for (var i:int = 0; Boolean(arrToValidate[i]); i++) {
+				if(!isValid(arrToValidate[i])){
+					return false;
 				}
-				// ELSES
 			}
 			
-			_onComplete();
+			return _onComplete();
 			
+		}
+		public function isValid(fld:*):Boolean{
+			var t:String;
+			var tmp:*;
+			t = fld.TYPE;
+			
+			if (t === "textfield" || t === "textarea") {
+				
+				/* ---------------------------------------------------------------------- Required */
+				if(fld.required === true) {
+					tmp = _checkRequired(fld);
+					if (tmp !== true) return _onError(tmp);
+				}
+				
+				/* ---------------------------------------------------------------------- Min */
+				if(fld.text != ""){
+					tmp = _checkMinChars(fld);
+					if(tmp !== true) return _onError(tmp);
+				}
+				
+				/* ---------------------------------------------------------------------- Max */
+				if(fld.text != ""){
+					tmp = _checkMaxChars(fld);
+					if(tmp !== true) return _onError(tmp);
+				}
+				
+				/* ---------------------------------------------------------------------- Email */
+				if((fld.restrict == "email" || fld.restrict == "mail") && fld.text != "") {
+					tmp = _checkEmail(fld);
+					if(tmp !== true) return _onError(tmp);
+				}
+				
+				/* ---------------------------------------------------------------------- Equal */
+				if (fld.equal != null && (typeof(fld.equal) == typeof(fld))) {
+					tmp = _checkEqual(fld);
+					if(tmp !== true) return _onError(tmp);
+				}
+				/* ---------------------------------------------------------------------- CPF */
+				if(fld.restrict == "cpf" && fld.text != "") {
+					tmp = _checkCpf(fld);
+					if(tmp !== true) return _onError(tmp);
+				}
+
+				
+			} else if(t === "radiobutton"){
+				/* ---------------------------------------------------------------------- Radio */
+				if(fld.required === true) {
+					tmp = _checkRadio(fld);
+					if(tmp !== true) return _onError(tmp);
+				}
+			} else if(t === "checkbox"){
+				/* ---------------------------------------------------------------------- Check */
+				if(fld.required === true) {
+					tmp = _checkCheck(fld);
+					if(tmp !== true) return _onError(tmp);
+				}
+			} else if(t === "combobox"){
+				/* ---------------------------------------------------------------------- Check */
+				if(fld.required === true) {
+					tmp = _checkCombo(fld);
+					if(tmp !== true) return _onError(tmp);
+				}
+			}
+			/* ---------------------------------------------------------------------- Custom Validation */
+			if(fld.hasOwnProperty("custom") && fld.custom is Array) {
+				var customValidation:Function;
+				for (var i:int = 0; Boolean(fld.custom[i]); i++){
+					customValidation = customValidations[fld.custom[i].method];
+					if(customValidation is Function){
+						tmp = customValidation(fld, fld.custom[i].params);
+						if(tmp !== true)
+							return _onError(tmp);
+					}
+				}
+			}
+			return true;
+		}
+		
+		public function getFieldByName(name:String):* {
+			for (var i:int = 0; Boolean(arrToValidate[i]); i++) {
+				if(arrToValidate[i].mc.name == name){
+					return arrToValidate[i];
+				}
+			}
+		}
+		public function isValidByName(name:String):Boolean {
+			return isValid(getFieldByName(name));
 		}
 		
 		public function get language():String {
