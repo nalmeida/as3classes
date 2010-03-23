@@ -53,7 +53,7 @@ package as3classes.ui {
 			 * Slider
 			 */
 			
-			slider = new Slider(mcSlider, mcTrack, false);
+			slider = new Slider(mcSlider, mcTrack, 0, false);
 			slider.addEventListener(SliderEvent.ON_CHANGE, _onScrollChange, false, 0, true);
 			
 			/**
